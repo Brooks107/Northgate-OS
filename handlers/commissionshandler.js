@@ -67,10 +67,13 @@ module.exports = {
         // -------------------------------------------------
         // CLAIM BUTTON
         // -------------------------------------------------
-        if (interaction.isButton() && interaction.customId === "ticket_claim") {
+        if (
+            interaction.isButton() &&
+            (interaction.customId === "ticket_claim" || interaction.customId === "commission_claim")
+        ) {
 
             const isStaff = config.supportTeamRoles.some(roleId =>
-                interaction.member.roles.cache.has(roleId)
+                interaction.member?.roles?.cache?.has(roleId)
             );
 
             if (!isStaff) {
@@ -86,7 +89,7 @@ module.exports = {
 
             const newRow = new ActionRowBuilder().addComponents(
                 new ButtonBuilder()
-                    .setCustomId("ticket_claim")
+                    .setCustomId("commission_claim")
                     .setLabel(`Claimed by ${interaction.user.username}`)
                     .setStyle(ButtonStyle.Primary)
                     .setDisabled(true),
@@ -105,7 +108,10 @@ module.exports = {
         // -------------------------------------------------
         // CLOSE BUTTON → FREE ID + SAFE DELETE
         // -------------------------------------------------
-        if (interaction.isButton() && interaction.customId === "ticket_close") {
+        if (
+            interaction.isButton() &&
+            (interaction.customId === "ticket_close" || interaction.customId === "support_close")
+        ) {
 
             const channel = interaction.channel;
 
@@ -206,7 +212,7 @@ module.exports = {
 
             const buttons = new ActionRowBuilder().addComponents(
                 new ButtonBuilder()
-                    .setCustomId("ticket_claim")
+                    .setCustomId("commission_claim")
                     .setLabel("📝 Claim Ticket")
                     .setStyle(ButtonStyle.Primary),
 

@@ -63,6 +63,47 @@ const {
           }
 
           // -------------------------------------------------
+          // CLAIM BUTTON
+          // -------------------------------------------------
+          if (
+              interaction.isButton() &&
+              (interaction.customId === "ticket_claim" || interaction.customId === "support_claim")
+          ) {
+
+              const isStaff = config.supportTeamRoles.some(roleId =>
+                  interaction.member?.roles?.cache?.has(roleId)
+              );
+
+              if (!isStaff) {
+                  return interaction.reply({
+                      content: "❌ Only staff can claim this ticket.",
+                      ephemeral: true
+                  });
+              }
+
+              await interaction.deferReply({ ephemeral: true });
+
+              const message = interaction.message;
+
+              const newRow = new ActionRowBuilder().addComponents(
+                  new ButtonBuilder()
+                      .setCustomId("support_claim")
+                      .setLabel(`Claimed by ${interaction.user.username}`)
+                      .setStyle(ButtonStyle.Primary)
+                      .setDisabled(true),
+
+                  new ButtonBuilder()
+                      .setCustomId("support_close")
+                      .setLabel("🔒 Close Ticket")
+                      .setStyle(ButtonStyle.Danger)
+              );
+
+              await message.edit({ components: [newRow] });
+
+              return interaction.editReply("📝 You have claimed this ticket.");
+          }
+
+          // -------------------------------------------------
           // SUPPORT MODALS → CREATE TICKET
           // -------------------------------------------------
           if (
@@ -128,7 +169,7 @@ const {
 
               const buttons = new ActionRowBuilder().addComponents(
                   new ButtonBuilder()
-                      .setCustomId("ticket_claim")
+                      .setCustomId("support_claim")
                       .setLabel("📝 Claim Ticket")
                       .setStyle(ButtonStyle.Primary),
 
@@ -163,7 +204,10 @@ const {
           // -------------------------------------------------
           // SUPPORT CLOSE BUTTON → TRANSCRIPT + FREE ID + SAFE DELETE
           // -------------------------------------------------
-          if (interaction.isButton() && interaction.customId === "support_close") {
+          if (
+              interaction.isButton() &&
+              (interaction.customId === "support_close" || interaction.customId === "ticket_close")
+          ) {
 
               const channel = interaction.channel;   // grab it before it gets deleted
 

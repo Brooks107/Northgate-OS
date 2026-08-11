@@ -87,23 +87,30 @@ client.on("interactionCreate", async interaction => {
     }
 
     if (interaction.isButton() || interaction.isModalSubmit()) {
+        const channelName = interaction.channel?.name || "";
 
-        if (
+        const isCommissionTicket =
             interaction.customId === "ticket_commission" ||
             interaction.customId === "modal_ticket_commission" ||
-            interaction.customId === "ticket_claim" ||
-            interaction.customId === "ticket_close"
-        ) {
-            return await commissionsHandler.execute(interaction, client, config);
-        }
+            interaction.customId === "commission_claim" ||
+            (interaction.customId === "ticket_claim" && channelName.startsWith("commission-")) ||
+            (interaction.customId === "ticket_close" && channelName.startsWith("commission-"));
 
-        if (
+        const isSupportTicket =
             interaction.customId === "ticket_support" ||
             interaction.customId === "ticket_appeal" ||
             interaction.customId === "modal_ticket_support" ||
             interaction.customId === "modal_ticket_appeal" ||
-            interaction.customId === "support_close"
-        ) {
+            interaction.customId === "support_claim" ||
+            interaction.customId === "support_close" ||
+            (interaction.customId === "ticket_claim" && (channelName.startsWith("support-") || channelName.startsWith("appeal-"))) ||
+            (interaction.customId === "ticket_close" && (channelName.startsWith("support-") || channelName.startsWith("appeal-")));
+
+        if (isCommissionTicket) {
+            return await commissionsHandler.execute(interaction, client, config);
+        }
+
+        if (isSupportTicket) {
             return await supportHandler.execute(interaction, client, config);
         }
     }
