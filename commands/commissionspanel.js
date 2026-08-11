@@ -7,6 +7,16 @@ module.exports = {
         .setDefaultMemberPermissions(0),
     
     async execute(interaction, client, config) {
+
+        // GLOBAL LOCK CHECK
+        if (config.locked) {
+            return interaction.reply({
+                content: '🚫 NorthGate OS is currently **locked**. Command `/commissionspanel` cannot be used.',
+                ephemeral: true
+            });
+        }
+
+
         await interaction.deferReply({ ephemeral: true });
 
         const row = new ActionRowBuilder().addComponents(

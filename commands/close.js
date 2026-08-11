@@ -15,7 +15,16 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
 
     async execute(interaction, client, config) {
-        await interaction.deferReply();
+
+        // 🔒 GLOBAL LOCK CHECK
+        if (config.locked) {
+            return interaction.reply({
+                content: '🚫 NorthGate OS is currently **locked**. Command `/close` cannot be used.',
+                ephemeral: true
+            });
+        }
+
+        await interaction.deferReply({ ephemeral: true });
 
         const id = interaction.options.getInteger("id");
 
@@ -30,12 +39,14 @@ module.exports = {
             return interaction.editReply(`❌ Ticket #${id} does not exist.`);
         }
 
-        client.activeTicketIds.delete(id);
+        if (client.activeTicketIds.has(id)) {
+            client.activeTicketIds.delete(id);
+        }
 
         await interaction.editReply(`🔒 Ticket #${id} closed.`);
 
         setTimeout(() => {
-            ticketChannel.delete().catch(() => {});
-        }, 1500);
+            interaction.guild.channels.delete(ticketChannel.id).catch(() => {});
+        }, 1000);
     }
 };

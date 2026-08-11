@@ -13,9 +13,17 @@ module.exports = {
     async execute(interaction, client, config) {
 
         // -------------------------------------------------
-        // COMMISSION BUTTON → OPEN MODAL
+        // COMMISSION BUTTON → OPEN MODAL (unless locked)
         // -------------------------------------------------
         if (interaction.isButton() && interaction.customId === "ticket_commission") {
+
+            // 🔒 COMMISSION LOCK CHECK
+            if (config.commissionLocked) {
+                return interaction.reply({
+                    content: "🚫 Commission requests are currently locked.",
+                    flags: 64
+                });
+            }
 
             const modal = new ModalBuilder()
                 .setCustomId("modal_ticket_commission")
@@ -73,7 +81,6 @@ module.exports = {
 
             await interaction.deferReply({ flags: 64 });
 
-            // SAFE: do NOT fetch message content
             const message = interaction.message;
 
             const newRow = new ActionRowBuilder().addComponents(
@@ -99,7 +106,6 @@ module.exports = {
         // -------------------------------------------------
         if (interaction.isButton() && interaction.customId === "ticket_close") {
 
-            // Extract ID from channel name
             const match = interaction.channel.name.match(/^commission-(\d+)-/);
             if (match) {
                 const id = parseInt(match[1]);
@@ -111,7 +117,6 @@ module.exports = {
                 flags: 64
             });
 
-            // SAFE DELETE — avoids Undici crash
             setTimeout(() => {
                 interaction.guild.channels.delete(interaction.channel.id).catch(() => {});
             }, 500);
@@ -121,6 +126,14 @@ module.exports = {
         // COMMISSION MODAL SUBMISSION
         // -------------------------------------------------
         if (interaction.isModalSubmit() && interaction.customId === "modal_ticket_commission") {
+
+            // 🔒 COMMISSION LOCK CHECK (failsafe)
+            if (config.commissionLocked) {
+                return interaction.reply({
+                    content: "🚫 Commission requests are currently locked.",
+                    flags: 64
+                });
+            }
 
             const categoryId = config.commissionsticketcategory;
             const prefix = "commission";

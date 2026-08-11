@@ -4,7 +4,9 @@
 "guildId": "1517978818135195740",
 "channels": {
 "ticketchannelid": "1518198456932503642",
-"transcriptschannelid": "1520357938110140496" 
+"transcriptschannelid": "1520357938110140496" ,
+"locked": false,
+"commissionlocked": false
 },
 "appealsticketcategory": "1536336008029675580",
 "generalticketcategory": "1518259299766374410",

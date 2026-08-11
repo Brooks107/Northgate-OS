@@ -12,6 +12,15 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
 
     async execute(interaction, client, config) {
+
+        // 🔒 GLOBAL LOCK CHECK
+        if (config.locked) {
+            return interaction.reply({
+                content: '🚫 NorthGate OS is currently **locked**. Command `/unclaim` cannot be used.',
+                ephemeral: true
+            });
+        }
+
         await interaction.deferReply({ ephemeral: true });
 
 
