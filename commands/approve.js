@@ -4,7 +4,8 @@ const {
     ActionRowBuilder,
     ButtonBuilder,
     ButtonStyle,
-    EmbedBuilder
+    EmbedBuilder,
+    ChannelType
 } = require("discord.js");
 
 module.exports = {
@@ -88,9 +89,12 @@ module.exports = {
         }
 
         // -------------------------------------------------
-        // CREATE THREAD IN ACTIVE COMMISSIONS CHANNEL
+        // CREATE FORUM THREAD / POST IN ACTIVE COMMISSIONS CHANNEL
         // -------------------------------------------------
-        const activeCommissionsChannel = interaction.guild.channels.cache.get(config.activeCommissionsChannelId);
+        const activeCommissionsChannelId = config?.channels?.activeCommissionsChannel || config?.activeCommissionsChannel;
+        const activeCommissionsChannel = activeCommissionsChannelId
+            ? interaction.guild.channels.cache.get(activeCommissionsChannelId)
+            : null;
 
         if (!activeCommissionsChannel) {
             return interaction.editReply("⚠️ Active commissions channel is missing from config.");
@@ -98,8 +102,13 @@ module.exports = {
 
         const thread = await activeCommissionsChannel.threads.create({
             name: `commission-${id}`,
-            autoArchiveDuration: 10080, // 7 days
-            reason: "Commission approved"
+            autoArchiveDuration: 10080,
+            reason: "Commission approved",
+            message: {
+                content: `📝 **Commission #${id} is now active.**`,
+                embeds: [embed],
+                components: [row]
+            }
         });
 
         // -------------------------------------------------
@@ -124,11 +133,13 @@ module.exports = {
                 .setStyle(ButtonStyle.Success)
         );
 
-        await thread.send({
-            content: `📝 **Commission #${id} is now active.**`,
-            embeds: [embed],
-            components: [row]
-        });
+        if (!activeCommissionsChannel.isThread()) {
+            await thread.send({
+                content: `📝 **Commission #${id} is now active.**`,
+                embeds: [embed],
+                components: [row]
+            });
+        }
 
         // -------------------------------------------------
         // CLEAN UP ACTIVE ID
