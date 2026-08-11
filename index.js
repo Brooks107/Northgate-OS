@@ -5,6 +5,7 @@ const { Client, GatewayIntentBits, REST, Routes } = require("discord.js");
 
 const supportHandler = require("./handlers/supporthandler");
 const commissionsHandler = require("./handlers/commissionshandler");
+const gitSync = require("./git-sync");
 
 // -------------------------------------------------
 // Auto‑register slash commands BEFORE login
@@ -112,3 +113,18 @@ client.on("interactionCreate", async interaction => {
 // -------------------------------------------------
 
 client.login(config.token);
+
+// -------------------------------------------------
+// Automatic git sync from remote updates
+// -------------------------------------------------
+
+gitSync.startAutoSync(config.gitSync, {
+    // Close the gateway connection cleanly before pm2 restarts us.
+    onBeforeRestart: async () => {
+        try {
+            await client.destroy();
+        } catch {
+            /* already disconnected */
+        }
+    }
+});
