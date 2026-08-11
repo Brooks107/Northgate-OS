@@ -4,7 +4,7 @@ const {
     ActionRowBuilder,
     ButtonBuilder,
     ButtonStyle,
-    EmbedBuilder
+    ChannelType
 } = require("discord.js");
 
 module.exports = {
@@ -14,16 +14,6 @@ module.exports = {
         .addIntegerOption(option =>
             option.setName("id")
                 .setDescription("The commission ticket ID to approve")
-                .setRequired(true)
-        )
-        .addStringOption(option =>
-            option.setName("commissioner")
-                .setDescription("Person requesting the commission")
-                .setRequired(true)
-        )
-        .addStringOption(option =>
-            option.setName("payment")
-                .setDescription("Payment agreed for the commission")
                 .setRequired(true)
         )
         .addStringOption(option =>
@@ -46,8 +36,6 @@ module.exports = {
         await interaction.deferReply({ ephemeral: true });
 
         const id = interaction.options.getInteger("id");
-        const commissioner = interaction.options.getString("commissioner");
-        const payment = interaction.options.getString("payment");
         const message = interaction.options.getString("message") || "Your commission has been approved.";
 
         // -------------------------------------------------
@@ -90,31 +78,29 @@ module.exports = {
         // -------------------------------------------------
         // CREATE THREAD IN ACTIVE COMMISSIONS CHANNEL
         // -------------------------------------------------
-        const activeCommissionsChannel = interaction.guild.channels.cache.get(config.channels.activeCommissionsChannelId);
+        const activeCommissionsChannelId =
+            config?.channels?.activeCommissionsChannelId ??
+            config?.channels?.activeCommissionsChannel ??
+            config?.activeCommissionsChannelId ??
+            config?.activeCommissionsChannel;
+
+        const activeCommissionsChannel = activeCommissionsChannelId
+            ? await interaction.guild.channels.fetch(activeCommissionsChannelId).catch(() => null)
+            : null;
 
         if (!activeCommissionsChannel) {
-            return interaction.editReply("⚠️ Active commissions channel is missing from config.");
+            return interaction.editReply("⚠️ Active commissions channel is missing from config or cannot be accessed.");
+        }
+
+        if (activeCommissionsChannel.type !== ChannelType.GuildForum) {
+            return interaction.editReply("⚠️ Active commissions channel must be a forum channel.");
         }
 
         const thread = await activeCommissionsChannel.threads.create({
             name: `commission-${id}`,
-            autoArchiveDuration: 10080, // 7 days
+            autoArchiveDuration: 10080,
             reason: "Commission approved"
         });
-
-        // -------------------------------------------------
-        // EMBED FOR COMMISSION DETAILS
-        // -------------------------------------------------
-        const channelId = config.channels?.activeCommissionsChannelId ?? config.activeCommissionsChannelId;
-        const activeCommissionsChannel = interaction.guild.channels.cache.get(channelId);
-        const embed = new EmbedBuilder()
-            .setTitle(`Commission #${id} Details`)
-            .setColor("Green")
-            .addFields(
-                { name: "Commissioner", value: commissioner, inline: true },
-                { name: "Payment Decided", value: payment, inline: true }
-            )
-            .setTimestamp();
 
         // -------------------------------------------------
         // BUTTON: COMPLETE
@@ -126,13 +112,10 @@ module.exports = {
                 .setStyle(ButtonStyle.Success)
         );
 
-        if (!activeCommissionsChannel.isThread()) {
-            await thread.send({
-                content: `📝 **Commission #${id} is now active.**`,
-                embeds: [embed],
-                components: [row]
-            });
-        }
+        await thread.send({
+            content: `📝 **Commission #${id} is now active.**\nClick below when the commission is complete.`,
+            components: [row]
+        });
 
         // -------------------------------------------------
         // CLEAN UP ACTIVE ID
