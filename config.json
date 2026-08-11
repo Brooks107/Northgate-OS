@@ -1,38 +1,38 @@
 {
-"token": "MTUzNjI3OTg3MjEyNzc2MjQ5Mg.GS53YJ.W4HRCadojRo9YUal0jPPOnKkkiYNJBbbXNsS00",
-"clientId": "1536279872127762492",
-"guildId": "1517978818135195740",
-"channels": {
-"ticketchannelid": "1518198456932503642",
-"transcriptschannelid": "1520357938110140496" ,
-"locked": false,
-"activeCommissionsChannel": "1518980146143559701",
-"commissionlocked": false
-},
-"appealsticketcategory": "1536336008029675580",
-"generalticketcategory": "1518259299766374410",
-"commissionsticketcategory": "1518256130432831531",
-"reportsticketcategory": "1518259254916677632",
-"supportTeamRoles": [
-    "1522596266125688902",
-    "1518065237771685928",
-    "1517982021782339684",
-    "1535764196459806850"
-
-],
-"commissionticketaccess": [
-    "1517982021782339684",
-    "1535764196459806850",
-    "1517978929661612233",
-    "1534327769599574066"
-],
-"gitSync": {
-    "enabled": true,
-    "intervalSeconds": 15,
-    "remote": "origin",
-    "branch": "main",
-    "autoInstall": true,
-    "hardReset": false,
-    "restartOnUpdate": true
-}
+    "token": "MTUzNjI3OTg3MjEyNzc2MjQ5Mg.GS53YJ.W4HRCadojRo9YUal0jPPOnKkkiYNJBbbXNsS00",
+    "clientId": "1536279872127762492",
+    "guildId": "1517978818135195740",
+    "channels": {
+        "ticketchannelid": "1518198456932503642",
+        "transcriptschannelid": "1520357938110140496",
+        "locked": false,
+        "activeCommissionsChannel": "1518980146143559701",
+        "commissionlocked": false
+    },
+    "appealsticketcategory": "1536336008029675580",
+    "generalticketcategory": "1518259299766374410",
+    "commissionsticketcategory": "1518256130432831531",
+    "reportsticketcategory": "1518259254916677632",
+    "supportTeamRoles": [
+        "1522596266125688902",
+        "1518065237771685928",
+        "1517982021782339684",
+        "1535764196459806850"
+    ],
+    "commissionticketaccess": [
+        "1517982021782339684",
+        "1535764196459806850",
+        "1517978929661612233",
+        "1534327769599574066"
+    ],
+    "gitSync": {
+        "enabled": true,
+        "intervalSeconds": 15,
+        "remote": "origin",
+        "branch": "main",
+        "autoInstall": true,
+        "hardReset": false,
+        "restartOnUpdate": true
+    },
+    "commissionLocked": false
 }
