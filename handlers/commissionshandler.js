@@ -224,10 +224,10 @@ module.exports = {
                         color: 0x00aaff,
                         fields: [
                             { name: "👤 User", value: interaction.user.tag, inline: true },
-                            { name: "📏 Map Size", value: mapSize },
-                            { name: "💵 Payment (No Tax)", value: payment },
-                            { name: "⏳ Wait Time", value: waitTime },
-                            { name: "🎨 Quality Level", value: quality }
+                            { name: "📏 Map Size", value: mapSize,  inline: true },
+                            { name: "💵 Payment (No Tax)", value: payment, inline: true },
+                            { name: "⏳ Wait Time", value: waitTime, inline: true },
+                            { name: "🎨 Quality Level", value: quality, inline: true }
                         ]
                     }
                 ],
