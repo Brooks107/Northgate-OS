@@ -146,6 +146,6 @@ module.exports = {
         // -------------------------------------------------
         // CONFIRM TO STAFF
         // -------------------------------------------------
-        await interaction.editReply(`✅ Commission ticket #${id} approved. Thread created in active commissions.`);
+        await interaction.editReply(`✅ Commission ticket #${id} approved.`);
     }
 };
