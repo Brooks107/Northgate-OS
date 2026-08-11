@@ -24,5 +24,14 @@
     "1535764196459806850",
     "1517978929661612233",
     "1534327769599574066"
-]
+],
+"gitSync": {
+    "enabled": true,
+    "intervalSeconds": 15,
+    "remote": "origin",
+    "branch": "main",
+    "autoInstall": true,
+    "hardReset": false,
+    "restartOnUpdate": true
+}
 }
