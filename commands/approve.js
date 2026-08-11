@@ -17,6 +17,16 @@ module.exports = {
                 .setRequired(true)
         )
         .addStringOption(option =>
+            option.setName("commissioner")
+                .setDescription("Person requesting the commission")
+                .setRequired(true)
+        )
+        .addStringOption(option =>
+            option.setName("payment")
+                .setDescription("Payment agreed for the commission")
+                .setRequired(true)
+        )
+        .addStringOption(option =>
             option.setName("message")
                 .setDescription("Optional approval message")
                 .setRequired(false)
@@ -36,10 +46,12 @@ module.exports = {
         await interaction.deferReply({ ephemeral: true });
 
         const id = interaction.options.getInteger("id");
+        const commissioner = interaction.options.getString("commissioner");
+        const payment = interaction.options.getString("payment");
         const message = interaction.options.getString("message") || "Your commission has been approved.";
 
         // -------------------------------------------------
-        // FIND COMMISSION TICKET ONLY
+        // FIND COMMISSION TICKET CHANNEL
         // -------------------------------------------------
         const ticketChannel = interaction.guild.channels.cache.find(
             ch => ch.name.startsWith(`commission-${id}-`)
@@ -50,7 +62,7 @@ module.exports = {
         }
 
         // -------------------------------------------------
-        // GET USER ID FROM CHANNEL TOPIC
+        // GET USER FROM CHANNEL TOPIC
         // -------------------------------------------------
         const userId = ticketChannel.topic;
         let user = null;
@@ -76,7 +88,7 @@ module.exports = {
         }
 
         // -------------------------------------------------
-        // CREATE THREAD IN ACTIVE COMMISSIONS CHANNEL
+        // RESOLVE ACTIVE COMMISSIONS CHANNEL
         // -------------------------------------------------
         const activeCommissionsChannelId =
             config?.channels?.activeCommissionsChannelId ??
@@ -96,14 +108,8 @@ module.exports = {
             return interaction.editReply("⚠️ Active commissions channel must be a forum channel.");
         }
 
-        const thread = await activeCommissionsChannel.threads.create({
-            name: `commission-${id}`,
-            autoArchiveDuration: 10080,
-            reason: "Commission approved"
-        });
-
         // -------------------------------------------------
-        // BUTTON: COMPLETE
+        // BUTTON ROW
         // -------------------------------------------------
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
@@ -112,9 +118,24 @@ module.exports = {
                 .setStyle(ButtonStyle.Success)
         );
 
-        await thread.send({
-            content: `📝 **Commission #${id} is now active.**\nClick below when the commission is complete.`,
-            components: [row]
+        // -------------------------------------------------
+        // CREATE FORUM THREAD WITH EMBED
+        // -------------------------------------------------
+        const thread = await activeCommissionsChannel.threads.create({
+            name: `commission-${id}`,
+            autoArchiveDuration: 10080,
+            reason: "Commission approved",
+            message: {
+                content: `📝 **Commission #${id} is now active.**`,
+                embeds: [
+                    {
+                        title: `Commission #${id} - ${commissioner}`,
+                        description: `Commission approved for **${payment}**.\n\n${message}`,
+                        color: 0x00ff00
+                    }
+                ],
+                components: [row]
+            }
         });
 
         // -------------------------------------------------
