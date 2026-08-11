@@ -1,6 +1,9 @@
 const {
     SlashCommandBuilder,
-    PermissionFlagsBits
+    PermissionFlagsBits,
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle
 } = require("discord.js");
 
 module.exports = {
@@ -48,21 +51,58 @@ module.exports = {
         // -------------------------------------------------
         // GET USER ID FROM CHANNEL TOPIC
         // -------------------------------------------------
-        const userId = ticketChannel.topic; // You store user ID here
-
+        const userId = ticketChannel.topic;
         let user = null;
+
         if (userId) {
             user = await interaction.client.users.fetch(userId).catch(() => null);
         }
 
         // -------------------------------------------------
-        // SEND DM TO USER
+        // SEND ACCEPTANCE MESSAGE IN ORIGINAL TICKET
+        // -------------------------------------------------
+        await ticketChannel.send({
+            content: `✅ **Your commission has been accepted!**\n${message}`
+        });
+
+        // -------------------------------------------------
+        // SEND DM TO USER (optional)
         // -------------------------------------------------
         if (user) {
             user.send({
                 content: `✅ Your commission ticket (#${id}) has been **approved**.\n${message}`
             }).catch(() => {});
         }
+
+        // -------------------------------------------------
+        // CREATE THREAD IN ACTIVE COMMISSIONS CHANNEL
+        // -------------------------------------------------
+        const activeCommissionsChannel = interaction.guild.channels.cache.get(config.activeCommissionsChannelId);
+
+        if (!activeCommissionsChannel) {
+            return interaction.editReply("⚠️ Active commissions channel is missing from config.");
+        }
+
+        const thread = await activeCommissionsChannel.threads.create({
+            name: `commission-${id}`,
+            autoArchiveDuration: 10080, // 7 days
+            reason: "Commission approved"
+        });
+
+        // -------------------------------------------------
+        // BUTTON: COMPLETE
+        // -------------------------------------------------
+        const row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setCustomId(`commission_complete_${id}`)
+                .setLabel("Complete")
+                .setStyle(ButtonStyle.Success)
+        );
+
+        await thread.send({
+            content: `📝 **Commission #${id} is now active.**\nClick below when the commission is complete.`,
+            components: [row]
+        });
 
         // -------------------------------------------------
         // CLEAN UP ACTIVE ID
@@ -72,13 +112,6 @@ module.exports = {
         // -------------------------------------------------
         // CONFIRM TO STAFF
         // -------------------------------------------------
-        await interaction.editReply(`✅ Commission ticket #${id} approved.`);
-
-        // -------------------------------------------------
-        // SAFE DELETE
-        // -------------------------------------------------
-        setTimeout(() => {
-            interaction.guild.channels.delete(ticketChannel.id).catch(() => {});
-        }, 1000);
+        await interaction.editReply(`✅ Commission ticket #${id} approved. Thread created in active commissions.`);
     }
 };

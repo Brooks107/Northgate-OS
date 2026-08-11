@@ -48,12 +48,19 @@ module.exports = {
         // -------------------------------------------------
         // GET USER ID FROM CHANNEL TOPIC
         // -------------------------------------------------
-        const userId = ticketChannel.topic; // You store user ID here
+        const userId = ticketChannel.topic;
 
         let user = null;
         if (userId) {
             user = await interaction.client.users.fetch(userId).catch(() => null);
         }
+
+        // -------------------------------------------------
+        // POST DENIAL MESSAGE IN THE TICKET
+        // -------------------------------------------------
+        await ticketChannel.send({
+            content: `❌ **Your commission has been denied.**\n**Reason:** ${reason}`
+        });
 
         // -------------------------------------------------
         // SEND DM TO USER
@@ -72,13 +79,6 @@ module.exports = {
         // -------------------------------------------------
         // CONFIRM TO STAFF
         // -------------------------------------------------
-        await interaction.editReply(`❌ Commission ticket #${id} denied.`);
-
-        // -------------------------------------------------
-        // SAFE DELETE
-        // -------------------------------------------------
-        setTimeout(() => {
-            interaction.guild.channels.delete(ticketChannel.id).catch(() => {});
-        }, 1000);
+        await interaction.editReply(`❌ Commission ticket #${id} denied. A denial message has been posted in the ticket.`);
     }
 };
