@@ -1,10 +1,4 @@
-const {
-    SlashCommandBuilder,
-    PermissionFlagsBits,
-    ActionRowBuilder,
-    ButtonBuilder,
-    ButtonStyle
-} = require("discord.js");
+const { SlashCommandBuilder, PermissionFlagsBits, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -19,6 +13,7 @@ module.exports = {
 
     async execute(interaction, client, config) {
 
+        // 🔒 GLOBAL LOCK CHECK
         if (config.locked) {
             return interaction.reply({
                 content: '🚫 NorthGate OS is currently **locked**. Command `/unclaim` cannot be used.',
@@ -28,52 +23,31 @@ module.exports = {
 
         await interaction.deferReply({ ephemeral: true });
 
+
+
+
         const id = interaction.options.getInteger("id");
 
-        const ticketChannel = interaction.guild.channels.cache.find(ch =>
-            ch.name.startsWith(`commission-${id}-`) ||
-            ch.name.startsWith(`support-${id}-`) ||
-            ch.name.startsWith(`appeal-${id}-`)
+        // FIXED: match commission-{id}-{username}
+        const ticketChannel = interaction.guild.channels.cache.find( ch =>
+        ch.name.startsWith(`commission-${id}-`) ||
+        ch.name.startsWith(`support-${id}-`) ||
+        ch.name.startsWith(`appeal-${id}-`)
         );
 
         if (!ticketChannel) {
             return interaction.editReply(`❌ Ticket #${id} does not exist.`);
         }
 
-        // -------------------------------------------------
-        // FIND THE EMBED MESSAGE (bulletproof scan)
-        // -------------------------------------------------
-
-        let ticketMessage = null;
-        let lastId = null;
-
-        while (!ticketMessage) {
-            const fetched = await ticketChannel.messages.fetch({ limit: 100, before: lastId });
-            if (fetched.size === 0) break;
-
-            ticketMessage = fetched.find(m =>
-                m.embeds.length > 0 &&
-                m.embeds[0].title &&
-                m.embeds[0].title.includes(`#${id}`)
-            );
-
-            lastId = fetched.last().id;
-        }
+        // Fetch the ticket message (first bot message in the channel)
+        const messages = await ticketChannel.messages.fetch({ limit: 10 });
+        const ticketMessage = messages.find(m => m.author.id === client.user.id);
 
         if (!ticketMessage) {
-            return interaction.editReply("❌ Could not find the ticket message (embed missing).");
+            return interaction.editReply("❌ Could not find the ticket message.");
         }
 
-        // -------------------------------------------------
-        // DELETE OLD MESSAGE (fixes all edit issues)
-        // -------------------------------------------------
-
-        await ticketMessage.delete().catch(() => {});
-
-        // -------------------------------------------------
-        // SEND NEW MESSAGE WITH ORIGINAL BUTTONS
-        // -------------------------------------------------
-
+        // Rebuild the original buttons
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId("ticket_claim")
@@ -86,11 +60,9 @@ module.exports = {
                 .setStyle(ButtonStyle.Danger)
         );
 
-        await ticketChannel.send({
-            content: `📝 **Commission Request #${id}**\nThis ticket is now unclaimed.`,
-            components: [row]
-        });
+        await ticketMessage.edit({ components: [row] });
 
         return interaction.editReply(`✅ Ticket #${id} has been unclaimed.`);
     }
 };
+    
