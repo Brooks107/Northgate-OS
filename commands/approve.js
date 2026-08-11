@@ -89,29 +89,6 @@ module.exports = {
         }
 
         // -------------------------------------------------
-        // CREATE FORUM THREAD / POST IN ACTIVE COMMISSIONS CHANNEL
-        // -------------------------------------------------
-        const activeCommissionsChannelId = config?.channels?.activeCommissionsChannel || config?.activeCommissionsChannel;
-        const activeCommissionsChannel = activeCommissionsChannelId
-            ? interaction.guild.channels.cache.get(activeCommissionsChannelId)
-            : null;
-
-        if (!activeCommissionsChannel) {
-            return interaction.editReply("⚠️ Active commissions channel is missing from config.");
-        }
-
-        const thread = await activeCommissionsChannel.threads.create({
-            name: `commission-${id}`,
-            autoArchiveDuration: 10080,
-            reason: "Commission approved",
-            message: {
-                content: `📝 **Commission #${id} is now active.**`,
-                embeds: [embed],
-                components: [row]
-            }
-        });
-
-        // -------------------------------------------------
         // EMBED FOR COMMISSION DETAILS
         // -------------------------------------------------
         const embed = new EmbedBuilder()
@@ -133,7 +110,34 @@ module.exports = {
                 .setStyle(ButtonStyle.Success)
         );
 
-        if (!activeCommissionsChannel.isThread()) {
+        // -------------------------------------------------
+        // CREATE FORUM THREAD / POST IN ACTIVE COMMISSIONS CHANNEL
+        // -------------------------------------------------
+        const activeCommissionsChannelId = config?.channels?.activeCommissionsChannel || config?.activeCommissionsChannel;
+        const activeCommissionsChannel = activeCommissionsChannelId
+            ? await interaction.guild.channels.fetch(activeCommissionsChannelId).catch(() => null)
+            : null;
+
+        if (!activeCommissionsChannel) {
+            return interaction.editReply("⚠️ Active commissions channel is missing from config or cannot be accessed.");
+        }
+
+        if (activeCommissionsChannel.type !== ChannelType.GuildForum) {
+            return interaction.editReply("⚠️ The active commissions channel must be a forum channel.");
+        }
+
+        const thread = await activeCommissionsChannel.threads.create({
+            name: `commission-${id}`,
+            autoArchiveDuration: 10080,
+            reason: "Commission approved",
+            message: {
+                content: `📝 **Commission #${id} is now active.**`,
+                embeds: [embed],
+                components: [row]
+            }
+        });
+
+        if (thread && thread.isThread()) {
             await thread.send({
                 content: `📝 **Commission #${id} is now active.**`,
                 embeds: [embed],
