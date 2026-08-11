@@ -3,7 +3,8 @@ const {
     PermissionFlagsBits,
     ActionRowBuilder,
     ButtonBuilder,
-    ButtonStyle
+    ButtonStyle,
+    EmbedBuilder
 } = require("discord.js");
 
 module.exports = {
@@ -13,6 +14,16 @@ module.exports = {
         .addIntegerOption(option =>
             option.setName("id")
                 .setDescription("The commission ticket ID to approve")
+                .setRequired(true)
+        )
+        .addStringOption(option =>
+            option.setName("commissioner")
+                .setDescription("Person requesting the commission")
+                .setRequired(true)
+        )
+        .addStringOption(option =>
+            option.setName("payment")
+                .setDescription("Payment agreed for the commission")
                 .setRequired(true)
         )
         .addStringOption(option =>
@@ -35,6 +46,8 @@ module.exports = {
         await interaction.deferReply({ ephemeral: true });
 
         const id = interaction.options.getInteger("id");
+        const commissioner = interaction.options.getString("commissioner");
+        const payment = interaction.options.getString("payment");
         const message = interaction.options.getString("message") || "Your commission has been approved.";
 
         // -------------------------------------------------
@@ -90,6 +103,18 @@ module.exports = {
         });
 
         // -------------------------------------------------
+        // EMBED FOR COMMISSION DETAILS
+        // -------------------------------------------------
+        const embed = new EmbedBuilder()
+            .setTitle(`Commission #${id} Details`)
+            .setColor("Green")
+            .addFields(
+                { name: "Commissioner", value: commissioner, inline: true },
+                { name: "Payment Decided", value: payment, inline: true }
+            )
+            .setTimestamp();
+
+        // -------------------------------------------------
         // BUTTON: COMPLETE
         // -------------------------------------------------
         const row = new ActionRowBuilder().addComponents(
@@ -100,7 +125,8 @@ module.exports = {
         );
 
         await thread.send({
-            content: `📝 **Commission #${id} is now active.**\nClick below when the commission is complete.`,
+            content: `📝 **Commission #${id} is now active.**`,
+            embeds: [embed],
             components: [row]
         });
 
