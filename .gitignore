@@ -1,0 +1,3 @@
+# Local record of which command set was last pushed to Discord.
+# Per-device, must never sync between machines.
+.command-cache.json
