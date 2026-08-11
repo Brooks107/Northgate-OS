@@ -6,7 +6,8 @@ const {
     ChannelType,
     PermissionFlagsBits,
     ButtonBuilder,
-    ButtonStyle
+    ButtonStyle,
+    AttachmentBuilder
 } = require("discord.js");
 
 module.exports = {
@@ -106,20 +107,24 @@ module.exports = {
         // -------------------------------------------------
         if (interaction.isButton() && interaction.customId === "ticket_close") {
 
-            const match = interaction.channel.name.match(/^commission-(\d+)-/);
+            const channel = interaction.channel;
+
+            const match = channel.name.match(/^commission-(\d+)-/);
             if (match) {
                 const id = parseInt(match[1]);
                 client.activeTicketIds.delete(id);
             }
 
             await interaction.reply({
-                content: "🔒 Closing ticket...",
+                content: "🔒 Ticket closed. Saving transcript...",
                 flags: 64
             });
 
+            await saveTranscript(channel, interaction.user, config);
+
             setTimeout(() => {
-                interaction.guild.channels.delete(interaction.channel.id).catch(() => {});
-            }, 500);
+                interaction.guild.channels.delete(channel.id).catch(() => {});
+            }, 3000);
         }
 
         // -------------------------------------------------
@@ -236,3 +241,67 @@ module.exports = {
         }
     }
 };
+
+async function saveTranscript(channel, closedBy, config) {
+    try {
+        const all = [];
+        let lastId = null;
+
+        while (true) {
+            const options = { limit: 100 };
+            if (lastId) options.before = lastId;
+
+            const batch = await channel.messages.fetch(options);
+            if (batch.size === 0) break;
+
+            all.push(...batch.values());
+            lastId = batch.last().id;
+        }
+
+        const messages = all.reverse();
+
+        const lines = [];
+        lines.push(`Transcript for #${channel.name}`);
+        lines.push(`Closed by: ${closedBy.tag}`);
+        lines.push(`Saved: ${new Date().toLocaleString()}`);
+        lines.push(`Messages: ${messages.length}`);
+        lines.push("=".repeat(50));
+        lines.push("");
+
+        for (const msg of messages) {
+            const time = msg.createdAt.toLocaleString();
+            lines.push(`[${time}] ${msg.author.tag}: ${msg.content || "(no text)"}`);
+
+            for (const att of msg.attachments.values()) {
+                lines.push(`    [file] ${att.name}: ${att.url}`);
+            }
+            for (const emb of msg.embeds) {
+                lines.push(`    [embed] ${emb.title || ""} ${emb.description || ""}`);
+            }
+        }
+
+        const file = new AttachmentBuilder(
+            Buffer.from(lines.join("\n"), "utf-8"),
+            { name: `${channel.name}-transcript.txt` }
+        );
+
+        const transcriptChannelId = config?.channels?.transcriptschannelid || config?.transcriptschannelid;
+        const logChannel = transcriptChannelId
+            ? await channel.guild.channels.fetch(transcriptChannelId).catch(() => null)
+            : null;
+
+        if (!logChannel) {
+            console.error("Transcript failed: transcriptschannelid is wrong or the bot can't see that channel.");
+            return;
+        }
+
+        await logChannel.send({
+            content: `📄 Transcript for **${channel.name}** (closed by ${closedBy.tag})`,
+            files: [file],
+            allowedMentions: { parse: [] }
+        });
+
+    } catch (err) {
+        console.error("Transcript failed:", err);
+    }
+}

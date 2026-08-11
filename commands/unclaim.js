@@ -40,8 +40,13 @@ module.exports = {
         }
 
         // Fetch the ticket message (first bot message in the channel)
-        const messages = await ticketChannel.messages.fetch({ limit: 10 });
-        const ticketMessage = messages.find(m => m.author.id === client.user.id);
+        const messages = await ticketChannel.messages.fetch({ limit: 1000000 });
+        const ticketMessage = messages.find(m =>
+            m.embeds.length > 0 &&
+            m.embeds[0].title &&
+            m.embeds[0].title.includes(`#${id}`)
+        );
+
 
         if (!ticketMessage) {
             return interaction.editReply("❌ Could not find the ticket message.");
