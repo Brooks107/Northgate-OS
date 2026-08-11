@@ -3,7 +3,7 @@ module.exports = {
     {
       name: 'northgate-os',
 
-      cwd: '/home/westcliff7799/northgate-studios-bot/Northgate-OS',
+      cwd: '/home/westcliff7799/Northgate-OS',
       script: 'index.js',
 
       exec_mode: 'fork',
