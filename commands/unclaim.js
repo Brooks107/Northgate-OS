@@ -1,4 +1,6 @@
-const { SlashCommandBuilder, PermissionFlagsBits, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
+const { SlashCommandBuilder, PermissionFlagsBits, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } = require("discord.js");
+
+const ticketTopic = require("../ticket-topic");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -16,11 +18,11 @@ module.exports = {
         if (config.locked) {
             return interaction.reply({
                 content: '🚫 NorthGate OS is currently **locked**. Command `/unclaim` cannot be used.',
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             });
         }
 
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         const id = interaction.options.getInteger("id");
 
@@ -74,6 +76,14 @@ module.exports = {
             embeds: ticketMessage.embeds, // keep original embed
             components: [row]
         });
+
+        // -------------------------------------------------
+        // CLEAR THE CLAIM FROM THE CHANNEL TOPIC
+        // -------------------------------------------------
+        // Without this the topic keeps saying claimed:<id>, so /claim refuses the
+        // ticket forever -- the buttons come back but the command never works.
+        const { ownerId } = ticketTopic.parse(ticketChannel.topic);
+        await ticketChannel.setTopic(ticketTopic.build({ ownerId }));
 
         return interaction.editReply(`✅ Ticket #${id} has been unclaimed.`);
     }

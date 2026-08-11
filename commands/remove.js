@@ -1,6 +1,7 @@
-    const {
+const {
     SlashCommandBuilder,
-    PermissionFlagsBits
+    PermissionFlagsBits,
+    MessageFlags
 } = require("discord.js");
 
 module.exports = {
@@ -20,7 +21,7 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
 
     async execute(interaction, client, config) {
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         const id = interaction.options.getInteger("id");
         const user = interaction.options.getUser("user");
@@ -56,25 +57,6 @@ module.exports = {
             SendMessages: false,
             ReadMessageHistory: false
         });
-
-        // -------------------------------------------------
-        // UPDATE EMBED BUTTON (UNCLAIM)
-        // -------------------------------------------------
-        try {
-            const msg = await ticketChannel.messages.fetch(config.ticketMessageId);
-            const row = msg.components[0];
-
-            const updatedRow = row.toJSON();
-            updatedRow.components.forEach(btn => {
-                if (btn.custom_id === `claim_${id}`) {
-                    btn.disabled = false;
-                }
-            });
-
-            await msg.edit({ components: [updatedRow] });
-        } catch (err) {
-            console.log("Button update failed:", err);
-        }
 
         // -------------------------------------------------
         // CONFIRMATION

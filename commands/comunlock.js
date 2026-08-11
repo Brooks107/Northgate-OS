@@ -1,6 +1,6 @@
-const { SlashCommandBuilder } = require("discord.js");
-const fs = require("fs");
+const { SlashCommandBuilder, MessageFlags } = require("discord.js");
 const config = require("../config.json");
+const state = require("../state");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -8,13 +8,14 @@ module.exports = {
         .setDescription("Unlocks the commission button so commission tickets can be opened."),
 
     async execute(interaction) {
-
         config.commissionLocked = false;
-        fs.writeFileSync("./config.json", JSON.stringify(config, null, 4));
+        const saved = state.save({ commissionLocked: false });
 
         await interaction.reply({
-            content: "🔓 Commission system unlocked. The commission button is now enabled.",
-            ephemeral: true
+            content: saved
+                ? "🔓 Commission system unlocked. The commission button is now enabled."
+                : "🔓 Commission system unlocked.\n⚠️ Could not save to disk, so this will reset on the next restart.",
+            flags: MessageFlags.Ephemeral
         });
     }
 };

@@ -1,7 +1,10 @@
 const {
     SlashCommandBuilder,
-    PermissionFlagsBits
+    PermissionFlagsBits,
+    MessageFlags
 } = require("discord.js");
+
+const ticketTopic = require("../ticket-topic");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -25,11 +28,11 @@ module.exports = {
         if (config.locked) {
             return interaction.reply({
                 content: "🚫 NorthGate OS is currently **locked**. Command `/deny` cannot be used.",
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             });
         }
 
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         const id = interaction.options.getInteger("id");
         const reason = interaction.options.getString("reason");
@@ -46,13 +49,13 @@ module.exports = {
         }
 
         // -------------------------------------------------
-        // GET USER ID FROM CHANNEL TOPIC
+        // GET THE TICKET OPENER FROM THE CHANNEL TOPIC
         // -------------------------------------------------
-        const userId = ticketChannel.topic;
+        const { ownerId } = ticketTopic.parse(ticketChannel.topic);
 
         let user = null;
-        if (userId) {
-            user = await interaction.client.users.fetch(userId).catch(() => null);
+        if (ownerId) {
+            user = await interaction.client.users.fetch(ownerId).catch(() => null);
         }
 
         // -------------------------------------------------
@@ -72,13 +75,10 @@ module.exports = {
         }
 
         // -------------------------------------------------
-        // CLEAN UP ACTIVE ID
-        // -------------------------------------------------
-        client.activeTicketIds.delete(id);
-
-        // -------------------------------------------------
         // CONFIRM TO STAFF
         // -------------------------------------------------
+        // The ticket ID stays reserved while commission-<id>-<user> still exists;
+        // /close frees it when the channel is actually deleted.
         await interaction.editReply(`❌ Commission ticket #${id} denied. A denial message has been posted in the ticket.`);
     }
 };

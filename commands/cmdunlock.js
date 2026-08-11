@@ -1,6 +1,6 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, MessageFlags } = require('discord.js');
 const config = require('../config.json');
-const fs = require('fs');
+const state = require('../state');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -9,8 +9,13 @@ module.exports = {
 
     async execute(interaction) {
         config.locked = false;
-        fs.writeFileSync('./config.json', JSON.stringify(config, null, 4));
+        const saved = state.save({ locked: false });
 
-        await interaction.reply('🔒 All commands have been **unlocked** globally.');
+        await interaction.reply({
+            content: saved
+                ? '🔓 All commands have been **unlocked** globally.'
+                : '🔓 All commands have been **unlocked** globally.\n⚠️ Could not save to disk, so this will reset on the next restart.',
+            flags: MessageFlags.Ephemeral
+        });
     }
 };
