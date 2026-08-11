@@ -3,8 +3,11 @@ const {
     PermissionFlagsBits,
     ActionRowBuilder,
     ButtonBuilder,
-    ButtonStyle
+    ButtonStyle,
+    MessageFlags
 } = require("discord.js");
+
+const ticketTopic = require("../ticket-topic");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -23,11 +26,11 @@ module.exports = {
         if (config.locked) {
             return interaction.reply({
                 content: "🚫 NorthGate OS is currently **locked**. Command `/claim` cannot be used.",
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             });
         }
 
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         const id = interaction.options.getInteger("id");
 
@@ -45,9 +48,10 @@ module.exports = {
         // -------------------------------------------------
         // CHECK IF ALREADY CLAIMED
         // -------------------------------------------------
-        if (ticketChannel.topic && ticketChannel.topic.startsWith("claimed:")) {
-            const claimerId = ticketChannel.topic.split(":")[1];
-            return interaction.editReply(`❌ Ticket #${id} is already claimed by <@${claimerId}>.`);
+        const topic = ticketTopic.parse(ticketChannel.topic);
+
+        if (topic.claimedBy) {
+            return interaction.editReply(`❌ Ticket #${id} is already claimed by <@${topic.claimedBy}>.`);
         }
 
         // -------------------------------------------------
@@ -75,7 +79,11 @@ module.exports = {
         // -------------------------------------------------
         // STORE CLAIMER IN CHANNEL TOPIC
         // -------------------------------------------------
-        await ticketChannel.setTopic(`claimed:${interaction.user.id}`);
+        // Rebuilt from the parsed topic so claiming does not wipe the owner id
+        // that /approve and /deny need to DM the person who opened the ticket.
+        await ticketChannel.setTopic(
+            ticketTopic.build({ ownerId: topic.ownerId, claimedBy: interaction.user.id })
+        );
 
         // -------------------------------------------------
         // CONFIRM TO STAFF

@@ -4,8 +4,11 @@ const {
     ActionRowBuilder,
     ButtonBuilder,
     ButtonStyle,
-    ChannelType
+    ChannelType,
+    MessageFlags
 } = require("discord.js");
+
+const ticketTopic = require("../ticket-topic");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -39,11 +42,11 @@ module.exports = {
         if (config.locked) {
             return interaction.reply({
                 content: "🚫 NorthGate OS is currently **locked**. Command `/approve` cannot be used.",
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             });
         }
 
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         const id = interaction.options.getInteger("id");
         const commissioner = interaction.options.getString("commissioner");
@@ -64,11 +67,13 @@ module.exports = {
         // -------------------------------------------------
         // GET USER FROM CHANNEL TOPIC
         // -------------------------------------------------
-        const userId = ticketChannel.topic;
+        // The topic holds "owner:<id>" (plus "claimed:<id>" once staff claim it),
+        // so it has to be parsed -- the raw topic is never a bare user id.
+        const { ownerId } = ticketTopic.parse(ticketChannel.topic);
         let user = null;
 
-        if (userId) {
-            user = await interaction.client.users.fetch(userId).catch(() => null);
+        if (ownerId) {
+            user = await interaction.client.users.fetch(ownerId).catch(() => null);
         }
 
         // -------------------------------------------------
@@ -139,13 +144,11 @@ module.exports = {
         });
 
         // -------------------------------------------------
-        // CLEAN UP ACTIVE ID
-        // -------------------------------------------------
-        client.activeTicketIds.delete(id);
-
-        // -------------------------------------------------
         // CONFIRM TO STAFF
         // -------------------------------------------------
+        // The ticket ID stays reserved: commission-<id>-<user> still exists, and
+        // releasing it now would let a new ticket take the same number, giving two
+        // channels one ID. /close frees it when the channel is actually deleted.
         await interaction.editReply(`✅ Commission ticket #${id} approved.`);
     }
 };

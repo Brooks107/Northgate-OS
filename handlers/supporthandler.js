@@ -7,8 +7,11 @@ const {
       PermissionFlagsBits,
       ButtonBuilder,
       ButtonStyle,
-      AttachmentBuilder
+      AttachmentBuilder,
+      MessageFlags
   } = require("discord.js");
+
+  const ticketTopic = require("../ticket-topic");
 
   module.exports = {
       async execute(interaction, client, config) {
@@ -77,11 +80,11 @@ const {
               if (!isStaff) {
                   return interaction.reply({
                       content: "❌ Only staff can claim this ticket.",
-                      ephemeral: true
+                      flags: MessageFlags.Ephemeral
                   });
               }
 
-              await interaction.deferReply({ ephemeral: true });
+              await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
               const message = interaction.message;
 
@@ -124,7 +127,7 @@ const {
               if (!ticketId) {
                   return interaction.reply({
                       content: "❌ All 20 ticket slots are currently in use. Please wait for a ticket to close.",
-                      ephemeral: true
+                      flags: MessageFlags.Ephemeral
                   });
               }
 
@@ -133,39 +136,50 @@ const {
               const issueTitle = interaction.fields.getTextInputValue("issue_title");
               const issueDesc = interaction.fields.getTextInputValue("issue_desc");
 
-              const ticketChannel = await interaction.guild.channels.create({
-                  name: `${prefix}-${ticketId}-${interaction.user.username}`,
-                  type: ChannelType.GuildText,
-                  parent: categoryId,
-                  permissionOverwrites: [
-                      { id: interaction.guild.id, deny: [PermissionFlagsBits.ViewChannel] },
-                      {
-                          id: interaction.user.id,
-                          allow: [
-                              PermissionFlagsBits.ViewChannel,
-                              PermissionFlagsBits.SendMessages,
-                              PermissionFlagsBits.ReadMessageHistory
-                          ]
-                      },
-                      ...config.supportTeamRoles.map(roleId => ({
-                          id: roleId,
-                          allow: [
-                              PermissionFlagsBits.ViewChannel,
-                              PermissionFlagsBits.SendMessages,
-                              PermissionFlagsBits.ReadMessageHistory
-                          ]
-                      })),
-                      {
-                          id: client.user.id,
-                          allow: [
-                              PermissionFlagsBits.ViewChannel,
-                              PermissionFlagsBits.SendMessages,
-                              PermissionFlagsBits.ReadMessageHistory,
-                              PermissionFlagsBits.ManageChannels
-                          ]
-                      }
-                  ]
-              });
+              let ticketChannel;
+
+              try {
+                  ticketChannel = await interaction.guild.channels.create({
+                      name: `${prefix}-${ticketId}-${interaction.user.username}`,
+                      type: ChannelType.GuildText,
+                      parent: categoryId,
+                      // Records who opened the ticket so /approve and /deny can DM them.
+                      topic: ticketTopic.build({ ownerId: interaction.user.id }),
+                      permissionOverwrites: [
+                          { id: interaction.guild.id, deny: [PermissionFlagsBits.ViewChannel] },
+                          {
+                              id: interaction.user.id,
+                              allow: [
+                                  PermissionFlagsBits.ViewChannel,
+                                  PermissionFlagsBits.SendMessages,
+                                  PermissionFlagsBits.ReadMessageHistory
+                              ]
+                          },
+                          ...config.supportTeamRoles.map(roleId => ({
+                              id: roleId,
+                              allow: [
+                                  PermissionFlagsBits.ViewChannel,
+                                  PermissionFlagsBits.SendMessages,
+                                  PermissionFlagsBits.ReadMessageHistory
+                              ]
+                          })),
+                          {
+                              id: client.user.id,
+                              allow: [
+                                  PermissionFlagsBits.ViewChannel,
+                                  PermissionFlagsBits.SendMessages,
+                                  PermissionFlagsBits.ReadMessageHistory,
+                                  PermissionFlagsBits.ManageChannels
+                              ]
+                          }
+                      ]
+                  });
+              } catch (err) {
+                  // The slot was reserved before the API call; hand it back, or a
+                  // failed attempt burns one of the 20 ticket IDs permanently.
+                  client.activeTicketIds.delete(ticketId);
+                  throw err;
+              }
 
               const buttons = new ActionRowBuilder().addComponents(
                   new ButtonBuilder()
@@ -197,7 +211,7 @@ const {
 
               return interaction.reply({
                   content: `✅ Your ticket (#${ticketId}) has been created: <#${ticketChannel.id}>`,
-                  ephemeral: true
+                  flags: MessageFlags.Ephemeral
               });
           }
 
@@ -219,7 +233,7 @@ const {
 
               await interaction.reply({
                   content: "🔒 Ticket closed. Saving transcript...",
-                  ephemeral: true
+                  flags: MessageFlags.Ephemeral
               });
 
               // save the transcript BEFORE the channel is deleted
