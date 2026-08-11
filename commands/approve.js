@@ -4,8 +4,7 @@ const {
     ActionRowBuilder,
     ButtonBuilder,
     ButtonStyle,
-    EmbedBuilder,
-    ChannelType
+    EmbedBuilder
 } = require("discord.js");
 
 module.exports = {
@@ -89,6 +88,21 @@ module.exports = {
         }
 
         // -------------------------------------------------
+        // CREATE THREAD IN ACTIVE COMMISSIONS CHANNEL
+        // -------------------------------------------------
+        const activeCommissionsChannel = interaction.guild.channels.cache.get(config.channels.activeCommissionsChannelId);
+
+        if (!activeCommissionsChannel) {
+            return interaction.editReply("⚠️ Active commissions channel is missing from config.");
+        }
+
+        const thread = await activeCommissionsChannel.threads.create({
+            name: `commission-${id}`,
+            autoArchiveDuration: 10080, // 7 days
+            reason: "Commission approved"
+        });
+
+        // -------------------------------------------------
         // EMBED FOR COMMISSION DETAILS
         // -------------------------------------------------
         const embed = new EmbedBuilder()
@@ -110,34 +124,7 @@ module.exports = {
                 .setStyle(ButtonStyle.Success)
         );
 
-        // -------------------------------------------------
-        // CREATE FORUM THREAD / POST IN ACTIVE COMMISSIONS CHANNEL
-        // -------------------------------------------------
-        const activeCommissionsChannelId = config?.channels?.activeCommissionsChannel || config?.activeCommissionsChannel;
-        const activeCommissionsChannel = activeCommissionsChannelId
-            ? await interaction.guild.channels.fetch(activeCommissionsChannelId).catch(() => null)
-            : null;
-
-        if (!activeCommissionsChannel) {
-            return interaction.editReply("⚠️ Active commissions channel is missing from config or cannot be accessed.");
-        }
-
-        if (activeCommissionsChannel.type !== ChannelType.GuildForum) {
-            return interaction.editReply("⚠️ The active commissions channel must be a forum channel.");
-        }
-
-        const thread = await activeCommissionsChannel.threads.create({
-            name: `commission-${id}`,
-            autoArchiveDuration: 10080,
-            reason: "Commission approved",
-            message: {
-                content: `📝 **Commission #${id} is now active.**`,
-                embeds: [embed],
-                components: [row]
-            }
-        });
-
-        if (thread && thread.isThread()) {
+        if (!activeCommissionsChannel.isThread()) {
             await thread.send({
                 content: `📝 **Commission #${id} is now active.**`,
                 embeds: [embed],
