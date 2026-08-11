@@ -105,6 +105,8 @@ module.exports = {
         // -------------------------------------------------
         // EMBED FOR COMMISSION DETAILS
         // -------------------------------------------------
+        const channelId = config.channels?.activeCommissionsChannelId ?? config.activeCommissionsChannelId;
+        const activeCommissionsChannel = interaction.guild.channels.cache.get(channelId);
         const embed = new EmbedBuilder()
             .setTitle(`Commission #${id} Details`)
             .setColor("Green")
