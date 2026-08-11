@@ -1,40 +1,10 @@
 const config = require("./config.json");
-const fs = require("fs");
-const path = require("path");
-const { Client, GatewayIntentBits, REST, Routes } = require("discord.js");
+const { Client, GatewayIntentBits } = require("discord.js");
 
 const supportHandler = require("./handlers/supporthandler");
 const commissionsHandler = require("./handlers/commissionshandler");
 const gitSync = require("./git-sync");
-
-// -------------------------------------------------
-// Auto‑register slash commands BEFORE login
-// -------------------------------------------------
-
-const commands = [];
-const commandFiles = fs.readdirSync("./commands").filter(f => f.endsWith(".js"));
-
-for (const file of commandFiles) {
-    const command = require(`./commands/${file}`);
-    commands.push(command.data.toJSON());
-}
-
-const rest = new REST({ version: "10" }).setToken(config.token);
-
-(async () => {
-    try {
-        console.log(`🔧 Registering ${commands.length} slash commands...`);
-
-        await rest.put(
-            Routes.applicationGuildCommands(config.clientId, config.guildId),
-            { body: commands }
-        );
-
-        console.log("✅ Slash commands registered successfully.");
-    } catch (error) {
-        console.error("❌ Failed to register slash commands:", error);
-    }
-})();
+const commandRegistry = require("./command-registry");
 
 // -------------------------------------------------
 // Create client
@@ -63,21 +33,52 @@ client.getNextTicketId = function () {
 };
 
 // -------------------------------------------------
-// Load slash commands into memory
+// Load slash commands, and register them with Discord
+// only when the command set has actually changed
 // -------------------------------------------------
 
 client.commands = new Map();
 
-for (const file of commandFiles) {
-    const command = require(`./commands/${file}`);
-    client.commands.set(command.data.name, command);
-}
+(async () => {
+    const result = await commandRegistry.registerCommands(config);
+
+    client.commands = new Map(
+        [...result.loaded].map(([name, entry]) => [name, entry.command])
+    );
+
+    if (result.skipped.length > 0) {
+        console.warn(
+            `[commands] ${result.skipped.length} command file(s) were skipped and are NOT available:`,
+            result.skipped.map(s => s.file).join(", ")
+        );
+    }
+})();
 
 // -------------------------------------------------
 // Interaction router
 // -------------------------------------------------
 
+// A throw inside an async event listener becomes an unhandled rejection,
+// which terminates the process. Every handler below is wrapped so that one
+// failing command cannot take the whole bot offline.
+async function reportInteractionFailure(interaction, err) {
+    console.error(`[interaction] handler failed for "${interaction.commandName ?? interaction.customId}":`, err);
+
+    const message = { content: "⚠️ Something went wrong handling that.", ephemeral: true };
+
+    try {
+        if (interaction.replied || interaction.deferred) {
+            await interaction.followUp(message);
+        } else {
+            await interaction.reply(message);
+        }
+    } catch {
+        /* interaction already expired or was consumed elsewhere */
+    }
+}
+
 client.on("interactionCreate", async interaction => {
+  try {
 
     if (interaction.isChatInputCommand()) {
         const cmd = client.commands.get(interaction.commandName);
@@ -93,7 +94,7 @@ client.on("interactionCreate", async interaction => {
             interaction.customId === "ticket_claim" ||
             interaction.customId === "ticket_close"
         ) {
-            return commissionsHandler.execute(interaction, client, config);
+            return await commissionsHandler.execute(interaction, client, config);
         }
 
         if (
@@ -103,9 +104,22 @@ client.on("interactionCreate", async interaction => {
             interaction.customId === "modal_ticket_appeal" ||
             interaction.customId === "support_close"
         ) {
-            return supportHandler.execute(interaction, client, config);
+            return await supportHandler.execute(interaction, client, config);
         }
     }
+
+  } catch (err) {
+      await reportInteractionFailure(interaction, err);
+  }
+});
+
+// Last-resort guards so a stray async error does not silently kill the bot.
+process.on("unhandledRejection", err => {
+    console.error("[fatal-guard] unhandled promise rejection:", err);
+});
+
+process.on("uncaughtException", err => {
+    console.error("[fatal-guard] uncaught exception:", err);
 });
 
 // -------------------------------------------------
