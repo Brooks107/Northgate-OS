@@ -54,14 +54,18 @@ module.exports = {
         // REBUILD BUTTONS — KEEP EMBED EXACTLY AS IS
         // -------------------------------------------------
 
+        const isSupportTicket =
+            ticketChannel.name.startsWith("support-") ||
+            ticketChannel.name.startsWith("appeal-");
+
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
-                .setCustomId("ticket_claim")
+                .setCustomId(isSupportTicket ? "support_claim" : "commission_claim")
                 .setLabel("📝 Claim Ticket")
                 .setStyle(ButtonStyle.Primary),
 
             new ButtonBuilder()
-                .setCustomId("ticket_close")
+                .setCustomId(isSupportTicket ? "support_close" : "ticket_close")
                 .setLabel("🔒 Close Ticket")
                 .setStyle(ButtonStyle.Danger)
         );
