@@ -237,9 +237,10 @@ const {
               { name: `${channel.name}-transcript.txt` }
           );
 
-          const logChannel = await channel.guild.channels
-              .fetch(config.transcriptschannelid)
-              .catch(() => null);
+          const transcriptChannelId = config?.channels?.transcriptschannelid || config?.transcriptschannelid;
+          const logChannel = transcriptChannelId
+              ? await channel.guild.channels.fetch(transcriptChannelId).catch(() => null)
+              : null;
 
           if (!logChannel) {
               console.error("Transcript failed: transcriptschannelid is wrong or the bot can't see that channel.");
