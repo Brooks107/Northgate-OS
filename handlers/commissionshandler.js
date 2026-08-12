@@ -281,6 +281,8 @@ module.exports = {
             );
 
             await ticketChannel.send({
+                content: "<@&1535764411510161519> <@&1517982021782339684> <@&1535764196459806850>",
+                allowedmentions: { roles: ["1535764411510161519", "1517982021782339684", "1535764196459806850"] },
                 embeds: [
                     {
                         title: `🛠️ Commission Request #${ticketId}`,
