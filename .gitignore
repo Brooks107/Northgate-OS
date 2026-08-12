@@ -2,3 +2,7 @@
 # Per-device, must never sync between machines.
 .command-cache.json
 config.json
+
+# Runtime lock flags, written by /cmdlock, /comlock and friends.
+# Must stay untracked: a dirty working tree blocks git-sync's fast-forward.
+state.json

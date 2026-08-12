@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
+const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } = require("discord.js");
 
 module.exports = { 
     data: new SlashCommandBuilder()
@@ -12,12 +12,12 @@ module.exports = {
         if (config.locked) {
             return interaction.reply({
                 content: '🚫 NorthGate OS is currently **locked**. Command `/commissionspanel` cannot be used.',
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             });
         }
 
 
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
