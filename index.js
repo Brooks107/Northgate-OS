@@ -1,10 +1,16 @@
 const config = require("./config.json");
-const { Client, GatewayIntentBits } = require("discord.js");
+const { Client, GatewayIntentBits, Events, MessageFlags } = require("discord.js");
 
 const supportHandler = require("./handlers/supporthandler");
 const commissionsHandler = require("./handlers/commissionshandler");
 const gitSync = require("./git-sync");
 const commandRegistry = require("./command-registry");
+const state = require("./state");
+
+// Lock flags are runtime state, not deployment config. Apply the persisted
+// values over the config.json defaults before anything can read them, so a
+// lock survives the restarts that git-sync triggers on every push.
+Object.assign(config, state.load());
 
 // -------------------------------------------------
 // Create client
@@ -31,6 +37,28 @@ client.getNextTicketId = function () {
     }
     return null;
 };
+
+// The set above only lives in memory, and git-sync restarts this process on
+// every push. Without this, a restart forgets every open ticket and hands out
+// #1 again while support-1-someone is still open -- two channels then share an
+// ID and /close picks whichever one it finds first. Ticket channel names carry
+// the ID, so the channels themselves are the source of truth on boot.
+const TICKET_CHANNEL_PATTERN = /^(?:support|appeal|commission)-(\d+)-/;
+
+client.once(Events.ClientReady, () => {
+    for (const guild of client.guilds.cache.values()) {
+        for (const channel of guild.channels.cache.values()) {
+            const match = channel.name.match(TICKET_CHANNEL_PATTERN);
+            if (match) client.activeTicketIds.add(Number(match[1]));
+        }
+    }
+
+    const restored = [...client.activeTicketIds].sort((a, b) => a - b);
+    console.log(
+        `[tickets] restored ${restored.length} active ticket id(s)` +
+        (restored.length ? `: ${restored.join(", ")}` : "")
+    );
+});
 
 // -------------------------------------------------
 // Load slash commands, and register them with Discord
@@ -64,7 +92,7 @@ client.commands = new Map();
 async function reportInteractionFailure(interaction, err) {
     console.error(`[interaction] handler failed for "${interaction.commandName ?? interaction.customId}":`, err);
 
-    const message = { content: "⚠️ Something went wrong handling that.", ephemeral: true };
+    const message = { content: "⚠️ Something went wrong handling that.", flags: MessageFlags.Ephemeral };
 
     try {
         if (interaction.replied || interaction.deferred) {
@@ -82,7 +110,18 @@ client.on("interactionCreate", async interaction => {
 
     if (interaction.isChatInputCommand()) {
         const cmd = client.commands.get(interaction.commandName);
-        if (cmd) await cmd.execute(interaction, client, config);
+
+        // A command file that failed to load is still registered with Discord,
+        // so it stays visible in the picker. Say so instead of timing out.
+        if (!cmd) {
+            console.warn(`[interaction] no handler loaded for /${interaction.commandName}`);
+            return interaction.reply({
+                content: "❌ That command is currently unavailable. Please try again later or contact staff.",
+                flags: MessageFlags.Ephemeral
+            });
+        }
+
+        await cmd.execute(interaction, client, config);
         return;
     }
 
@@ -93,6 +132,7 @@ client.on("interactionCreate", async interaction => {
             interaction.customId === "ticket_commission" ||
             interaction.customId === "modal_ticket_commission" ||
             interaction.customId === "commission_claim" ||
+            interaction.customId.startsWith("commission_complete_") ||
             (interaction.customId === "ticket_claim" && channelName.startsWith("commission-")) ||
             (interaction.customId === "ticket_close" && channelName.startsWith("commission-"));
 
@@ -113,6 +153,17 @@ client.on("interactionCreate", async interaction => {
         if (isSupportTicket) {
             return await supportHandler.execute(interaction, client, config);
         }
+
+        // Nothing claimed it. Answer anyway -- an unrouted component otherwise
+        // leaves the user staring at Discord's "This interaction failed".
+        console.warn(
+            `[interaction] no route for component "${interaction.customId}" in #${channelName || "unknown"}`
+        );
+
+        return interaction.reply({
+            content: "❌ This button is no longer active. Please open a new ticket or contact staff.",
+            flags: MessageFlags.Ephemeral
+        });
     }
 
   } catch (err) {

@@ -7,8 +7,11 @@ const {
     PermissionFlagsBits,
     ButtonBuilder,
     ButtonStyle,
-    AttachmentBuilder
+    AttachmentBuilder,
+    MessageFlags
 } = require("discord.js");
+
+const ticketTopic = require("../ticket-topic");
 
 module.exports = {
     async execute(interaction, client, config) {
@@ -22,7 +25,7 @@ module.exports = {
             if (config.commissionLocked) {
                 return interaction.reply({
                     content: "🚫 Commission requests are currently locked.",
-                    flags: 64
+                    flags: MessageFlags.Ephemeral
                 });
             }
 
@@ -79,11 +82,11 @@ module.exports = {
             if (!isStaff) {
                 return interaction.reply({
                     content: "❌ Only staff can claim this ticket.",
-                    flags: 64
+                    flags: MessageFlags.Ephemeral
                 });
             }
 
-            await interaction.deferReply({ flags: 64 });
+            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
             const message = interaction.message;
 
@@ -123,7 +126,7 @@ module.exports = {
 
             await interaction.reply({
                 content: "🔒 Ticket closed. Saving transcript...",
-                flags: 64
+                flags: MessageFlags.Ephemeral
             });
 
             await saveTranscript(channel, interaction.user, config);
@@ -131,6 +134,50 @@ module.exports = {
             setTimeout(() => {
                 interaction.guild.channels.delete(channel.id).catch(() => {});
             }, 3000);
+        }
+
+        // -------------------------------------------------
+        // COMPLETE BUTTON (posted by /approve in the active-commission thread)
+        // -------------------------------------------------
+        if (interaction.isButton() && interaction.customId.startsWith("commission_complete_")) {
+
+            const isStaff = config.supportTeamRoles.some(roleId =>
+                interaction.member?.roles?.cache?.has(roleId)
+            );
+
+            if (!isStaff) {
+                return interaction.reply({
+                    content: "❌ Only staff can mark a commission as complete.",
+                    flags: MessageFlags.Ephemeral
+                });
+            }
+
+            const id = interaction.customId.slice("commission_complete_".length);
+
+            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+            const completedRow = new ActionRowBuilder().addComponents(
+                new ButtonBuilder()
+                    .setCustomId(interaction.customId)
+                    .setLabel(`Completed by ${interaction.user.username}`)
+                    .setStyle(ButtonStyle.Secondary)
+                    .setDisabled(true)
+            );
+
+            await interaction.message.edit({ components: [completedRow] });
+
+            await interaction.channel.send({
+                content: `✅ **Commission #${id} marked complete** by ${interaction.user}.`,
+                allowedMentions: { parse: [] }
+            });
+
+            // Threads are only archivable by their creator or someone with
+            // ManageThreads; never let a missing permission fail the whole action.
+            if (interaction.channel.isThread()) {
+                await interaction.channel.setArchived(true).catch(() => {});
+            }
+
+            return interaction.editReply(`✅ Commission #${id} marked as complete.`);
         }
 
         // -------------------------------------------------
@@ -142,7 +189,7 @@ module.exports = {
             if (config.commissionLocked) {
                 return interaction.reply({
                     content: "🚫 Commission requests are currently locked.",
-                    flags: 64
+                    flags: MessageFlags.Ephemeral
                 });
             }
 
@@ -154,7 +201,7 @@ module.exports = {
             if (!ticketId) {
                 return interaction.reply({
                     content: "❌ All 20 ticket slots are currently in use. Please wait for a ticket to close.",
-                    flags: 64
+                    flags: MessageFlags.Ephemeral
                 });
             }
 
@@ -165,50 +212,61 @@ module.exports = {
             const waitTime = interaction.fields.getTextInputValue("wait_time");
             const quality = interaction.fields.getTextInputValue("quality_level");
 
-            const ticketChannel = await interaction.guild.channels.create({
-                name: `${prefix}-${ticketId}-${interaction.user.username}`,
-                type: ChannelType.GuildText,
-                parent: categoryId,
-                permissionOverwrites: [
-                    {
-                        id: interaction.guild.id,
-                        deny: [PermissionFlagsBits.ViewChannel]
-                    },
-                    {
-                        id: interaction.user.id,
-                        allow: [
-                            PermissionFlagsBits.ViewChannel,
-                            PermissionFlagsBits.SendMessages,
-                            PermissionFlagsBits.ReadMessageHistory
-                        ]
-                    },
-                    ...config.commissionticketaccess.map(roleId => ({
-                        id: roleId,
-                        allow: [
-                            PermissionFlagsBits.ViewChannel,
-                            PermissionFlagsBits.SendMessages,
-                            PermissionFlagsBits.ReadMessageHistory
-                        ]
-                    })),
-                    ...config.supportTeamRoles.map(roleId => ({
-                        id: roleId,
-                        allow: [
-                            PermissionFlagsBits.ViewChannel,
-                            PermissionFlagsBits.SendMessages,
-                            PermissionFlagsBits.ReadMessageHistory
-                        ]
-                    })),
-                    {
-                        id: client.user.id,
-                        allow: [
-                            PermissionFlagsBits.ViewChannel,
-                            PermissionFlagsBits.SendMessages,
-                            PermissionFlagsBits.ReadMessageHistory,
-                            PermissionFlagsBits.ManageChannels
-                        ]
-                    }
-                ]
-            });
+            let ticketChannel;
+
+            try {
+                ticketChannel = await interaction.guild.channels.create({
+                    name: `${prefix}-${ticketId}-${interaction.user.username}`,
+                    type: ChannelType.GuildText,
+                    parent: categoryId,
+                    // Records who opened the ticket so /approve and /deny can DM them.
+                    topic: ticketTopic.build({ ownerId: interaction.user.id }),
+                    permissionOverwrites: [
+                        {
+                            id: interaction.guild.id,
+                            deny: [PermissionFlagsBits.ViewChannel]
+                        },
+                        {
+                            id: interaction.user.id,
+                            allow: [
+                                PermissionFlagsBits.ViewChannel,
+                                PermissionFlagsBits.SendMessages,
+                                PermissionFlagsBits.ReadMessageHistory
+                            ]
+                        },
+                        ...config.commissionticketaccess.map(roleId => ({
+                            id: roleId,
+                            allow: [
+                                PermissionFlagsBits.ViewChannel,
+                                PermissionFlagsBits.SendMessages,
+                                PermissionFlagsBits.ReadMessageHistory
+                            ]
+                        })),
+                        ...config.supportTeamRoles.map(roleId => ({
+                            id: roleId,
+                            allow: [
+                                PermissionFlagsBits.ViewChannel,
+                                PermissionFlagsBits.SendMessages,
+                                PermissionFlagsBits.ReadMessageHistory
+                            ]
+                        })),
+                        {
+                            id: client.user.id,
+                            allow: [
+                                PermissionFlagsBits.ViewChannel,
+                                PermissionFlagsBits.SendMessages,
+                                PermissionFlagsBits.ReadMessageHistory,
+                                PermissionFlagsBits.ManageChannels
+                            ]
+                        }
+                    ]
+                });
+            } catch (err) {
+                // The slot was reserved before the API call; hand it back, or a
+                // failed attempt burns one of the 20 ticket IDs permanently.
+                client.activeTicketIds.delete(ticketId);
+                throw err;
+            }
 
             const buttons = new ActionRowBuilder().addComponents(
                 new ButtonBuilder()
@@ -242,7 +300,7 @@ module.exports = {
 
             return interaction.reply({
                 content: `✅ Your commission ticket (#${ticketId}) has been created: <#${ticketChannel.id}>`,
-                flags: 64
+                flags: MessageFlags.Ephemeral
             });
         }
     }

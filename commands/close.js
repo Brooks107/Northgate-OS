@@ -1,6 +1,7 @@
 const {
     SlashCommandBuilder,
-    PermissionFlagsBits
+    PermissionFlagsBits,
+    MessageFlags
 } = require("discord.js");
 
 module.exports = {
@@ -20,11 +21,11 @@ module.exports = {
         if (config.locked) {
             return interaction.reply({
                 content: '🚫 NorthGate OS is currently **locked**. Command `/close` cannot be used.',
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             });
         }
 
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         const id = interaction.options.getInteger("id");
 

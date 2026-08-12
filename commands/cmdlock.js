@@ -1,6 +1,6 @@
-const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } = require('discord.js');
 const config = require('../config.json');
-const fs = require('fs');
+const state = require('../state');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -16,8 +16,13 @@ module.exports = {
         }
 
         config.locked = true;
-        fs.writeFileSync('./config.json', JSON.stringify(config, null, 4));
+        const saved = state.save({ locked: true });
 
-        await interaction.reply('🔒 All commands have been **locked** globally.');
+        await interaction.reply({
+            content: saved
+                ? '🔒 All commands have been **locked** globally.'
+                : '🔒 All commands have been **locked** globally.\n⚠️ Could not save to disk, so this will reset on the next restart.',
+            flags: MessageFlags.Ephemeral
+        });
     }
 };
