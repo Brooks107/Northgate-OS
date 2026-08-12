@@ -3,11 +3,8 @@ const {
     PermissionFlagsBits,
     ActionRowBuilder,
     ButtonBuilder,
-    ButtonStyle,
-    MessageFlags
+    ButtonStyle
 } = require("discord.js");
-
-const ticketTopic = require("../ticket-topic");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -25,7 +22,7 @@ module.exports = {
         if (config.locked) {
             return interaction.reply({
                 content: "🚫 NorthGate OS is currently **locked**. Command `/claim` cannot be used.",
-                flags: MessageFlags.Ephemeral
+                ephemeral: true
             });
         }
 
@@ -42,7 +39,7 @@ module.exports = {
             });
         }
 
-        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+        await interaction.deferReply({ ephemeral: true });
 
         const id = interaction.options.getInteger("id");
 
@@ -60,10 +57,9 @@ module.exports = {
         // -------------------------------------------------
         // CHECK IF ALREADY CLAIMED
         // -------------------------------------------------
-        const topic = ticketTopic.parse(ticketChannel.topic);
-
-        if (topic.claimedBy) {
-            return interaction.editReply(`❌ Ticket #${id} is already claimed by <@${topic.claimedBy}>.`);
+        if (ticketChannel.topic && ticketChannel.topic.startsWith("claimed:")) {
+            const claimerId = ticketChannel.topic.split(":")[1];
+            return interaction.editReply(`❌ Ticket #${id} is already claimed by <@${claimerId}>.`);
         }
 
         // -------------------------------------------------
@@ -91,11 +87,7 @@ module.exports = {
         // -------------------------------------------------
         // STORE CLAIMER IN CHANNEL TOPIC
         // -------------------------------------------------
-        // Rebuilt from the parsed topic so claiming does not wipe the owner id
-        // that /approve and /deny need to DM the person who opened the ticket.
-        await ticketChannel.setTopic(
-            ticketTopic.build({ ownerId: topic.ownerId, claimedBy: interaction.user.id })
-        );
+        await ticketChannel.setTopic(`claimed:${interaction.user.id}`);
 
         // -------------------------------------------------
         // CONFIRM TO STAFF
