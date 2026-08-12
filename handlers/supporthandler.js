@@ -140,7 +140,7 @@ const {
 
               try {
                   ticketChannel = await interaction.guild.channels.create({
-                      name: `${prefix}-${ticketId}-${interaction.user.username}`,
+                      name: `${prefix}-${ticketId}`,
                       type: ChannelType.GuildText,
                       parent: categoryId,
                       // Records who opened the ticket so /approve and /deny can DM them.
