@@ -16,10 +16,22 @@ module.exports = {
             option.setName("user")
                 .setDescription("The user to remove from the ticket.")
                 .setRequired(true)
-        )
-        .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
+        ),
 
     async execute(interaction, client, config) {
+        const isAuthorized = (config.supportTeamRoles?.some(roleId =>
+            interaction.member?.roles?.cache?.has(roleId)
+        ) || config.commissionticketaccess?.some(roleId =>
+            interaction.member?.roles?.cache?.has(roleId)
+        ));
+
+        if (!isAuthorized) {
+            return interaction.reply({
+                content: "❌ You are not authorized to use `/remove`.",
+                ephemeral: true
+            });
+        }
+
         await interaction.deferReply({ ephemeral: true });
 
         const id = interaction.options.getInteger("id");

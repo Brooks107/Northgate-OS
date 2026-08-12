@@ -16,10 +16,19 @@ module.exports = {
             option.setName("reason")
                 .setDescription("Reason for denial")
                 .setRequired(true)
-        )
-        .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
+        ),
 
     async execute(interaction, client, config) {
+        const isAuthorized = config.commissionticketaccess?.some(roleId =>
+            interaction.member?.roles?.cache?.has(roleId)
+        );
+
+        if (!isAuthorized) {
+            return interaction.reply({
+                content: "❌ You are not authorized to use `/deny`.",
+                ephemeral: true
+            });
+        }
 
         // 🔒 GLOBAL LOCK CHECK
         if (config.locked) {
