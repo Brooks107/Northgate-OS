@@ -14,8 +14,7 @@ module.exports = {
             option.setName("id")
                 .setDescription("The commission ticket ID to claim")
                 .setRequired(true)
-        )
-        .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
+        ),
 
     async execute(interaction, client, config) {
 
@@ -23,6 +22,19 @@ module.exports = {
         if (config.locked) {
             return interaction.reply({
                 content: "🚫 NorthGate OS is currently **locked**. Command `/claim` cannot be used.",
+                ephemeral: true
+            });
+        }
+
+        const isAuthorized = (config.supportTeamRoles?.some(roleId =>
+            interaction.member?.roles?.cache?.has(roleId)
+        ) || config.commissionticketaccess?.some(roleId =>
+            interaction.member?.roles?.cache?.has(roleId)
+        ));
+
+        if (!isAuthorized) {
+            return interaction.reply({
+                content: "❌ You are not authorized to use `/claim`.",
                 ephemeral: true
             });
         }

@@ -8,14 +8,26 @@ module.exports = {
             option.setName("id")
                 .setDescription("The ticket ID to unclaim")
                 .setRequired(true)
-        )
-        .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
+        ),
 
     async execute(interaction, client, config) {
 
         if (config.locked) {
             return interaction.reply({
                 content: '🚫 NorthGate OS is currently **locked**. Command `/unclaim` cannot be used.',
+                ephemeral: true
+            });
+        }
+
+        const isAuthorized = (config.supportTeamRoles?.some(roleId =>
+            interaction.member?.roles?.cache?.has(roleId)
+        ) || config.commissionticketaccess?.some(roleId =>
+            interaction.member?.roles?.cache?.has(roleId)
+        ));
+
+        if (!isAuthorized) {
+            return interaction.reply({
+                content: "❌ You are not authorized to use `/unclaim`.",
                 ephemeral: true
             });
         }
