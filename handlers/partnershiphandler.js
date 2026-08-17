@@ -109,6 +109,7 @@ module.exports = {
         if (interaction.isModalSubmit() && interaction.customId === "modal_ticket_partnership") {
             const categoryId = config.partnershipticketcategory || config.generalticketcategory || config.reportsticketcategory;
             const prefix = "partnership";
+            client.refreshActiveTicketIds(interaction.guild);
             const ticketId = client.getNextTicketId();
 
             if (!ticketId) {

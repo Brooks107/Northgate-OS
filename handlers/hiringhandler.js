@@ -104,6 +104,7 @@ module.exports = {
         if (interaction.isModalSubmit() && interaction.customId === "modal_ticket_hire") {
             const categoryId = config.hiringticketcategory || config.reportsticketcategory || config.generalticketcategory;
             const prefix = "hiring";
+            client.refreshActiveTicketIds(interaction.guild);
             const ticketId = client.getNextTicketId();
 
             if (!ticketId) {

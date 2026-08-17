@@ -122,6 +122,7 @@ const {
                   ? config.generalticketcategory
                   : config.appealsticketcategory;
 
+              client.refreshActiveTicketIds(interaction.guild);
               const ticketId = client.getNextTicketId();
 
               if (!ticketId) {
