@@ -12,6 +12,7 @@ const {
 } = require("discord.js");
 
 const ticketTopic = require("../ticket-topic");
+const ticketTracker = require("../ticket-tracker");
 
 module.exports = {
     async execute(interaction, client, config) {
@@ -205,6 +206,15 @@ module.exports = {
                 components: [buttons]
             });
 
+            // Create tracking embed
+            await ticketTracker.createTicketEmbed(ticketChannel, {
+                id: ticketId,
+                title: "Partnership Request",
+                userId: interaction.user.id,
+                description: `Company: ${companyName}, Idea: ${partnershipIdea}`,
+                createdAt: new Date().toLocaleString()
+            }, client, config);
+
             return interaction.reply({
                 content: `✅ Your partnership ticket (#${ticketId}) has been created: <#${ticketChannel.id}>`,
                 flags: MessageFlags.Ephemeral
@@ -231,6 +241,9 @@ module.exports = {
             });
 
             await saveTranscript(channel, interaction.user, config);
+
+            // Remove from tracker
+            await ticketTracker.removeTracking(channel);
 
             setTimeout(() => {
                 interaction.guild.channels.delete(channel.id).catch(() => {});
