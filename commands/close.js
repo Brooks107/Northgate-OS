@@ -5,6 +5,8 @@ const {
     AttachmentBuilder
 } = require("discord.js");
 
+const ticketTracker = require("../ticket-tracker");
+
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("close")
@@ -49,6 +51,9 @@ module.exports = {
 
         await interaction.editReply(`🔒 Ticket #${id} closed. Saving transcript...`);
         await saveTranscript(ticketChannel, interaction.user, config);
+
+        // Remove from tracker
+        await ticketTracker.removeTracking(ticketChannel);
 
         setTimeout(() => {
             interaction.guild.channels.delete(ticketChannel.id).catch(() => {});
