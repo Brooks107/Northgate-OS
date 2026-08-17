@@ -8,6 +8,7 @@ const partnershipHandler = require("./handlers/partnershiphandler");
 const gitSync = require("./git-sync");
 const commandRegistry = require("./command-registry");
 const state = require("./state");
+const ticketTracker = require("./ticket-tracker");
 
 // Lock flags are runtime state, not deployment config. Apply the persisted
 // values over the config.json defaults before anything can read them, so a
@@ -70,6 +71,9 @@ client.once(Events.ClientReady, () => {
         `[tickets] restored ${restored.length} active ticket id(s)` +
         (restored.length ? `: ${restored.join(", ")}` : "")
     );
+
+    // Initialize ticket tracker
+    ticketTracker.init();
 });
 
 // -------------------------------------------------
@@ -205,6 +209,45 @@ client.on("interactionCreate", async interaction => {
   } catch (err) {
       await reportInteractionFailure(interaction, err);
   }
+});
+
+// -------------------------------------------------
+// Message handling for prefix commands (!inject)
+// -------------------------------------------------
+
+client.on("messageCreate", async message => {
+    try {
+        if (message.author.bot) return;
+        if (!message.content.startsWith("!inject ")) return;
+        if (!message.channel.name?.match(/^(?:support|appeal|commission|hiring|partnership)-(\d+)/)) return;
+
+        const isStaff = config.supportTeamRoles.some(roleId =>
+            message.member?.roles?.cache?.has(roleId)
+        ) || config.commissionticketaccess?.some(roleId =>
+            message.member?.roles?.cache?.has(roleId)
+        );
+
+        if (!isStaff) {
+            return message.reply({ content: "❌ Only staff can inject info.", ephemeral: true });
+        }
+
+        const info = message.content.slice(8).trim(); // Remove "!inject " prefix
+
+        if (!info) {
+            return message.reply({ content: "❌ Please provide info to inject: `!inject <info>`", ephemeral: true });
+        }
+
+        const result = await ticketTracker.injectInfo(message.channel, info, client);
+
+        if (result.success) {
+            await message.react("✅");
+            console.log(`[inject] ${message.author.tag} injected info into ${message.channel.name}`);
+        } else {
+            await message.reply({ content: `❌ ${result.error}`, ephemeral: true });
+        }
+    } catch (err) {
+        console.error("[messageCreate] error:", err);
+    }
 });
 
 // Last-resort guards so a stray async error does not silently kill the bot.

@@ -12,6 +12,7 @@ const {
 } = require("discord.js");
 
 const ticketTopic = require("../ticket-topic");
+const ticketTracker = require("../ticket-tracker");
 
 module.exports = {
     async execute(interaction, client, config) {
@@ -130,6 +131,9 @@ module.exports = {
             });
 
             await saveTranscript(channel, interaction.user, config);
+
+            // Remove from tracker
+            await ticketTracker.removeTracking(channel);
 
             setTimeout(() => {
                 interaction.guild.channels.delete(channel.id).catch(() => {});
@@ -300,6 +304,15 @@ module.exports = {
                 ],
                 components: [buttons]
             });
+
+            // Create tracking embed
+            await ticketTracker.createTicketEmbed(ticketChannel, {
+                id: ticketId,
+                title: "Commission Request",
+                userId: interaction.user.id,
+                description: `Map Size: ${mapSize}, Payment: ${payment}, Wait: ${waitTime}, Quality: ${quality}`,
+                createdAt: new Date().toLocaleString()
+            }, client, config);
 
             return interaction.reply({
                 content: `✅ Your commission ticket (#${ticketId}) has been created: <#${ticketChannel.id}>`,
