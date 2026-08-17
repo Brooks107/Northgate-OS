@@ -47,7 +47,9 @@ module.exports = {
         // FIND COMMISSION TICKET ONLY
         // -------------------------------------------------
         const ticketChannel = interaction.guild.channels.cache.find(
-            ch => ch.name.startsWith(`commission-${id}-`)
+            ch => ch.name.startsWith(`commission-${id}`) ||
+                   ch.name.startsWith(`support-${id}`) ||
+                   ch.name.startsWith(`appeal-${id}`)
         );
 
         if (!ticketChannel) {
