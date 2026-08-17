@@ -20,6 +20,15 @@ module.exports = {
         ),
 
     async execute(interaction, client, config) {
+
+        if (config.locked) {
+            return interaction.reply({
+            content: '🚫 NorthGate OS is currently **locked**. Command `/close` cannot be used.',
+            flags: MessageFlags.Ephemeral
+            });
+        }
+
+        
         const isAuthorized = (config.supportTeamRoles?.some(roleId =>
             interaction.member?.roles?.cache?.has(roleId)
         ) || config.commissionticketaccess?.some(roleId =>

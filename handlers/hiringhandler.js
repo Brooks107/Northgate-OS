@@ -1,0 +1,298 @@
+const {
+    ModalBuilder,
+    TextInputBuilder,
+    TextInputStyle,
+    ActionRowBuilder,
+    ChannelType,
+    PermissionFlagsBits,
+    ButtonBuilder,
+    ButtonStyle,
+    AttachmentBuilder,
+    MessageFlags
+} = require("discord.js");
+
+const ticketTopic = require("../ticket-topic");
+
+module.exports = {
+    async execute(interaction, client, config) {
+
+        // -------------------------------------------------
+        // HIRING BUTTON → OPEN MODAL
+        // -------------------------------------------------
+        if (interaction.isButton() && interaction.customId === "ticket_hire") {
+            const modal = new ModalBuilder()
+                .setCustomId("modal_ticket_hire")
+                .setTitle("Hiring Request");
+
+            const nameInput = new TextInputBuilder()
+                .setCustomId("applicant_name")
+                .setLabel("What is your name?")
+                .setStyle(TextInputStyle.Short)
+                .setRequired(true);
+
+            const roleInput = new TextInputBuilder()
+                .setCustomId("job_role")
+                .setLabel("Which role are you applying for?")
+                .setStyle(TextInputStyle.Short)
+                .setRequired(true);
+
+            const experienceInput = new TextInputBuilder()
+                .setCustomId("experience")
+                .setLabel("Tell us about your experience")
+                .setStyle(TextInputStyle.Paragraph)
+                .setRequired(true);
+
+            const whyInput = new TextInputBuilder()
+                .setCustomId("why_join")
+                .setLabel("Why do you want to work with us?")
+                .setStyle(TextInputStyle.Paragraph)
+                .setRequired(true);
+
+            return interaction.showModal(
+                modal.addComponents(
+                    new ActionRowBuilder().addComponents(nameInput),
+                    new ActionRowBuilder().addComponents(roleInput),
+                    new ActionRowBuilder().addComponents(experienceInput),
+                    new ActionRowBuilder().addComponents(whyInput)
+                )
+            );
+        }
+
+        // -------------------------------------------------
+        // CLAIM BUTTON
+        // -------------------------------------------------
+        if (
+            interaction.isButton() &&
+            (interaction.customId === "ticket_claim" || interaction.customId === "hiring_claim")
+        ) {
+            const isStaff = config.supportTeamRoles.some(roleId =>
+                interaction.member?.roles?.cache?.has(roleId)
+            );
+
+            if (!isStaff) {
+                return interaction.reply({
+                    content: "❌ Only staff can claim this ticket.",
+                    flags: MessageFlags.Ephemeral
+                });
+            }
+
+            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+            const message = interaction.message;
+
+            const newRow = new ActionRowBuilder().addComponents(
+                new ButtonBuilder()
+                    .setCustomId("hiring_claim")
+                    .setLabel(`Claimed by ${interaction.user.username}`)
+                    .setStyle(ButtonStyle.Primary)
+                    .setDisabled(true),
+
+                new ButtonBuilder()
+                    .setCustomId("hiring_close")
+                    .setLabel("🔒 Close Ticket")
+                    .setStyle(ButtonStyle.Danger)
+            );
+
+            await message.edit({ components: [newRow] });
+
+            return interaction.editReply("📝 You have claimed this ticket.");
+        }
+
+        // -------------------------------------------------
+        // HIRING MODAL → CREATE TICKET
+        // -------------------------------------------------
+        if (interaction.isModalSubmit() && interaction.customId === "modal_ticket_hire") {
+            const categoryId = config.hiringticketcategory || config.reportsticketcategory || config.generalticketcategory;
+            const prefix = "hiring";
+            const ticketId = client.getNextTicketId();
+
+            if (!ticketId) {
+                return interaction.reply({
+                    content: "❌ All 20 ticket slots are currently in use. Please wait for a ticket to close.",
+                    flags: MessageFlags.Ephemeral
+                });
+            }
+
+            client.activeTicketIds.add(ticketId);
+
+            const applicantName = interaction.fields.getTextInputValue("applicant_name");
+            const jobRole = interaction.fields.getTextInputValue("job_role");
+            const experience = interaction.fields.getTextInputValue("experience");
+            const whyJoin = interaction.fields.getTextInputValue("why_join");
+
+            let ticketChannel;
+
+            try {
+                const visibleRoleIds = [
+                    ...(config.operationsroles || []),
+                    ...(config.commissionticketaccess || [])
+                ];
+
+                ticketChannel = await interaction.guild.channels.create({
+                    name: `${prefix}-${ticketId}`,
+                    type: ChannelType.GuildText,
+                    parent: categoryId,
+                    topic: ticketTopic.build({ ownerId: interaction.user.id }),
+                    permissionOverwrites: [
+                        { id: interaction.guild.id, deny: [PermissionFlagsBits.ViewChannel] },
+                        {
+                            id: interaction.user.id,
+                            allow: [
+                                PermissionFlagsBits.ViewChannel,
+                                PermissionFlagsBits.SendMessages,
+                                PermissionFlagsBits.ReadMessageHistory
+                            ]
+                        },
+                        ...[...new Set(visibleRoleIds)].map(roleId => ({
+                            id: roleId,
+                            allow: [
+                                PermissionFlagsBits.ViewChannel,
+                                PermissionFlagsBits.SendMessages,
+                                PermissionFlagsBits.ReadMessageHistory
+                            ]
+                        })),
+                        {
+                            id: client.user.id,
+                            allow: [
+                                PermissionFlagsBits.ViewChannel,
+                                PermissionFlagsBits.SendMessages,
+                                PermissionFlagsBits.ReadMessageHistory,
+                                PermissionFlagsBits.ManageChannels
+                            ]
+                        }
+                    ]
+                });
+            } catch (err) {
+                client.activeTicketIds.delete(ticketId);
+                throw err;
+            }
+
+            const buttons = new ActionRowBuilder().addComponents(
+                new ButtonBuilder()
+                    .setCustomId("hiring_claim")
+                    .setLabel("📝 Claim Ticket")
+                    .setStyle(ButtonStyle.Primary),
+
+                new ButtonBuilder()
+                    .setCustomId("hiring_close")
+                    .setLabel("🔒 Close Ticket")
+                    .setStyle(ButtonStyle.Danger)
+            );
+
+            await ticketChannel.send({
+                content: "<@&1535764411510161519> <@&1517982021782339684> <@&1535764196459806850>",
+                allowedMentions: { roles: ["1535764411510161519", "1517982021782339684", "1535764196459806850"] },
+                embeds: [
+                    {
+                        title: `🧑‍💼 Hiring Ticket #${ticketId}`,
+                        description: "A new hiring application has been created.",
+                        color: 0x2ecc71,
+                        fields: [
+                            { name: "👤 Applicant", value: interaction.user.tag, inline: true },
+                            { name: "📛 Name", value: applicantName, inline: true },
+                            { name: "🎯 Role", value: jobRole, inline: true },
+                            { name: "🧠 Experience", value: experience },
+                            { name: "💡 Why join?", value: whyJoin }
+                        ]
+                    }
+                ],
+                components: [buttons]
+            });
+
+            return interaction.reply({
+                content: `✅ Your hiring ticket (#${ticketId}) has been created: <#${ticketChannel.id}>`,
+                flags: MessageFlags.Ephemeral
+            });
+        }
+
+        // -------------------------------------------------
+        // HIRING CLOSE BUTTON → TRANSCRIPT + FREE ID + SAFE DELETE
+        // -------------------------------------------------
+        if (
+            interaction.isButton() &&
+            (interaction.customId === "hiring_close" || interaction.customId === "ticket_close")
+        ) {
+            const channel = interaction.channel;
+            const match = channel.name.match(/^hiring-(\d+)-/);
+            if (match) {
+                const id = parseInt(match[1]);
+                client.activeTicketIds.delete(id);
+            }
+
+            await interaction.reply({
+                content: "🔒 Ticket closed. Saving transcript...",
+                flags: MessageFlags.Ephemeral
+            });
+
+            await saveTranscript(channel, interaction.user, config);
+
+            setTimeout(() => {
+                interaction.guild.channels.delete(channel.id).catch(() => {});
+            }, 3000);
+        }
+    }
+};
+
+async function saveTranscript(channel, closedBy, config) {
+    try {
+        const all = [];
+        let lastId = null;
+
+        while (true) {
+            const options = { limit: 100 };
+            if (lastId) options.before = lastId;
+
+            const batch = await channel.messages.fetch(options);
+            if (batch.size === 0) break;
+
+            all.push(...batch.values());
+            lastId = batch.last().id;
+        }
+
+        const messages = all.reverse();
+
+        const lines = [];
+        lines.push(`Transcript for #${channel.name}`);
+        lines.push(`Closed by: ${closedBy.tag}`);
+        lines.push(`Saved: ${new Date().toLocaleString()}`);
+        lines.push(`Messages: ${messages.length}`);
+        lines.push("=".repeat(50));
+        lines.push("");
+
+        for (const msg of messages) {
+            const time = msg.createdAt.toLocaleString();
+            lines.push(`[${time}] ${msg.author.tag}: ${msg.content || "(no text)"}`);
+
+            for (const att of msg.attachments.values()) {
+                lines.push(`    [file] ${att.name}: ${att.url}`);
+            }
+            for (const emb of msg.embeds) {
+                lines.push(`    [embed] ${emb.title || ""} ${emb.description || ""}`);
+            }
+        }
+
+        const file = new AttachmentBuilder(
+            Buffer.from(lines.join("\n"), "utf-8"),
+            { name: `${channel.name}-transcript.txt` }
+        );
+
+        const transcriptChannelId = config?.channels?.transcriptschannelid || config?.transcriptschannelid;
+        const logChannel = transcriptChannelId
+            ? await channel.guild.channels.fetch(transcriptChannelId).catch(() => null)
+            : null;
+
+        if (!logChannel) {
+            console.error("Transcript failed: transcriptschannelid is wrong or the bot can't see that channel.");
+            return;
+        }
+
+        await logChannel.send({
+            content: `📄 Transcript for **${channel.name}** (closed by ${closedBy.tag})`,
+            files: [file],
+            allowedMentions: { parse: [] }
+        });
+
+    } catch (err) {
+        console.error("Transcript failed:", err);
+    }
+}

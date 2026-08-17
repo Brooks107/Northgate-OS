@@ -13,6 +13,11 @@
     "generalticketcategory": "1518259299766374410",
     "commissionsticketcategory": "1518256130432831531",
     "reportsticketcategory": "1518259254916677632",
+    "hiringticketcategory": "1538873864979882024",
+    "operationsroles": [
+        "1535764413422899210",
+        "1538588862148771910"
+    ],
     "supportTeamRoles": [
         "1522596266125688902",
         "1518065237771685928",
