@@ -41,8 +41,9 @@ module.exports = {
         const ticketChannel = interaction.guild.channels.cache.find(ch =>
             ch.name.startsWith(`commission-${id}`) ||
             ch.name.startsWith(`support-${id}`) ||
-            ch.name.startsWith(`appeal-${id}`) || 
-            ch.name.startsWith(`hiring-${id}`)
+            ch.name.startsWith(`appeal-${id}`) ||
+            ch.name.startsWith(`hiring-${id}`) ||
+            ch.name.startsWith(`partnership-${id}`)
         );
 
         if (!ticketChannel) {
@@ -72,15 +73,33 @@ module.exports = {
         const isSupportTicket =
             ticketChannel.name.startsWith("support-") ||
             ticketChannel.name.startsWith("appeal-");
+        const isHiringTicket = ticketChannel.name.startsWith("hiring-");
+        const isPartnershipTicket = ticketChannel.name.startsWith("partnership-");
+
+        const claimCustomId = isPartnershipTicket
+            ? "partnership_claim"
+            : isHiringTicket
+                ? "hiring_claim"
+                : isSupportTicket
+                    ? "support_claim"
+                    : "commission_claim";
+
+        const closeCustomId = isPartnershipTicket
+            ? "partnership_close"
+            : isHiringTicket
+                ? "hiring_close"
+                : isSupportTicket
+                    ? "support_close"
+                    : "ticket_close";
 
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
-                .setCustomId(isSupportTicket ? "support_claim" : "commission_claim")
+                .setCustomId(claimCustomId)
                 .setLabel("📝 Claim Ticket")
                 .setStyle(ButtonStyle.Primary),
 
             new ButtonBuilder()
-                .setCustomId(isSupportTicket ? "support_close" : "ticket_close")
+                .setCustomId(closeCustomId)
                 .setLabel("🔒 Close Ticket")
                 .setStyle(ButtonStyle.Danger)
         );
