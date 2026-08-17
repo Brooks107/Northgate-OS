@@ -27,11 +27,7 @@ module.exports = {
             new ButtonBuilder()
                 .setCustomId("ticket_appeal")
                 .setLabel("🔨 Appeal")
-                .setStyle(ButtonStyle.Secondary),
-            new ButtonBuilder()
-                .setCustomId("ticket_partnership")
-                .setLabel("🤝 Partnership")
-                .setStyle(ButtonStyle.Success)
+                .setStyle(ButtonStyle.Secondary)
         );
         
 

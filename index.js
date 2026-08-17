@@ -4,6 +4,7 @@ const { Client, GatewayIntentBits, Events, MessageFlags } = require("discord.js"
 const supportHandler = require("./handlers/supporthandler");
 const commissionsHandler = require("./handlers/commissionshandler");
 const hiringHandler = require("./handlers/hiringhandler");
+const partnershipHandler = require("./handlers/partnershiphandler");
 const gitSync = require("./git-sync");
 const commandRegistry = require("./command-registry");
 const state = require("./state");
@@ -44,7 +45,7 @@ client.getNextTicketId = function () {
 // #1 again while support-1-someone is still open -- two channels then share an
 // ID and /close picks whichever one it finds first. Ticket channel names carry
 // the ID, so the channels themselves are the source of truth on boot.
-const TICKET_CHANNEL_PATTERN = /^(?:support|appeal|commission|hiring)-(\d+)-/;
+const TICKET_CHANNEL_PATTERN = /^(?:support|appeal|commission|hiring|partnership)-(\d+)-/;
 
 client.once(Events.ClientReady, () => {
     for (const guild of client.guilds.cache.values()) {
@@ -140,14 +141,12 @@ client.on("interactionCreate", async interaction => {
         const isSupportTicket =
             interaction.customId === "ticket_support" ||
             interaction.customId === "ticket_appeal" ||
-            interaction.customId === "ticket_partnership" ||
             interaction.customId === "modal_ticket_support" ||
             interaction.customId === "modal_ticket_appeal" ||
-            interaction.customId === "modal_ticket_partnership" ||
             interaction.customId === "support_claim" ||
             interaction.customId === "support_close" ||
-            (interaction.customId === "ticket_claim" && (channelName.startsWith("support-") || channelName.startsWith("appeal-") || channelName.startsWith("partnership-"))) ||
-            (interaction.customId === "ticket_close" && (channelName.startsWith("support-") || channelName.startsWith("appeal-") || channelName.startsWith("partnership-")));
+            (interaction.customId === "ticket_claim" && (channelName.startsWith("support-") || channelName.startsWith("appeal-"))) ||
+            (interaction.customId === "ticket_close" && (channelName.startsWith("support-") || channelName.startsWith("appeal-")));
 
         const isHiringTicket =
             interaction.customId === "ticket_hire" ||
@@ -156,6 +155,14 @@ client.on("interactionCreate", async interaction => {
             interaction.customId === "hiring_close" ||
             (interaction.customId === "ticket_claim" && channelName.startsWith("hiring-")) ||
             (interaction.customId === "ticket_close" && channelName.startsWith("hiring-"));
+
+        const isPartnershipTicket =
+            interaction.customId === "ticket_partnership" ||
+            interaction.customId === "modal_ticket_partnership" ||
+            interaction.customId === "partnership_claim" ||
+            interaction.customId === "partnership_close" ||
+            (interaction.customId === "ticket_claim" && channelName.startsWith("partnership-")) ||
+            (interaction.customId === "ticket_close" && channelName.startsWith("partnership-"));
 
         if (isCommissionTicket) {
             return await commissionsHandler.execute(interaction, client, config);
@@ -167,6 +174,10 @@ client.on("interactionCreate", async interaction => {
 
         if (isHiringTicket) {
             return await hiringHandler.execute(interaction, client, config);
+        }
+
+        if (isPartnershipTicket) {
+            return await partnershipHandler.execute(interaction, client, config);
         }
 
         // Nothing claimed it. Answer anyway -- an unrouted component otherwise
