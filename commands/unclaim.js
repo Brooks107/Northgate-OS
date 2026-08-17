@@ -41,7 +41,8 @@ module.exports = {
         const ticketChannel = interaction.guild.channels.cache.find(ch =>
             ch.name.startsWith(`commission-${id}`) ||
             ch.name.startsWith(`support-${id}`) ||
-            ch.name.startsWith(`appeal-${id}`)
+            ch.name.startsWith(`appeal-${id}`) || 
+            ch.name.startsWith(`hiring-${id}`)
         );
 
         if (!ticketChannel) {

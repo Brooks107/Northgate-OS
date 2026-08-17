@@ -54,7 +54,7 @@ module.exports = {
         );
 
         if (!ticketChannel) {
-            return interaction.editReply(`❌ Commission ticket #${id} does not exist.`);
+            return interaction.editReply(`❌  ticket #${id} does not exist.`);
         }
 
         // -------------------------------------------------
