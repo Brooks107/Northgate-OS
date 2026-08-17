@@ -42,10 +42,11 @@ client.getNextTicketId = function () {
 
 // The set above only lives in memory, and git-sync restarts this process on
 // every push. Without this, a restart forgets every open ticket and hands out
-// #1 again while support-1-someone is still open -- two channels then share an
-// ID and /close picks whichever one it finds first. Ticket channel names carry
-// the ID, so the channels themselves are the source of truth on boot.
-const TICKET_CHANNEL_PATTERN = /^(?:support|appeal|commission|hiring|partnership)-(\d+)-/;
+// #1 again while support-1 is still open -- two channels then share an ID and
+// /close picks whichever one it finds first. Ticket channel names carry the ID,
+// so the channels themselves are the source of truth on boot. Match both bare
+// names like support-2 and suffixed names like support-2-someone.
+const TICKET_CHANNEL_PATTERN = /^(?:support|appeal|commission|hiring|partnership)-(\d+)(?:-|$)/;
 
 client.once(Events.ClientReady, () => {
     for (const guild of client.guilds.cache.values()) {
