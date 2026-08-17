@@ -156,21 +156,33 @@ module.exports = {
      * Remove a ticket from tracking (when closed)
      */
     async removeTracking(ticketChannel) {
-        const tracked = trackedTickets[ticketChannel.id];
-        if (!tracked) return;
+        let tracked = trackedTickets[ticketChannel.id];
+        
+        // If not in memory, try to load from file
+        if (!tracked) {
+            try {
+                const fileData = JSON.parse(fs.readFileSync(TRACKING_FILE, "utf8"));
+                tracked = fileData[ticketChannel.id];
+            } catch (err) {
+                console.warn(`[ticket-tracker] Could not load tracking from file for ${ticketChannel.name}`);
+            }
+        }
+
+        if (!tracked) {
+            console.warn(`[ticket-tracker] No tracking found for ${ticketChannel.name}`);
+            return;
+        }
 
         try {
-            const message = await ticketChannel.guild.channels
-                .fetch(tracked.channelId)
-                .then(ch => ch.messages.fetch(tracked.messageId))
-                .catch(() => null);
-
+            const dashboardChannel = await ticketChannel.guild.channels.fetch(tracked.channelId);
+            const message = await dashboardChannel.messages.fetch(tracked.messageId);
+            
             if (message) {
                 await message.delete();
                 console.log(`[ticket-tracker] Deleted embed for ${ticketChannel.name}`);
             }
         } catch (err) {
-            console.error("[ticket-tracker] Failed to delete embed:", err.message);
+            console.error(`[ticket-tracker] Failed to delete embed for ${ticketChannel.name}:`, err.message);
         }
 
         delete trackedTickets[ticketChannel.id];
