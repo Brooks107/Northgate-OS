@@ -166,16 +166,11 @@ module.exports = {
                 .catch(() => null);
 
             if (message) {
-                const embeds = message.embeds;
-                if (embeds.length > 0) {
-                    const embed = EmbedBuilder.from(embeds[0])
-                        .setColor("#ff0000")
-                        .setTitle(`${embeds[0].title} [CLOSED]`);
-                    await message.edit({ embeds: [embed] });
-                }
+                await message.delete();
+                console.log(`[ticket-tracker] Deleted embed for ${ticketChannel.name}`);
             }
         } catch (err) {
-            console.error("[ticket-tracker] Failed to close embed:", err.message);
+            console.error("[ticket-tracker] Failed to delete embed:", err.message);
         }
 
         delete trackedTickets[ticketChannel.id];
