@@ -3,6 +3,7 @@ const { Client, GatewayIntentBits, Events, MessageFlags } = require("discord.js"
 
 const supportHandler = require("./handlers/supporthandler");
 const commissionsHandler = require("./handlers/commissionshandler");
+const hiringHandler = require("./handlers/hiringhandler");
 const gitSync = require("./git-sync");
 const commandRegistry = require("./command-registry");
 const state = require("./state");
@@ -43,7 +44,7 @@ client.getNextTicketId = function () {
 // #1 again while support-1-someone is still open -- two channels then share an
 // ID and /close picks whichever one it finds first. Ticket channel names carry
 // the ID, so the channels themselves are the source of truth on boot.
-const TICKET_CHANNEL_PATTERN = /^(?:support|appeal|commission)-(\d+)-/;
+const TICKET_CHANNEL_PATTERN = /^(?:support|appeal|commission|hiring)-(\d+)-/;
 
 client.once(Events.ClientReady, () => {
     for (const guild of client.guilds.cache.values()) {
@@ -146,12 +147,24 @@ client.on("interactionCreate", async interaction => {
             (interaction.customId === "ticket_claim" && (channelName.startsWith("support-") || channelName.startsWith("appeal-"))) ||
             (interaction.customId === "ticket_close" && (channelName.startsWith("support-") || channelName.startsWith("appeal-")));
 
+        const isHiringTicket =
+            interaction.customId === "ticket_hire" ||
+            interaction.customId === "modal_ticket_hire" ||
+            interaction.customId === "hiring_claim" ||
+            interaction.customId === "hiring_close" ||
+            (interaction.customId === "ticket_claim" && channelName.startsWith("hiring-")) ||
+            (interaction.customId === "ticket_close" && channelName.startsWith("hiring-"));
+
         if (isCommissionTicket) {
             return await commissionsHandler.execute(interaction, client, config);
         }
 
         if (isSupportTicket) {
             return await supportHandler.execute(interaction, client, config);
+        }
+
+        if (isHiringTicket) {
+            return await hiringHandler.execute(interaction, client, config);
         }
 
         // Nothing claimed it. Answer anyway -- an unrouted component otherwise
