@@ -218,7 +218,7 @@ module.exports = {
             (interaction.customId === "partnership_close" || interaction.customId === "ticket_close")
         ) {
             const channel = interaction.channel;
-            const match = channel.name.match(/^partnership-(\d+)-/);
+            const match = channel.name.match(/^partnership-(\d+)(?:-|$)/);
             if (match) {
                 const id = parseInt(match[1]);
                 client.activeTicketIds.delete(id);

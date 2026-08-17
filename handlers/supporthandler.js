@@ -227,7 +227,7 @@ const {
 
               const channel = interaction.channel;   // grab it before it gets deleted
 
-              const match = channel.name.match(/^.+-(\d+)-/);
+              const match = channel.name.match(/^(?:support|appeal)-(\d+)(?:-|$)/);
               if (match) {
                   const id = parseInt(match[1]);
                   client.activeTicketIds.delete(id);

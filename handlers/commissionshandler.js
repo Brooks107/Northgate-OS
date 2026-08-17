@@ -118,7 +118,7 @@ module.exports = {
 
             const channel = interaction.channel;
 
-            const match = channel.name.match(/^commission-(\d+)-/);
+            const match = channel.name.match(/^commission-(\d+)(?:-|$)/);
             if (match) {
                 const id = parseInt(match[1]);
                 client.activeTicketIds.delete(id);

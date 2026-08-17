@@ -213,7 +213,7 @@ module.exports = {
             (interaction.customId === "hiring_close" || interaction.customId === "ticket_close")
         ) {
             const channel = interaction.channel;
-            const match = channel.name.match(/^hiring-(\d+)-/);
+            const match = channel.name.match(/^hiring-(\d+)(?:-|$)/);
             if (match) {
                 const id = parseInt(match[1]);
                 client.activeTicketIds.delete(id);
