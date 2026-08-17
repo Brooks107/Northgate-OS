@@ -33,6 +33,18 @@ const client = new Client({
 
 client.activeTicketIds = new Set();
 
+client.refreshActiveTicketIds = function (guild) {
+    if (!guild) return;
+
+    const seen = new Set();
+    for (const channel of guild.channels.cache.values()) {
+        const match = channel.name.match(TICKET_CHANNEL_PATTERN);
+        if (match) seen.add(Number(match[1]));
+    }
+
+    client.activeTicketIds = seen;
+};
+
 client.getNextTicketId = function () {
     for (let i = 1; i <= 20; i++) {
         if (!client.activeTicketIds.has(i)) return i;
@@ -50,10 +62,7 @@ const TICKET_CHANNEL_PATTERN = /^(?:support|appeal|commission|hiring|partnership
 
 client.once(Events.ClientReady, () => {
     for (const guild of client.guilds.cache.values()) {
-        for (const channel of guild.channels.cache.values()) {
-            const match = channel.name.match(TICKET_CHANNEL_PATTERN);
-            if (match) client.activeTicketIds.add(Number(match[1]));
-        }
+        client.refreshActiveTicketIds(guild);
     }
 
     const restored = [...client.activeTicketIds].sort((a, b) => a - b);

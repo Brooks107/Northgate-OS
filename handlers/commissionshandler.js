@@ -196,6 +196,7 @@ module.exports = {
             const categoryId = config.commissionsticketcategory;
             const prefix = "commission";
 
+            client.refreshActiveTicketIds(interaction.guild);
             const ticketId = client.getNextTicketId();
 
             if (!ticketId) {
