@@ -6,8 +6,8 @@ const {
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName("remove")
-        .setDescription("Remove a user from a ticket by ID.")
+        .setName("add")
+        .setDescription("Add a user to a ticket by ID.")
         .addIntegerOption(option =>
             option.setName("id")
                 .setDescription("The ticket ID.")
