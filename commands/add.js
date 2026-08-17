@@ -15,7 +15,7 @@ module.exports = {
         )
         .addUserOption(option =>
             option.setName("user")
-                .setDescription("The user to remove from the ticket.")
+                .setDescription("The user to add to the ticket.")
                 .setRequired(true)
         ),
 
