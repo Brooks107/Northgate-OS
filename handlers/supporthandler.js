@@ -22,19 +22,25 @@ const {
           if (
               interaction.isButton() &&
               (interaction.customId === "ticket_support" ||
-               interaction.customId === "ticket_appeal")
+               interaction.customId === "ticket_appeal" ||
+               interaction.customId === "ticket_partnership")
           ) {
 
+              const isPartnership = interaction.customId === "ticket_partnership";
               const modal = new ModalBuilder()
                   .setCustomId(
                       interaction.customId === "ticket_support"
                           ? "modal_ticket_support"
-                          : "modal_ticket_appeal"
+                          : interaction.customId === "ticket_appeal"
+                              ? "modal_ticket_appeal"
+                              : "modal_ticket_partnership"
                   )
                   .setTitle(
                       interaction.customId === "ticket_support"
                           ? "General Support Ticket"
-                          : "Appeal Ticket"
+                          : interaction.customId === "ticket_appeal"
+                              ? "Appeal Ticket"
+                              : "Partnership Ticket"
                   );
 
               const issueTitle = new TextInputBuilder()
@@ -42,7 +48,9 @@ const {
                   .setLabel(
                       interaction.customId === "ticket_support"
                           ? "What is your issue?"
-                          : "Reason for appeal?"
+                          : interaction.customId === "ticket_appeal"
+                              ? "Reason for appeal?"
+                              : "What are you looking to partner on?"
                   )
                   .setStyle(TextInputStyle.Short)
                   .setRequired(true);
@@ -52,7 +60,9 @@ const {
                   .setLabel(
                       interaction.customId === "ticket_support"
                           ? "Describe your issue"
-                          : "Explain your appeal"
+                          : interaction.customId === "ticket_appeal"
+                              ? "Explain your appeal"
+                              : "Tell us about your partnership idea"
                   )
                   .setStyle(TextInputStyle.Paragraph)
                   .setRequired(true);
@@ -112,15 +122,20 @@ const {
           if (
               interaction.isModalSubmit() &&
               (interaction.customId === "modal_ticket_support" ||
-               interaction.customId === "modal_ticket_appeal")
+               interaction.customId === "modal_ticket_appeal" ||
+               interaction.customId === "modal_ticket_partnership")
           ) {
 
               const isSupport = interaction.customId === "modal_ticket_support";
+              const isAppeal = interaction.customId === "modal_ticket_appeal";
+              const isPartnership = interaction.customId === "modal_ticket_partnership";
 
-              const prefix = isSupport ? "support" : "appeal";
+              const prefix = isSupport ? "support" : isAppeal ? "appeal" : "partnership";
               const categoryId = isSupport
                   ? config.generalticketcategory
-                  : config.appealsticketcategory;
+                  : isAppeal
+                      ? config.appealsticketcategory
+                      : config.partnershipticketcategory || config.generalticketcategory;
 
               const ticketId = client.getNextTicketId();
 
@@ -198,9 +213,9 @@ const {
                   allowedMentions: { roles: ["1522596266125688902", "1536399184096133221", "1518065237771685928", "1535764413422899210", "1535764412923781270", "1536398786346225684", "1535023189246345277"] },
                   embeds: [
                       {
-                          title: `📩 ${isSupport ? "Support" : "Appeal"} Ticket #${ticketId}`,
+                          title: `📩 ${isSupport ? "Support" : isAppeal ? "Appeal" : "Partnership"} Ticket #${ticketId}`,
                           description: "A new ticket has been created.",
-                          color: 0x3498db,
+                          color: isPartnership ? 0x2ecc71 : 0x3498db,
                           fields: [
                               { name: "👤 User", value: interaction.user.tag },
                               { name: "🎫 Issue", value: issueTitle },

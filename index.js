@@ -140,12 +140,14 @@ client.on("interactionCreate", async interaction => {
         const isSupportTicket =
             interaction.customId === "ticket_support" ||
             interaction.customId === "ticket_appeal" ||
+            interaction.customId === "ticket_partnership" ||
             interaction.customId === "modal_ticket_support" ||
             interaction.customId === "modal_ticket_appeal" ||
+            interaction.customId === "modal_ticket_partnership" ||
             interaction.customId === "support_claim" ||
             interaction.customId === "support_close" ||
-            (interaction.customId === "ticket_claim" && (channelName.startsWith("support-") || channelName.startsWith("appeal-"))) ||
-            (interaction.customId === "ticket_close" && (channelName.startsWith("support-") || channelName.startsWith("appeal-")));
+            (interaction.customId === "ticket_claim" && (channelName.startsWith("support-") || channelName.startsWith("appeal-") || channelName.startsWith("partnership-"))) ||
+            (interaction.customId === "ticket_close" && (channelName.startsWith("support-") || channelName.startsWith("appeal-") || channelName.startsWith("partnership-")));
 
         const isHiringTicket =
             interaction.customId === "ticket_hire" ||
