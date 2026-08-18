@@ -74,7 +74,10 @@ const {
               (interaction.customId === "ticket_claim" || interaction.customId === "support_claim")
           ) {
 
-              const isStaff = config.supportTeamRoles.some(roleId =>
+              const ticketAccess = interaction.channel?.name?.startsWith("appeal-")
+                  ? (config.appealsticketaccess || [])
+                  : (config.generalticketaccess || []);
+              const isStaff = ticketAccess.some(roleId =>
                   interaction.member?.roles?.cache?.has(roleId)
               );
 
@@ -137,6 +140,9 @@ const {
 
               const issueTitle = interaction.fields.getTextInputValue("issue_title");
               const issueDesc = interaction.fields.getTextInputValue("issue_desc");
+              const ticketAccess = isSupport
+                  ? (config.generalticketaccess || [])
+                  : (config.appealsticketaccess || []);
 
               let ticketChannel;
 
@@ -157,7 +163,7 @@ const {
                                   PermissionFlagsBits.ReadMessageHistory
                               ]
                           },
-                          ...config.supportTeamRoles.map(roleId => ({
+                          ...ticketAccess.map(roleId => ({
                               id: roleId,
                               allow: [
                                   PermissionFlagsBits.ViewChannel,
