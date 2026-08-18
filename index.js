@@ -5,6 +5,7 @@ const supportHandler = require("./handlers/supporthandler");
 const commissionsHandler = require("./handlers/commissionshandler");
 const hiringHandler = require("./handlers/hiringhandler");
 const partnershipHandler = require("./handlers/partnershiphandler");
+const autoPing = require("./handlers/autoping");
 const gitSync = require("./git-sync");
 const commandRegistry = require("./command-registry");
 const state = require("./state");
@@ -72,8 +73,9 @@ client.once(Events.ClientReady, () => {
         (restored.length ? `: ${restored.join(", ")}` : "")
     );
 
-    // Initialize ticket tracker
+    // Initialize ticket tracker and inactivity pings
     ticketTracker.init();
+    autoPing.start(client, config);
 });
 
 // -------------------------------------------------
