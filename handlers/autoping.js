@@ -11,16 +11,9 @@ function isTicketChannel(channelName) {
 }
 
 function isStaffMember(member, config) {
-    if (!member) return false;
+    if (!member || !config?.staffrole) return false;
 
-    const roleIds = new Set([
-        ...(config.supportTeamRoles || []),
-        ...(config.operationsroles || []),
-        ...(config.commissionticketaccess || []),
-        ...(config.staffrole ? [String(config.staffrole)] : [])
-    ]);
-
-    return [...roleIds].some(roleId => member.roles?.cache?.has(String(roleId)));
+    return member.roles?.cache?.has(String(config.staffrole));
 }
 
 function shouldPing(channelId, reason) {
@@ -37,12 +30,7 @@ function shouldPing(channelId, reason) {
 }
 
 async function getInitialRoleMentions(channel, config) {
-    const fallbackIds = [
-        ...(config.supportTeamRoles || []),
-        ...(config.operationsroles || []),
-        ...(config.commissionticketaccess || []),
-        ...(config.staffrole ? [String(config.staffrole)] : [])
-    ];
+    const fallbackIds = config.staffrole ? [String(config.staffrole)] : [];
 
     try {
         const messages = await channel.messages.fetch({ limit: 50 });
@@ -91,9 +79,8 @@ async function checkTicketChannel(channel, client, config) {
     const messages = await channel.messages.fetch({ limit: 200 }).catch(() => new Map());
     const sorted = [...messages.values()].sort((a, b) => a.createdTimestamp - b.createdTimestamp);
 
-    const lastStaffMessage = sorted.find(msg =>
+    const lastStaffMessage = [...sorted].reverse().find(msg =>
         !msg.author.bot &&
-        msg.author.id !== ownerId &&
         isStaffMember(guild.members.cache.get(msg.author.id) || null, config)
     ) || null;
 
