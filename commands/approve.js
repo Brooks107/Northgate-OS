@@ -33,6 +33,36 @@ module.exports = {
             option.setName("message")
                 .setDescription("Optional approval message")
                 .setRequired(false)
+        )
+        .addUserOption(option =>
+            option.setName("developer 1")
+                .setDescription("The main developers for the commission")
+                .setRequired(true)
+        )
+        .addUserOption(option =>
+            option.setName("developer 2")
+                .setDescription("The main developers for the commission")
+                .setRequired(false)
+        )
+        .addUserOption(option =>
+            option.setName("developer 3")
+                .setDescription("The main developers for the commission")
+                .setRequired(false)
+        )
+        .addUserOption(option =>
+            option.setName("developer 4")
+                .setDescription("The main developers for the commission")
+                .setRequired(false)
+        )
+        .addUserOption(option =>
+            option.setName("developer 5")
+                .setDescription("The main developers for the commission")
+                .setRequired(false)
+        )
+        .addUserOption(option =>
+            option.setName("supervisor")
+                .setDescription("The supervisor for the commission")
+                .setRequired(true)
         ),
 
     async execute(interaction, client, config) {
@@ -61,6 +91,11 @@ module.exports = {
         const commissioner = interaction.options.getString("commissioner");
         const payment = interaction.options.getString("payment");
         const message = interaction.options.getString("message") || "Your commission has been approved.";
+        const developer1 = interaction.options.GetUser("developer 1")
+        const developer2 = interaction.opetions.GetUser("developer 2") || "No second"
+        const developer3 = interaction.options.GetUser("developer 3") || "No third"
+        const developer4 = interaction.options.GetUser("developer 4") || "No forth"
+        const developer5 = interaction.options.GetUser("developer 5") || "No fifth"
 
         // -------------------------------------------------
         // FIND COMMISSION TICKET CHANNEL
@@ -144,8 +179,13 @@ module.exports = {
                 embeds: [
                     {
                         title: `Commission #${id} - ${commissioner}`,
-                        description: `Commission approved for **${payment}**.\n\n${message}`,
-                        color: 0x00ff00
+                        color: 0x00ff00,
+                        fields: [
+                            { name: "Commissioner", value: `${commissioner}` },
+                            { name: "Payment", value: "${payment}"},
+                            { name: "Developers", value: "${developer1} |  ${developer2} |  ${developer3} | ${developer4} |  ${developer5}"},
+                            { name: "Supervisors", value: "${supervisor}"}
+                        ]
                     }
                 ],
                 components: [row]
