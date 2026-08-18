@@ -35,27 +35,27 @@ module.exports = {
                 .setRequired(false)
         )
         .addUserOption(option =>
-            option.setName("developer 1")
+            option.setName("developer_1")
                 .setDescription("The main developers for the commission")
                 .setRequired(true)
         )
         .addUserOption(option =>
-            option.setName("developer 2")
+            option.setName("developer_2")
                 .setDescription("The main developers for the commission")
                 .setRequired(false)
         )
         .addUserOption(option =>
-            option.setName("developer 3")
+            option.setName("developer_3")
                 .setDescription("The main developers for the commission")
                 .setRequired(false)
         )
         .addUserOption(option =>
-            option.setName("developer 4")
+            option.setName("developer_4")
                 .setDescription("The main developers for the commission")
                 .setRequired(false)
         )
         .addUserOption(option =>
-            option.setName("developer 5")
+            option.setName("developer_5")
                 .setDescription("The main developers for the commission")
                 .setRequired(false)
         )
@@ -91,11 +91,11 @@ module.exports = {
         const commissioner = interaction.options.getString("commissioner");
         const payment = interaction.options.getString("payment");
         const message = interaction.options.getString("message") || "Your commission has been approved.";
-        const developer1 = interaction.options.GetUser("developer 1")
-        const developer2 = interaction.opetions.GetUser("developer 2") || "No second"
-        const developer3 = interaction.options.GetUser("developer 3") || "No third"
-        const developer4 = interaction.options.GetUser("developer 4") || "No forth"
-        const developer5 = interaction.options.GetUser("developer 5") || "No fifth"
+        const developer1 = interaction.options.getUser("developer_1");
+        const developer2 = interaction.options.getUser("developer_2") || "No second";
+        const developer3 = interaction.options.getUser("developer_3") || "No third";
+        const developer4 = interaction.options.getUser("developer_4") || "No fourth";
+        const developer5 = interaction.options.getUser("developer_5") || "No fifth";
 
         // -------------------------------------------------
         // FIND COMMISSION TICKET CHANNEL
