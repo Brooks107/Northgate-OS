@@ -175,13 +175,15 @@ module.exports = {
                 allowedMentions: { parse: [] }
             });
 
-            // Threads are only archivable by their creator or someone with
-            // ManageThreads; never let a missing permission fail the whole action.
+            await interaction.editReply(`✅ Commission #${id} marked as complete.`);
+
             if (interaction.channel.isThread()) {
-                await interaction.channel.setArchived(true).catch(() => {});
+                await interaction.channel.delete("Commission completed").catch(err => {
+                    console.error(`[commission] failed to delete completed thread #${id}:`, err.message);
+                });
             }
 
-            return interaction.editReply(`✅ Commission #${id} marked as complete.`);
+            return;
         }
 
         // -------------------------------------------------
