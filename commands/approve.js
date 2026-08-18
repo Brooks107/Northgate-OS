@@ -96,6 +96,7 @@ module.exports = {
         const developer3 = interaction.options.getUser("developer_3") || "No third";
         const developer4 = interaction.options.getUser("developer_4") || "No fourth";
         const developer5 = interaction.options.getUser("developer_5") || "No fifth";
+        const supervisor = interaction.options.getUser("supervisor");
 
         // -------------------------------------------------
         // FIND COMMISSION TICKET CHANNEL
@@ -182,9 +183,9 @@ module.exports = {
                         color: 0x00ff00,
                         fields: [
                             { name: "Commissioner", value: `${commissioner}` },
-                            { name: "Payment", value: "${payment}"},
-                            { name: "Developers", value: "${developer1} |  ${developer2} |  ${developer3} | ${developer4} |  ${developer5}"},
-                            { name: "Supervisors", value: "${supervisor}"}
+                            { name: "Payment", value: payment },
+                            { name: "Developers", value: `${developer1} | ${developer2} | ${developer3} | ${developer4} | ${developer5}` },
+                            { name: "Supervisor", value: `${supervisor}` }
                         ]
                     }
                 ],
