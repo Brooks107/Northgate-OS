@@ -29,15 +29,20 @@ module.exports = {
                 .setDescription("Payment agreed for the commission")
                 .setRequired(true)
         )
-        .addStringOption(option =>
-            option.setName("message")
-                .setDescription("Optional approval message")
-                .setRequired(false)
-        )
         .addUserOption(option =>
             option.setName("developer_1")
                 .setDescription("The main developers for the commission")
                 .setRequired(true)
+        )
+        .addUserOption(option =>
+            option.setName("supervisor")
+                .setDescription("The supervisor for the commission")
+                .setRequired(true)
+        )
+        .addStringOption(option =>
+            option.setName("message")
+                .setDescription("Optional approval message")
+                .setRequired(false)
         )
         .addUserOption(option =>
             option.setName("developer_2")
@@ -58,11 +63,6 @@ module.exports = {
             option.setName("developer_5")
                 .setDescription("The main developers for the commission")
                 .setRequired(false)
-        )
-        .addUserOption(option =>
-            option.setName("supervisor")
-                .setDescription("The supervisor for the commission")
-                .setRequired(true)
         ),
 
     async execute(interaction, client, config) {
