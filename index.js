@@ -10,6 +10,7 @@ const gitSync = require("./git-sync");
 const commandRegistry = require("./command-registry");
 const state = require("./state");
 const ticketTracker = require("./ticket-tracker");
+const { startHeartbeat } = require("./heartbeat");
 
 // Lock flags are runtime state, not deployment config. Apply the persisted
 // values over the config.json defaults before anything can read them, so a
@@ -28,6 +29,8 @@ const client = new Client({
         GatewayIntentBits.MessageContent
     ]
 });
+
+startHeartbeat(client);
 
 // -------------------------------------------------
 // Ticket ID system (1–20)
