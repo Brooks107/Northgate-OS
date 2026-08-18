@@ -66,10 +66,7 @@ module.exports = {
             interaction.isButton() &&
             (interaction.customId === "ticket_claim" || interaction.customId === "partnership_claim")
         ) {
-            const staffRoleIds = [
-                ...(config.supportTeamRoles || []),
-                ...(config.operationsroles || [])
-            ];
+            const staffRoleIds = config.partnershipticketaccess || [];
 
             const isStaff = staffRoleIds.some(roleId =>
                 interaction.member?.roles?.cache?.has(roleId)
@@ -130,10 +127,7 @@ module.exports = {
             let ticketChannel;
 
             try {
-                const allowedRoleIds = [
-                    ...(config.supportTeamRoles || []),
-                    ...(config.operationsroles || [])
-                ];
+                const allowedRoleIds = config.partnershipticketaccess || [];
 
                 ticketChannel = await interaction.guild.channels.create({
                     name: `${prefix}-${ticketId}`,

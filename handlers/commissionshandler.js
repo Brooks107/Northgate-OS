@@ -76,7 +76,7 @@ module.exports = {
             (interaction.customId === "ticket_claim" || interaction.customId === "commission_claim")
         ) {
 
-            const isStaff = config.supportTeamRoles.some(roleId =>
+            const isStaff = (config.commissionticketaccess || []).some(roleId =>
                 interaction.member?.roles?.cache?.has(roleId)
             );
 
@@ -145,7 +145,7 @@ module.exports = {
         // -------------------------------------------------
         if (interaction.isButton() && interaction.customId.startsWith("commission_complete_")) {
 
-            const isStaff = config.supportTeamRoles.some(roleId =>
+            const isStaff = (config.commissionticketaccess || []).some(roleId =>
                 interaction.member?.roles?.cache?.has(roleId)
             );
 
@@ -239,15 +239,7 @@ module.exports = {
                                 PermissionFlagsBits.ReadMessageHistory
                             ]
                         },
-                        ...config.commissionticketaccess.map(roleId => ({
-                            id: roleId,
-                            allow: [
-                                PermissionFlagsBits.ViewChannel,
-                                PermissionFlagsBits.SendMessages,
-                                PermissionFlagsBits.ReadMessageHistory
-                            ]
-                        })),
-                        ...config.supportTeamRoles.map(roleId => ({
+                        ...(config.commissionticketaccess || []).map(roleId => ({
                             id: roleId,
                             allow: [
                                 PermissionFlagsBits.ViewChannel,
