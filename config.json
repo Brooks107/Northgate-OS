@@ -45,7 +45,12 @@
         "hardReset": false,
         "restartOnUpdate": true
     },
-    "commissionLocked": false
-
+    "commissionLocked": false,
+    "prrole": "1535023189246345277",
+    "hrrole": "1538588862148771910",
+    "communityrole": "1536398794684375050",
+    "devrole": "1518065236475772958",
+    "staffrole": 1518065228846338160,
+    "handbook link": "https://docs.google.com/document/d/1vZx8tigurY7glO708EA4MByUBj-mORu_FrLJ_tTajAY/edit?usp=drivesdk"
 
 }
