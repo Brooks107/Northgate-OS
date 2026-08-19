@@ -120,6 +120,5 @@ module.exports = {
 
 		await ticketChannel.setTopic(ticketTopic.build({ ownerId }));
 		await interaction.editReply(`✅ Ticket #${id} has been transferred to <@${recipient.id}> and unclaimed.`);
-		return recipient;
 	}
 };
