@@ -67,55 +67,6 @@ const {
           }
 
           // -------------------------------------------------
-          // CLAIM BUTTON
-          // -------------------------------------------------
-          if (
-              interaction.isButton() &&
-              (interaction.customId === "ticket_claim" || interaction.customId === "support_claim")
-          ) {
-
-              const ticketAccess = interaction.channel?.name?.startsWith("appeal-")
-                  ? (config.appealsticketaccess || [])
-                  : (config.generalticketaccess || []);
-              const isStaff = ticketAccess.some(roleId =>
-                  interaction.member?.roles?.cache?.has(roleId)
-              );
-
-              if (!isStaff) {
-                  return interaction.reply({
-                      content: "❌ Only staff can claim this ticket.",
-                      flags: MessageFlags.Ephemeral
-                  });
-              }
-
-              await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-
-              const message = interaction.message;
-
-              const newRow = new ActionRowBuilder().addComponents(
-                  new ButtonBuilder()
-                      .setCustomId("support_claim")
-                      .setLabel(`Claimed by ${interaction.user.username}`)
-                      .setStyle(ButtonStyle.Primary)
-                      .setDisabled(true),
-
-                  new ButtonBuilder()
-                      .setCustomId("support_close")
-                      .setLabel("🔒 Close Ticket")
-                      .setStyle(ButtonStyle.Danger)
-              );
-
-              await message.edit({ components: [newRow] });
-              const ticketState = ticketTopic.parse(interaction.channel.topic);
-              await interaction.channel.setTopic(ticketTopic.build({
-                  ownerId: ticketState.ownerId,
-                  claimedBy: interaction.user.id
-              }));
-
-              return interaction.editReply("📝 You have claimed this ticket.");
-          }
-
-          // -------------------------------------------------
           // SUPPORT MODALS → CREATE TICKET
           // -------------------------------------------------
           if (
