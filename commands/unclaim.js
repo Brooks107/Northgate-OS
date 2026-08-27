@@ -50,6 +50,15 @@ module.exports = {
             return interaction.editReply(`❌ Ticket #${id} does not exist.`);
         }
 
+        const { claimedBy } = ticketTopic.parse(ticketChannel.topic);
+        if (!claimedBy) {
+            return interaction.editReply(`❌ Ticket #${id} is not currently claimed.`);
+        }
+
+        if (claimedBy !== interaction.user.id) {
+            return interaction.editReply("❌ Only the person who claimed this ticket can unclaim it.");
+        }
+
         // -------------------------------------------------
         // FIND ORIGINAL EMBED MESSAGE (bulletproof)
         // -------------------------------------------------
