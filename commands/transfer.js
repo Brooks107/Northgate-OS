@@ -106,8 +106,9 @@ module.exports = {
 			components: [new ActionRowBuilder().addComponents(
 				new ButtonBuilder()
 					.setCustomId(claimCustomId)
-					.setLabel("📝 Claim Ticket")
-					.setStyle(ButtonStyle.Primary),
+					.setLabel(`Claimed by ${recipient.username}`)
+					.setStyle(ButtonStyle.Primary)
+					.setDisabled(true),
 				new ButtonBuilder()
 					.setCustomId(closeCustomId)
 					.setLabel("🔒 Close Ticket")
@@ -115,7 +116,10 @@ module.exports = {
 			)]
 		});
 
-		await ticketChannel.setTopic(ticketTopic.build({ ownerId }));
-		await interaction.editReply(`✅ Ticket #${id} has been transferred to <@${recipient.id}> and unclaimed.`);
+		await ticketChannel.setTopic(ticketTopic.build({
+			ownerId,
+			claimedBy: recipient.id
+		}));
+		await interaction.editReply(`✅ Ticket #${id} has been transferred to <@${recipient.id}>.`);
 	}
 };
