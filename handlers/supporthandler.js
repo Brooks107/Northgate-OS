@@ -106,6 +106,11 @@ const {
               );
 
               await message.edit({ components: [newRow] });
+              const ticketState = ticketTopic.parse(interaction.channel.topic);
+              await interaction.channel.setTopic(ticketTopic.build({
+                  ownerId: ticketState.ownerId,
+                  claimedBy: interaction.user.id
+              }));
 
               return interaction.editReply("📝 You have claimed this ticket.");
           }

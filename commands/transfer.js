@@ -49,11 +49,8 @@ module.exports = {
 		const id = interaction.options.getInteger("id");
 		const recipient = interaction.options.getUser("user");
 		const ticketChannel = interaction.guild.channels.cache.find(ch =>
-			ch.name.startsWith(`commission-${id}`) ||
-			ch.name.startsWith(`support-${id}`) ||
-			ch.name.startsWith(`appeal-${id}`) ||
-			ch.name.startsWith(`hiring-${id}`) ||
-			ch.name.startsWith(`partnership-${id}`)
+			/^(?:commission|support|appeal|hiring|partnership)-\d+(?:-|$)/.test(ch.name) &&
+			ch.name.match(/-(\d+)(?:-|$)/)?.[1] === String(id)
 		);
 
 		if (!ticketChannel) {
