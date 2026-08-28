@@ -287,9 +287,16 @@ client.on("messageCreate", async message => {
 // Permission overwrites do not stop members with Administrator from joining.
 // Enforce the management VC lock at the voice-state boundary as well.
 client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
-    if (!config.managementVoiceChannelLocked || !newState.channelId) return;
+    if (!newState.channelId) return;
     if (newState.channelId !== config.managementVoiceChannelId) return;
     if (newState.member?.user.bot) return;
+
+    const everyoneOverwrite = newState.channel.permissionOverwrites.cache.get(
+        newState.guild.roles.everyone.id
+    );
+    const channelIsLocked = config.managementVoiceChannelLocked ||
+        everyoneOverwrite?.deny.has("Connect");
+    if (!channelIsLocked) return;
 
     const allowedRoleIds = [
         config.hrdirectorrole,
