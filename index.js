@@ -24,6 +24,7 @@ const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildVoiceStates,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent
     ]
@@ -144,6 +145,36 @@ client.on("interactionCreate", async interaction => {
         return;
     }
 
+    if (interaction.isButton() && interaction.customId.startsWith("management_vc_accept:")) {
+        const channelId = config.managementVoiceChannelId;
+        const channel = channelId ? await client.channels.fetch(channelId).catch(() => null) : null;
+        const requesterId = interaction.customId.split(":")[1];
+        const acceptor = await interaction.guild?.members.fetch(interaction.user.id).catch(() => null);
+        const requester = await interaction.guild?.members.fetch(requesterId).catch(() => null);
+
+        if (!channel || !channel.isVoiceBased?.() || !acceptor || !requester) {
+            return interaction.reply({
+                content: "❌ The management voice channel or requester could not be found.",
+                flags: MessageFlags.Ephemeral
+            });
+        }
+
+        if (acceptor.voice.channelId !== channel.id) {
+            return interaction.reply({
+                content: "❌ You must already be in the management VC to accept requests.",
+                flags: MessageFlags.Ephemeral
+            });
+        }
+
+        await channel.permissionOverwrites.edit(requester, { Connect: true });
+        await requester.voice.setChannel(channel, "Management VC request accepted");
+        await interaction.update({
+            content: `✅ Accepted by ${interaction.user}.`,
+            components: []
+        });
+        return;
+    }
+
     if (interaction.isButton() || interaction.isModalSubmit()) {
         const channelName = interaction.channel?.name || "";
 
@@ -250,6 +281,31 @@ client.on("messageCreate", async message => {
         }
     } catch (err) {
         console.error("[messageCreate] error:", err);
+    }
+});
+
+// Permission overwrites do not stop members with Administrator from joining.
+// Enforce the management VC lock at the voice-state boundary as well.
+client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
+    if (!config.managementVoiceChannelLocked || !newState.channelId) return;
+    if (newState.channelId !== config.managementVoiceChannelId) return;
+    if (newState.member?.user.bot) return;
+
+    const allowedRoleIds = [
+        config.hrdirectorrole,
+        ...(Array.isArray(config.ownershiprole) ? config.ownershiprole : [config.ownershiprole])
+    ].filter(Boolean);
+
+    const isAllowed = allowedRoleIds.some(roleId => newState.member.roles.cache.has(roleId));
+    const memberOverwrite = newState.channel.permissionOverwrites.cache.get(newState.member.id);
+    const hasExplicitAccess = memberOverwrite?.allow.has("Connect");
+    if (isAllowed || hasExplicitAccess) return;
+
+    try {
+        await newState.disconnect("Management voice channel is locked");
+        console.log(`[management-vc] disconnected unauthorized member ${newState.member.user.tag}`);
+    } catch (err) {
+        console.error(`[management-vc] could not disconnect ${newState.member?.user?.tag}:`, err.message);
     }
 });
 

@@ -10,6 +10,7 @@
         "commissionlocked": false
     },
     "trackerChannelId": "1539010556701188206",
+    "managementVoiceChannelId": "1536025830050758797",
     "appealsticketcategory": "1536336008029675580",
     "generalticketcategory": "1518259299766374410",
     "commissionsticketcategory": "1518256130432831531",
@@ -62,5 +63,12 @@
     "staffrole": "1518065228846338160",
     "handbook link": "https://docs.google.com/document/d/1vZx8tigurY7glO708EA4MByUBj-mORu_FrLJ_tTajAY/edit?usp=drivesdk",
     "staffrepingtime": "24",
-    "clientrepingtime": "24"
+    "clientrepingtime": "24",
+    "hrdirectorrole": "1535764413422899210",
+    "ownershiprole": [
+        "1517982021782339684",
+        "1517978929661612233",
+        "1535764196459806850",
+        "1535764412923781270"
+    ]
 }   
