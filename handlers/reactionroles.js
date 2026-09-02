@@ -12,6 +12,25 @@ function getReactionRoleMap(config) {
 	]);
 }
 
+function getPingRoleIds(config) {
+	return [...getReactionRoleMap(config).values()].filter(Boolean);
+}
+
+async function syncHeaderRole(member, config) {
+	const headerRoleId = config.pings?.headerrole;
+	if (!headerRoleId) return;
+
+	const headerRole = member.guild.roles.cache.get(headerRoleId);
+	if (!headerRole) return;
+
+	const hasPingRole = getPingRoleIds(config).some(roleId => member.roles.cache.has(roleId));
+	if (hasPingRole && !member.roles.cache.has(headerRoleId)) {
+		await member.roles.add(headerRole, "Notification role selected");
+	} else if (!hasPingRole && member.roles.cache.has(headerRoleId)) {
+		await member.roles.remove(headerRole, "All notification roles removed");
+	}
+}
+
 async function updateRole(reaction, user, config, add) {
 	if (user.bot) return;
 	if (reaction.partial) await reaction.fetch().catch(() => null);
@@ -30,6 +49,8 @@ async function updateRole(reaction, user, config, add) {
 	} else {
 		await member.roles.remove(role, "Reaction role deselected");
 	}
+
+	await syncHeaderRole(member, config);
 }
 
 module.exports = {
