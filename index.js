@@ -375,43 +375,35 @@ client.on("messageCreate", async message => {
             fields: [
                 {
                     name: "Our Website",
-                    value: [ 
-                        "[Our Website](https://northgate-studios.com/)" ,
-                        ""
-                    ]
+                    value: "[Our Website](https://northgate-studios.com/)"
                 },
                 {
                     name: "Our Website Status Page",
-                    value: [
-                        "[Status Page](https://status.vortigernindustries.com)",
-                        ""
-                    ]
+                    value: "[Status Page](https://status.vortigernindustries.com)"
                 },
                 {
                     name: "SPONSORS",
-                    value: [
-                        "[United Custom Servers Organisation](https://discord.gg/mSbgZbKAGa)",
-                        "[Vortigern Industries](https://discord.gg/XHZJ9qjs2B)",
-                        ""
-                    ]
+                    value: "[United Custom Servers Organisation](https://discord.gg/mSbgZbKAGa)\n[Vortigern Industries](https://discord.gg/XHZJ9qjs2B)"
                 },
                 {
                     name: "Our Youtube",
-                    value: [
-                        "[Northgate Studios](https://www.youtube.com/@NorthGate.Studios)",
-                        ""
-                    ]
+                    value: "[Northgate Studios](https://www.youtube.com/@NorthGate.Studios)"
                 },
                 {
                     name: "Our Roblox Group",
-                    value: [
-                        "[Northgate Studios](https://www.roblox.com/communities/33030494/NORTHGATE-Studios#!/about)",
-                        "",
-                    ]
+                    value: "[Northgate Studios](https://www.roblox.com/communities/33030494/NORTHGATE-Studios#!/about)"
                 }
-                
             ]
         };
+
+        try {
+            await linksChannel.send({ embeds: [embed] });
+        } catch (err) {
+            console.error("[links] failed to send links embed:", err);
+            return message.reply("❌ I cannot send the links embed in that channel. Check channel permissions.");
+        }
+
+        return;
     }
 
     if (command === "rules") {
