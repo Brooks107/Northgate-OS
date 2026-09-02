@@ -435,7 +435,7 @@ client.on("messageCreate", async message => {
                 "",
                 "These policies take effect across all Northgate Studios' projects.",
                 "",
-                "Northgate Studios reserves the right to warn, kick, remove, suspend, ban, or otherwise take action against any community of staff member at any time with or without notice, for any reason deemed appropriate by staff members of ownership.",
+                "Northgate Studios reserves the right to warn, kick, remove, suspend, ban, or otherwise take administrative action against any community of staff member at any time with or without notice, for any reason deemed appropriate by staff members of ownership.",
                 "",
                 "",
                 "---------------------------------------------------"
