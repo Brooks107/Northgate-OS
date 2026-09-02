@@ -373,14 +373,14 @@ client.on("messageCreate", async message => {
                 "",
                 "Northgate Studios reserves the right to warn, kick, remove, suspend, ban, or otherwise take action against any community of staff member at any time with or without notice, for any reason deemed appropriate by staff members of ownership.",
                 "",
-                " -# Created by Casper",
-                " -# **Powered By Vortigern Industries**",
-                "",
                 "",
                 "---------------------------------------------------"
             ].join("\n"),
             image: {
                 url: "https://cdn.discordapp.com/attachments/1172091235461238815/1518658520948408330/Copy_of_Studio_intro.gif?ex=6a98fbb6&is=6a97aa36&hm=e642fd4324eeb9a807652e1e1f6684b562058aec310c6c8bedf367267d3d81c9&"
+            },
+            footer: {
+                text: "Created by Casper | Powered By Vortigern Industries"
             },
             fields: [
                 {
