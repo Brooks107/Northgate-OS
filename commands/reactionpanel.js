@@ -16,6 +16,8 @@ module.exports = {
             });
         }
 
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
         const Announcementping = config.pings?.announcementid;
         const eventping = config.pings?.eventpingid;
         const giveawayping = config.pings?.giveawayid;
@@ -51,9 +53,8 @@ module.exports = {
 
         client.reactionRoleMessageId = message.id;
 
-        return interaction.reply({
+        return interaction.editReply({
             content: "✅ Reaction role panel sent.",
-            flags: MessageFlags.Ephemeral
         });
     }
 }
