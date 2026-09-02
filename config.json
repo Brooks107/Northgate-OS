@@ -36,13 +36,13 @@
     ],
 
     "pings": {
-        "announcementid": 1542957445696069702 ,
-        "eventpingid": 1542957471902203947,
-        "giveawayid": 1542957494643593306,
-        "gamenightid": 1542957513782067230,
-        "qotdid": 1542957609013743687,
-        "devpingid": 1544640016225931305,
-        "importantid": 1544640673779556462
+        "announcementid": "1542957445696069702",
+        "eventpingid": "1542957471902203947",
+        "giveawayid": "1542957494643593306",
+        "gamenightid": "1542957513782067230",
+        "qotdid": "1542957609013743687",
+        "devpingid": "1544640016225931305",
+        "importantid": "1544640673779556462"
     },
 
     "generalticketaccess": [
