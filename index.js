@@ -391,19 +391,22 @@ client.on("messageCreate", async message => {
                     name: "SPONSORS",
                     value: [
                         "[United Custom Servers Organisation](https://discord.gg/mSbgZbKAGa)",
-                        "[Vortigern Industries](https://discord.gg/XHZJ9qjs2B)"
+                        "[Vortigern Industries](https://discord.gg/XHZJ9qjs2B)",
+                        ""
                     ]
                 },
                 {
                     name: "Our Youtube",
                     value: [
                         "[Northgate Studios](https://www.youtube.com/@NorthGate.Studios)",
+                        ""
                     ]
                 },
                 {
                     name: "Our Roblox Group",
                     value: [
                         "[Northgate Studios](https://www.roblox.com/communities/33030494/NORTHGATE-Studios#!/about)",
+                        "",
                     ]
                 }
                 
