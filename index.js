@@ -343,6 +343,25 @@ client.on("messageCreate", async message => {
     }
 
     if (command === "rules") {
+        const rulesChannelId = (
+            config.channels?.ruleschannel?.id ??
+            config.channels?.ruleschannelid ??
+            config.channels?.rulesChannelId ??
+            config.rulesChannelId ??
+            config.ruleschannelid
+        );
+
+        if (!rulesChannelId || !/^[0-9]+$/.test(String(rulesChannelId))) {
+            console.warn("[rules] no valid rules channel configured");
+            return message.reply("❌ The rules channel is not configured yet.");
+        }
+
+        const rulesChannel = await message.guild?.channels.fetch(rulesChannelId).catch(() => null);
+        if (!rulesChannel || !rulesChannel.isTextBased?.()) {
+            console.warn(`[rules] configured channel ${rulesChannelId} is not a valid text channel`);
+            return message.reply("❌ The configured rules channel is invalid or not accessible.");
+        }
+
         const embed = {
             title: "Northgate Studios Rules",
             description: [
@@ -355,11 +374,11 @@ client.on("messageCreate", async message => {
                 "Northgate Studios reserves the right to warn, kick, remove, suspend, ban, or otherwise take action against any community of staff member at any time with or without notice, for any reason deemed appropriate by staff members of ownership.",
                 "",
                 " -# Created by Casper",
-                " -# **Powered By Vortigern Industries**", 
+                " -# **Powered By Vortigern Industries**",
                 "",
                 "",
                 "---------------------------------------------------"
-            ],  
+            ].join("\n"),
             image: {
                 url: "https://cdn.discordapp.com/attachments/1172091235461238815/1518658520948408330/Copy_of_Studio_intro.gif?ex=6a98fbb6&is=6a97aa36&hm=e642fd4324eeb9a807652e1e1f6684b562058aec310c6c8bedf367267d3d81c9&"
             },
@@ -374,7 +393,7 @@ client.on("messageCreate", async message => {
                 },
                 {
                     name: "No spamming.",
-                    value: "Do not send a series of small messages one after another. These interupt the chat and can make it difficult to scroll through the server. Pleqase keep your messages to atleast 5 words long while chatting unless the situation is deemed appropriate by staff."      
+                    value: "Do not send a series of small messages one after another. These interupt the chat and can make it difficult to scroll through the server. Pleqase keep your messages to atleast 5 words long while chatting unless the situation is deemed appropriate by staff."
                 },
                 {
                     name: "No pornographic, explicit or adult content",
@@ -394,7 +413,7 @@ client.on("messageCreate", async message => {
                 },
                 {
                     name: "Follow the per-channel instructions.",
-                   value: "Each channel on the server has its own set of rules about what kind of content is permitted. Please follow these guidelines and understand the purpose of each channel."
+                    value: "Each channel on the server has its own set of rules about what kind of content is permitted. Please follow these guidelines and understand the purpose of each channel."
                 },
                 {
                     name: "Follow Discord's Terms of Service and Community Guidelines.",
@@ -407,7 +426,7 @@ client.on("messageCreate", async message => {
                 {
                     name: "Do not share or distribute viruses or malicious software.",
                     value: "The server strictly prohibits the sharing or distribution of viruses or malicious software."
-                }, 
+                },
                 {
                     name: "Do not impersonate other users or staff members or any other organisation.",
                     value: "This includes but is not limited to using similar usernames, profile pictures, or other identifying information to mislead others into thinking you are someone else. Impersonation can cause confusion and harm to the community and is strictly prohibited."
@@ -423,14 +442,19 @@ client.on("messageCreate", async message => {
                         "",
                         "",
                         "TL:DR",
-                        "Have Common Sense",
-
-                    ] 
-                },
+                        "Have Common Sense"
+                    ].join("\n")
+                }
             ]
         };
 
-        await message.channel.send({ embeds: [embed] });
+        try {
+            await rulesChannel.send({ embeds: [embed] });
+        } catch (err) {
+            console.error("[rules] failed to send rules embed:", err);
+            return message.reply("❌ I cannot send the rules embed in that channel. Check channel permissions.");
+        }
+
         return;
     }
 });
