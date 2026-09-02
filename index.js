@@ -6,6 +6,7 @@ const commissionsHandler = require("./handlers/commissionshandler");
 const hiringHandler = require("./handlers/hiringhandler");
 const partnershipHandler = require("./handlers/partnershiphandler");
 const reactionRoles = require("./handlers/reactionroles");
+const prefixHandler = require("./handlers/prefixhandler");
 const gitSync = require("./git-sync");
 const commandRegistry = require("./command-registry");
 const state = require("./state");
@@ -16,7 +17,6 @@ const { startHeartbeat } = require("./heartbeat");
 // values over the config.json defaults before anything can read them, so a
 // lock survives the restarts that git-sync triggers on every push.
 Object.assign(config, state.load());
-
 // -------------------------------------------------
 // Create client
 // -------------------------------------------------
@@ -76,12 +76,6 @@ client.getNextTicketId = function () {
     return null;
 };
 
-// The set above only lives in memory, and git-sync restarts this process on
-// every push. Without this, a restart forgets every open ticket and hands out
-// #1 again while support-1 is still open -- two channels then share an ID and
-// /close picks whichever one it finds first. Ticket channel names carry the ID,
-// so the channels themselves are the source of truth on boot. Match both bare
-// names like support-2 and suffixed names like support-2-someone.
 const TICKET_CHANNEL_PATTERN = /^(?:support|appeal|commission|hiring|partnership)-(\d+)(?:-|$)/;
 
 client.once(Events.ClientReady, () => {
@@ -95,7 +89,6 @@ client.once(Events.ClientReady, () => {
         (restored.length ? `: ${restored.join(", ")}` : "")
     );
 
-    // Initialize ticket tracker
     ticketTracker.init();
 });
 
@@ -121,23 +114,16 @@ client.commands = new Map();
     }
 })();
 
-// -------------------------------------------------
-// Interaction router
-// -------------------------------------------------
-
-// A throw inside an async event listener becomes an unhandled rejection,
-// which terminates the process. Every handler below is wrapped so that one
-// failing command cannot take the whole bot offline.
 async function reportInteractionFailure(interaction, err) {
     console.error(`[interaction] handler failed for "${interaction.commandName ?? interaction.customId}":`, err);
 
-    const message = { content: "⚠️ Something went wrong handling that.", flags: MessageFlags.Ephemeral };
+    const response = { content: "⚠️ Something went wrong handling that.", flags: MessageFlags.Ephemeral };
 
     try {
         if (interaction.replied || interaction.deferred) {
-            await interaction.followUp(message);
+            await interaction.followUp(response);
         } else {
-            await interaction.reply(message);
+            await interaction.reply(response);
         }
     } catch {
         /* interaction already expired or was consumed elsewhere */
@@ -145,123 +131,73 @@ async function reportInteractionFailure(interaction, err) {
 }
 
 client.on("interactionCreate", async interaction => {
-  try {
+    try {
+        if (interaction.isChatInputCommand()) {
+            const cmd = client.commands.get(interaction.commandName);
 
-    if (interaction.isChatInputCommand()) {
-        const cmd = client.commands.get(interaction.commandName);
+            if (!cmd) {
+                console.warn(`[interaction] no handler loaded for /${interaction.commandName}`);
+                return interaction.reply({
+                    content: "❌ That command is currently unavailable. Please try again later or contact staff.",
+                    flags: MessageFlags.Ephemeral
+                });
+            }
 
-        // A command file that failed to load is still registered with Discord,
-        // so it stays visible in the picker. Say so instead of timing out.
-        if (!cmd) {
-            console.warn(`[interaction] no handler loaded for /${interaction.commandName}`);
+            await cmd.execute(interaction, client, config);
+            return;
+        }
+
+        if (interaction.isButton() && interaction.customId.startsWith("management_vc_accept:")) {
+            const channelId = config.managementVoiceChannelId;
+            const channel = channelId ? await client.channels.fetch(channelId).catch(() => null) : null;
+            const requesterId = interaction.customId.split(":")[1];
+            const acceptor = await interaction.guild?.members.fetch(interaction.user.id).catch(() => null);
+            const requester = await interaction.guild?.members.fetch(requesterId).catch(() => null);
+
+            if (!channel || !channel.isVoiceBased?.() || !acceptor || !requester) {
+                return interaction.reply({
+                    content: "❌ The management voice channel or requester could not be found.",
+                    flags: MessageFlags.Ephemeral
+                });
+            }
+
+            if (acceptor.voice.channelId !== channel.id) {
+                return interaction.reply({
+                    content: "❌ You must already be in the management VC to accept requests.",
+                    flags: MessageFlags.Ephemeral
+                });
+            }
+
+            await channel.permissionOverwrites.edit(requester, { Connect: true });
+            await requester.voice.setChannel(channel, "Management VC request accepted");
+            await interaction.update({
+                content: `✅ Accepted by ${interaction.user}.`,
+                components: []
+            });
+            return;
+        }
+
+        if (interaction.isButton() || interaction.isModalSubmit()) {
+            const channelName = interaction.channel?.name || "";
+            const isCommissionTicket = interaction.customId === "ticket_commission" || interaction.customId === "modal_ticket_commission" || interaction.customId === "commission_claim" || interaction.customId.startsWith("commission_complete_") || (interaction.customId === "ticket_claim" && channelName.startsWith("commission-")) || (interaction.customId === "ticket_close" && channelName.startsWith("commission-"));
+            const isSupportTicket = interaction.customId === "ticket_support" || interaction.customId === "ticket_appeal" || interaction.customId === "modal_ticket_support" || interaction.customId === "modal_ticket_appeal" || interaction.customId === "support_claim" || interaction.customId === "support_close" || (interaction.customId === "ticket_claim" && (channelName.startsWith("support-") || channelName.startsWith("appeal-"))) || (interaction.customId === "ticket_close" && (channelName.startsWith("support-") || channelName.startsWith("appeal-")));
+            const isHiringTicket = interaction.customId === "ticket_hire" || interaction.customId === "modal_ticket_hire" || interaction.customId === "hiring_claim" || interaction.customId === "hiring_close" || (interaction.customId === "ticket_claim" && channelName.startsWith("hiring-")) || (interaction.customId === "ticket_close" && channelName.startsWith("hiring-"));
+            const isPartnershipTicket = interaction.customId === "ticket_partnership" || interaction.customId === "modal_ticket_partnership" || interaction.customId === "partnership_claim" || interaction.customId === "partnership_close" || (interaction.customId === "ticket_claim" && channelName.startsWith("partnership-")) || (interaction.customId === "ticket_close" && channelName.startsWith("partnership-"));
+
+            if (isCommissionTicket) return await commissionsHandler.execute(interaction, client, config);
+            if (isSupportTicket) return await supportHandler.execute(interaction, client, config);
+            if (isHiringTicket) return await hiringHandler.execute(interaction, client, config);
+            if (isPartnershipTicket) return await partnershipHandler.execute(interaction, client, config);
+
+            console.warn(`[interaction] no route for component "${interaction.customId}" in #${channelName || "unknown"}`);
             return interaction.reply({
-                content: "❌ That command is currently unavailable. Please try again later or contact staff.",
+                content: "❌ This button is no longer active. Please open a new ticket or contact staff.",
                 flags: MessageFlags.Ephemeral
             });
         }
-
-        await cmd.execute(interaction, client, config);
-        return;
+    } catch (err) {
+        await reportInteractionFailure(interaction, err);
     }
-
-    if (interaction.isButton() && interaction.customId.startsWith("management_vc_accept:")) {
-        const channelId = config.managementVoiceChannelId;
-        const channel = channelId ? await client.channels.fetch(channelId).catch(() => null) : null;
-        const requesterId = interaction.customId.split(":")[1];
-        const acceptor = await interaction.guild?.members.fetch(interaction.user.id).catch(() => null);
-        const requester = await interaction.guild?.members.fetch(requesterId).catch(() => null);
-
-        if (!channel || !channel.isVoiceBased?.() || !acceptor || !requester) {
-            return interaction.reply({
-                content: "❌ The management voice channel or requester could not be found.",
-                flags: MessageFlags.Ephemeral
-            });
-        }
-
-        if (acceptor.voice.channelId !== channel.id) {
-            return interaction.reply({
-                content: "❌ You must already be in the management VC to accept requests.",
-                flags: MessageFlags.Ephemeral
-            });
-        }
-
-        await channel.permissionOverwrites.edit(requester, { Connect: true });
-        await requester.voice.setChannel(channel, "Management VC request accepted");
-        await interaction.update({
-            content: `✅ Accepted by ${interaction.user}.`,
-            components: []
-        });
-        return;
-    }
-
-    if (interaction.isButton() || interaction.isModalSubmit()) {
-        const channelName = interaction.channel?.name || "";
-
-        const isCommissionTicket =
-            interaction.customId === "ticket_commission" ||
-            interaction.customId === "modal_ticket_commission" ||
-            interaction.customId === "commission_claim" ||
-            interaction.customId.startsWith("commission_complete_") ||
-            (interaction.customId === "ticket_claim" && channelName.startsWith("commission-")) ||
-            (interaction.customId === "ticket_close" && channelName.startsWith("commission-"));
-
-        const isSupportTicket =
-            interaction.customId === "ticket_support" ||
-            interaction.customId === "ticket_appeal" ||
-            interaction.customId === "modal_ticket_support" ||
-            interaction.customId === "modal_ticket_appeal" ||
-            interaction.customId === "support_claim" ||
-            interaction.customId === "support_close" ||
-            (interaction.customId === "ticket_claim" && (channelName.startsWith("support-") || channelName.startsWith("appeal-"))) ||
-            (interaction.customId === "ticket_close" && (channelName.startsWith("support-") || channelName.startsWith("appeal-")));
-
-        const isHiringTicket =
-            interaction.customId === "ticket_hire" ||
-            interaction.customId === "modal_ticket_hire" ||
-            interaction.customId === "hiring_claim" ||
-            interaction.customId === "hiring_close" ||
-            (interaction.customId === "ticket_claim" && channelName.startsWith("hiring-")) ||
-            (interaction.customId === "ticket_close" && channelName.startsWith("hiring-"));
-
-        const isPartnershipTicket =
-            interaction.customId === "ticket_partnership" ||
-            interaction.customId === "modal_ticket_partnership" ||
-            interaction.customId === "partnership_claim" ||
-            interaction.customId === "partnership_close" ||
-            (interaction.customId === "ticket_claim" && channelName.startsWith("partnership-")) ||
-            (interaction.customId === "ticket_close" && channelName.startsWith("partnership-"));
-
-        if (isCommissionTicket) {
-            return await commissionsHandler.execute(interaction, client, config);
-        }
-
-        if (isSupportTicket) {
-            return await supportHandler.execute(interaction, client, config);
-        }
-
-        if (isHiringTicket) {
-            return await hiringHandler.execute(interaction, client, config);
-        }
-
-        if (isPartnershipTicket) {
-            return await partnershipHandler.execute(interaction, client, config);
-        }
-
-        // Nothing claimed it. Answer anyway -- an unrouted component otherwise
-        // leaves the user staring at Discord's "This interaction failed".
-        console.warn(
-            `[interaction] no route for component "${interaction.customId}" in #${channelName || "unknown"}`
-        );
-
-        return interaction.reply({
-            content: "❌ This button is no longer active. Please open a new ticket or contact staff.",
-            flags: MessageFlags.Ephemeral
-        });
-    }
-
-  } catch (err) {
-      await reportInteractionFailure(interaction, err);
-  }
 });
 
 // -------------------------------------------------
@@ -346,6 +282,8 @@ process.on("uncaughtException", err => {
 
 
 client.on("messageCreate", async message => {
+    return prefixHandler(message, config);
+
     if (message.author.bot) return;
 
     const prefix = "n!";
