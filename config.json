@@ -8,7 +8,8 @@
         "locked": false,
         "activeCommissionsChannelId": "1536821588211531967",
         "commissionlocked": false,
-        "ruleschannelid": "1518181292863127602"
+        "ruleschannelid": "1518181292863127602",
+        "linkschannelid": "1530157246095294464"
     },
     "trackerChannelId": "1539010556701188206",
     "managementVoiceChannelId": "1536025830050758797",

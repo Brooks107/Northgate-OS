@@ -342,6 +342,75 @@ client.on("messageCreate", async message => {
         return;
     }
 
+    if (command === "links") {
+        const linksChannelId = (
+            config.channels?.linkschannel?.id ??
+            config.channels?.linkschannelid ??
+            config.channels?.linksChannelId ??
+            config.linksChannelId ??
+            config.linkschannelid
+        );
+
+        if (!linksChannelId || !/^[0-9]+$/.test(String(linksChannelId))) {
+            console.warn("[links] no valid links channel configured");
+            return message.reply("❌ The links channel is not configured yet.");
+        }
+
+        const linksChannel = await message.guild?.channels.fetch(linksChannelId).catch(() => null);
+        if (!linksChannel || !linksChannel.isTextBased?.()) {
+            console.warn(`[links] configured channel ${linksChannelId} is not a valid text channel`);
+            return message.reply("❌ The configured links channel is invalid or not accessible.");
+        }
+
+        const embed = {
+            title: "Northgate Studios Portfolio",
+            description: "Below you can find our official links to our projects, website, social media platforms and more.",
+            color: 0x00ff00,
+            image: {
+                url: "https://media.discordapp.net/attachments/1444636404801081448/1535285319123861534/Pixelated_Animated_Nostalgic_90s_Illustrations_Discord_Profile_Banner_13.gif?ex=6a98d3a0&is=6a978220&hm=ce2bb40a5d10ad11b9ec19aa3f0ba9a205639cbc6a95f8ef7b7f684111c81275&"
+            },
+            footer: {
+                text: "Created by Brooks | Powered By Vortigern Industries"
+            },
+            fields: [
+                {
+                    name: "Our Website",
+                    value: [ 
+                        "[Our Website](https://northgate-studios.com/)" ,
+                        ""
+                    ]
+                },
+                {
+                    name: "Our Website Status Page",
+                    value: [
+                        "[Status Page](https://status.vortigernindustries.com)",
+                        ""
+                    ]
+                },
+                {
+                    name: "SPONSORS",
+                    value: [
+                        "[United Custom Servers Organisation](https://discord.gg/mSbgZbKAGa)",
+                        "[Vortigern Industries](https://discord.gg/XHZJ9qjs2B)"
+                    ]
+                },
+                {
+                    name: "Our Youtube",
+                    value: [
+                        "[Northgate Studios](https://www.youtube.com/@NorthGate.Studios)",
+                    ]
+                },
+                {
+                    name: "Our Roblox Group",
+                    value: [
+                        "[Northgate Studios](https://www.roblox.com/communities/33030494/NORTHGATE-Studios#!/about)",
+                    ]
+                }
+                
+            ]
+        };
+    }
+
     if (command === "rules") {
         const rulesChannelId = (
             config.channels?.ruleschannel?.id ??
@@ -380,7 +449,7 @@ client.on("messageCreate", async message => {
                 url: "https://cdn.discordapp.com/attachments/1172091235461238815/1518658520948408330/Copy_of_Studio_intro.gif?ex=6a98fbb6&is=6a97aa36&hm=e642fd4324eeb9a807652e1e1f6684b562058aec310c6c8bedf367267d3d81c9&"
             },
             footer: {
-                text: "Created by Casper | Powered By Vortigern Industries"
+                text: "Created by Brooks | Powered By Vortigern Industries"
             },
             fields: [
                 {
