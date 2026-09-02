@@ -1,10 +1,11 @@
 const config = require("./config.json");
-const { Client, GatewayIntentBits, Events, MessageFlags } = require("discord.js");
+const { Client, GatewayIntentBits, Partials, Events, MessageFlags } = require("discord.js");
 
 const supportHandler = require("./handlers/supporthandler");
 const commissionsHandler = require("./handlers/commissionshandler");
 const hiringHandler = require("./handlers/hiringhandler");
 const partnershipHandler = require("./handlers/partnershiphandler");
+const reactionRoles = require("./handlers/reactionroles");
 const gitSync = require("./git-sync");
 const commandRegistry = require("./command-registry");
 const state = require("./state");
@@ -21,13 +22,31 @@ Object.assign(config, state.load());
 // -------------------------------------------------
 
 const client = new Client({
+    partials: [Partials.Message, Partials.Channel, Partials.Reaction],
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMembers,
         GatewayIntentBits.GuildVoiceStates,
         GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildMessageReactions
     ]
+});
+
+client.on(Events.MessageReactionAdd, async (reaction, user) => {
+    try {
+        await reactionRoles.handleAdd(reaction, user, config);
+    } catch (error) {
+        console.error("[reaction-roles] failed to add role:", error);
+    }
+});
+
+client.on(Events.MessageReactionRemove, async (reaction, user) => {
+    try {
+        await reactionRoles.handleRemove(reaction, user, config);
+    } catch (error) {
+        console.error("[reaction-roles] failed to remove role:", error);
+    }
 });
 
 startHeartbeat(client);
