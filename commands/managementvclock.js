@@ -9,6 +9,7 @@ module.exports = {
     async execute(interaction, client, config) {
         const allowedRoleIds = [
             config.hrdirectorrole,
+            config.hrmanagerrole,
             ...(Array.isArray(config.ownershiprole) ? config.ownershiprole : [config.ownershiprole])
         ].filter(Boolean);
         const isAuthorized = allowedRoleIds.some(roleId =>
