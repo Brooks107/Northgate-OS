@@ -13,7 +13,22 @@ module.exports = async function handlePrefixCommand(message, config) {
 		await sent.edit(`🏓 Pong! Latency: **${latency}ms**`);
 		return;
 	}
+   
+	if (command === "purge") {
+        const amount = parseInt(args[0]);
+        if (!amount || amount < 1 || amount > 100) {
+            return message.reply("Please provide a number between **1** and **100**.");
+        }
 
+        await message.delete().catch(() => {});
+        const messages = await message.channel.messages.fetch({ limit: amount });
+        await message.channel.bulkDelete(messages, true);
+
+        message.channel.send(`🧹 Deleted **${amount}** messages.`)
+            .then(msg => setTimeout(() => msg.delete().catch(() => {}), 3000));
+    }
+
+	
 	if (command === "links") {
 		const linksChannelId = (
 			config.channels?.linkschannel?.id ??
