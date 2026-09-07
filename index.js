@@ -131,7 +131,7 @@ client.once(Events.ClientReady, () => {
 client.commands = new Map();
 
 (async () => {
-    const result = await commandRegistry.registerCommands(config);
+    const result = await commandRegistry.registerGuildCommands(config);
 
     client.commands = new Map(
         [...result.loaded].map(([name, entry]) => [name, entry.command])
