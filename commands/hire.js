@@ -33,6 +33,14 @@ module.exports = {
     async execute(interaction, client, config) {
         if (!interaction.isChatInputCommand()) return;
 
+        if (config.locked) {
+            return interaction.reply({
+                content: '🚫 NorthGate OS is currently **locked**. Command `/commissionspanel` cannot be used.',
+                flags: MessageFlags.Ephemeral
+            });
+        }
+       
+
         const isAuthorized = interaction.memberPermissions?.has("ManageRoles") ||
             interaction.memberPermissions?.has("Administrator") ||
             config.supportTeamRoles?.some(roleId => interaction.member?.roles?.cache?.has(roleId));

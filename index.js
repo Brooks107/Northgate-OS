@@ -13,6 +13,37 @@ const state = require("./state");
 const ticketTracker = require("./ticket-tracker");
 const { startHeartbeat } = require("./heartbeat");
 
+const COMMAND_RATE_LIMIT_WINDOW_MS = 60_000;
+const COMMAND_RATE_LIMIT_COUNT = 5;
+const DISTINCT_COMMAND_WINDOW_MS = 120_000;
+const DISTINCT_COMMAND_COUNT = 10;
+const commandInvocations = new Map();
+const distinctCommands = new Map();
+
+function trackCommandInvocation(commandName) {
+    const now = Date.now();
+    const recentInvocations = (commandInvocations.get(commandName) || [])
+        .filter(timestamp => now - timestamp < COMMAND_RATE_LIMIT_WINDOW_MS);
+
+    recentInvocations.push(now);
+    commandInvocations.set(commandName, recentInvocations);
+
+    return recentInvocations.length >= COMMAND_RATE_LIMIT_COUNT;
+}
+
+function trackDistinctCommand(commandName) {
+    const now = Date.now();
+
+    for (const [name, timestamp] of distinctCommands) {
+        if (now - timestamp >= DISTINCT_COMMAND_WINDOW_MS) {
+            distinctCommands.delete(name);
+        }
+    }
+
+    distinctCommands.set(commandName, now);
+    return distinctCommands.size >= DISTINCT_COMMAND_COUNT;
+}
+
 // Lock flags are runtime state, not deployment config. Apply the persisted
 // values over the config.json defaults before anything can read them, so a
 // lock survives the restarts that git-sync triggers on every push.
@@ -141,6 +172,22 @@ client.on("interactionCreate", async interaction => {
                     content: "❌ That command is currently unavailable. Please try again later or contact staff.",
                     flags: MessageFlags.Ephemeral
                 });
+            }
+
+            if (!config.locked) {
+                const sameCommandLimitReached = trackCommandInvocation(interaction.commandName);
+                const distinctCommandLimitReached = trackDistinctCommand(interaction.commandName);
+
+                if (sameCommandLimitReached || distinctCommandLimitReached) {
+                    config.locked = true;
+                    state.save({ locked: true });
+                    commandInvocations.clear();
+                    distinctCommands.clear();
+                    console.warn(
+                        `[lock] automatically locked after a command rate limit was reached ` +
+                        `(${sameCommandLimitReached ? `${COMMAND_RATE_LIMIT_COUNT} uses of one command in one minute` : `${DISTINCT_COMMAND_COUNT} different commands in two minutes`})`
+                    );
+                }
             }
 
             await cmd.execute(interaction, client, config);

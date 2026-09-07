@@ -104,9 +104,13 @@ function writeCachedHash(hash, count) {
  * command registration, so re-uploading an identical set every boot is
  * both wasteful and risky.
  */
-async function registerCommands(config, options = {}) {
+async function registerGuildCommands(config, options = {}) {
     const force = options.force === true;
     const { loaded, skipped, payload, totalFiles } = loadCommands();
+
+    if (!config.guildId) {
+        throw new Error("guildId is required; refusing to register commands globally");
+    }
 
     // Never wipe the guild's command set because every file failed to load.
     // An empty PUT deletes all commands, which is almost certainly not what
@@ -143,4 +147,4 @@ async function registerCommands(config, options = {}) {
     }
 }
 
-module.exports = { loadCommands, registerCommands };
+module.exports = { loadCommands, registerGuildCommands };
