@@ -5,7 +5,7 @@ const LOCKED_CHANNEL_IDS = [
 ];
 
 module.exports = async function handleDeveloperCommand(message, config) {
-    if (message.author.bot || !message.content.startsWith("!")) return false;
+    if (message.author.bot || !message.content.startsWith("d!")) return false;
 
     const args = message.content.slice(2).trim().split(/ +/);
     const command = args.shift()?.toLowerCase();
