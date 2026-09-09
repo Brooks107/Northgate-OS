@@ -29,6 +29,10 @@ module.exports = async function handleDeveloperCommand(message, config) {
     const roles = [...message.guild.roles.cache.values()];
 
     try {
+        if (shouldLock) {
+            await message.reply("🔒 Applying force lock...");
+        }
+
         for (const channel of channels) {
             for (const role of roles) {
                 await channel.permissionOverwrites.edit(role, {
@@ -44,10 +48,10 @@ module.exports = async function handleDeveloperCommand(message, config) {
             return true;
         }
 
+        if (shouldLock) return true;
+
         await message.reply(
-            shouldLock
-                ? "🔒 Force lock enabled. Sending messages is denied in all lock channels."
-                : "🔓 Force lock disabled. Sending messages is allowed in all lock channels."
+            "🔓 Force lock disabled. Sending messages is allowed in all lock channels."
         );
     } catch (error) {
         console.error(`[devhandler] failed to ${command}:`, error);
