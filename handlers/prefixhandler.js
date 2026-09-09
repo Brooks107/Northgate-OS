@@ -1,5 +1,55 @@
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
+const ticketTopic = require("../ticket-topic");
+
 module.exports = async function handlePrefixCommand(message, config) {
 	if (message.author.bot) return;
+
+	if (message.content.startsWith("d!")) {
+		const args = message.content.slice(2).trim().split(/ +/);
+		const command = args.shift()?.toLowerCase();
+
+		if (command === "forceclaim") {
+			if (!config.developers?.includes(message.author.id)) {
+				return message.reply("❌ You are not authorized to use this command.");
+			}
+
+			const id = Number(args[0]);
+			if (!Number.isInteger(id) || id < 1) {
+				return message.reply("❌ Please provide a valid ticket ID: `d!forceclaim <id>`");
+			}
+
+			const ticketChannel = message.guild?.channels.cache.find(channel =>
+				channel.name.startsWith(`commission-${id}`) ||
+				channel.name.startsWith(`support-${id}`) ||
+				channel.name.startsWith(`appeal-${id}`) ||
+				channel.name.startsWith(`hiring-${id}`) ||
+				channel.name.startsWith(`partnership-${id}`)
+			);
+
+			if (!ticketChannel) {
+				return message.reply(`❌ Ticket #${id} does not exist.`);
+			}
+
+			const messages = await ticketChannel.messages.fetch({ limit: 10 });
+			const ticketMessage = messages.find(ticket => ticket.author.id === message.client.user.id);
+			if (!ticketMessage) {
+				return message.reply("❌ Could not find the ticket message.");
+			}
+
+			const row = new ActionRowBuilder().addComponents(
+				new ButtonBuilder()
+					.setCustomId("ticket_close")
+					.setLabel("🔒 Close Ticket")
+					.setStyle(ButtonStyle.Danger)
+			);
+
+			await ticketMessage.edit({ components: [row] });
+			const { ownerId } = ticketTopic.parse(ticketChannel.topic);
+			await ticketChannel.setTopic(ticketTopic.build({ ownerId, claimedBy: message.author.id }));
+
+			return message.reply(`📝 You have force claimed ticket #${id}.`);
+		}
+	}
 
 	const prefix = "n!";
 	if (!message.content.startsWith(prefix)) return;
@@ -28,7 +78,7 @@ module.exports = async function handlePrefixCommand(message, config) {
             .then(msg => setTimeout(() => msg.delete().catch(() => {}), 3000));
     }
 
-	
+
 	if (command === "links") {
 		const linksChannelId = (
 			config.channels?.linkschannel?.id ??
