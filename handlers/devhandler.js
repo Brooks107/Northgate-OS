@@ -30,8 +30,9 @@ module.exports = async function handleDeveloperCommand(message, config) {
     const startedAt = shouldLock ? process.hrtime.bigint() : null;
 
     try {
+        let statusReply;
         if (shouldLock) {
-            await message.reply("🔒 Applying force lock...");
+            statusReply = await message.reply("🔒 Applying force lock...");
         }
 
         for (const channel of channels) {
@@ -51,7 +52,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
 
         if (shouldLock) {
             const elapsedMilliseconds = Number(process.hrtime.bigint() - startedAt) / 1e6;
-            await message.reply(
+            await statusReply.edit(
                 `🔒 Force lock completed in ${(elapsedMilliseconds / 1000).toFixed(2)} seconds.`
             );
             return true;
