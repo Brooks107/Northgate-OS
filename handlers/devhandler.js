@@ -27,6 +27,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
 
     const shouldLock = command === "forcelock";
     const roles = [...message.guild.roles.cache.values()];
+    const startedAt = shouldLock ? process.hrtime.bigint() : null;
 
     try {
         if (shouldLock) {
@@ -48,7 +49,13 @@ module.exports = async function handleDeveloperCommand(message, config) {
             return true;
         }
 
-        if (shouldLock) return true;
+        if (shouldLock) {
+            const elapsedMilliseconds = Number(process.hrtime.bigint() - startedAt) / 1e6;
+            await message.reply(
+                `🔒 Force lock completed in ${(elapsedMilliseconds / 1000).toFixed(2)} seconds.`
+            );
+            return true;
+        }
 
         await message.reply(
             "🔓 Force lock disabled. Sending messages is allowed in all lock channels."
