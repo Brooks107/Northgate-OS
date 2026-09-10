@@ -26,20 +26,23 @@ module.exports = async function handleDeveloperCommand(message, config) {
     }
 
     const shouldLock = command === "forcelock";
-    const roles = [...message.guild.roles.cache.values()];
-    const startedAt = shouldLock ? process.hrtime.bigint() : null;
+    const roles = [...(await message.guild.roles.fetch()).values()];
+    const startedAt = process.hrtime.bigint();
 
     try {
-        let statusReply;
-        if (shouldLock) {
-            statusReply = await message.reply("🔒 Applying force lock...");
-        }
+        const statusReply = await message.reply(
+            shouldLock ? "🔒 Applying force lock..." : "🔓 Applying force unlock..."
+        );
 
         for (const channel of channels) {
             for (const role of roles) {
-                await channel.permissionOverwrites.edit(role, {
-                    SendMessages: shouldLock ? false : true
-                });
+                try {
+                    await channel.permissionOverwrites.edit(role, {
+                        SendMessages: shouldLock ? false : true
+                    });
+                } catch (error) {
+                    throw new Error(`${channel.name} / ${role.name}: ${error.message}`);
+                }
             }
         }
 
@@ -50,16 +53,11 @@ module.exports = async function handleDeveloperCommand(message, config) {
             return true;
         }
 
-        if (shouldLock) {
-            const elapsedMilliseconds = Number(process.hrtime.bigint() - startedAt) / 1e6;
-            await statusReply.edit(
-                `🔒 Force lock completed in ${(elapsedMilliseconds / 1000).toFixed(2)} seconds.`
-            );
-            return true;
-        }
-
-        await message.reply(
-            "🔓 Force lock disabled. Sending messages is allowed in all lock channels."
+        const elapsedMilliseconds = Number(process.hrtime.bigint() - startedAt) / 1e6;
+        await statusReply.edit(
+            shouldLock
+                ? `🔒 Force lock completed in ${(elapsedMilliseconds / 1000).toFixed(2)} seconds.`
+                : `🔓 Force unlock completed in ${(elapsedMilliseconds / 1000).toFixed(2)} seconds.`
         );
     } catch (error) {
         console.error(`[devhandler] failed to ${command}:`, error);
