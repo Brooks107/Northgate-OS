@@ -33,6 +33,12 @@ module.exports = async function handleDeveloperCommand(message, config) {
         const statusReply = await message.reply(
             shouldLock ? "🔒 Applying force lock..." : "🔓 Applying force unlock..."
         );
+        let stateSaved = true;
+
+        if (!shouldLock) {
+            config.locked = false;
+            stateSaved = state.save({ locked: false });
+        }
 
         for (const channel of channels) {
             for (const role of roles) {
@@ -46,9 +52,12 @@ module.exports = async function handleDeveloperCommand(message, config) {
             }
         }
 
-        config.locked = shouldLock;
-        const saved = state.save({ locked: shouldLock });
-        if (!saved) {
+        if (shouldLock) {
+            config.locked = true;
+            stateSaved = state.save({ locked: true });
+        }
+
+        if (!stateSaved) {
             await message.reply("❌ Channel permissions changed, but the lock state could not be saved.");
             return true;
         }
