@@ -1,4 +1,5 @@
 const state = require("../state");
+const { PermissionFlagsBits } = require("discord.js");
 
 const LOCKED_CHANNEL_IDS = [
     "1518976753492693225"
@@ -41,15 +42,38 @@ module.exports = async function handleDeveloperCommand(message, config) {
         }
 
         for (const channel of channels) {
+            const sendMessages = PermissionFlagsBits.SendMessages;
+            const overwrites = new Map(
+                channel.permissionOverwrites.cache.map(overwrite => [overwrite.id, overwrite])
+            );
+
             for (const role of roles) {
-                try {
-                    await channel.permissionOverwrites.edit(role, {
-                        SendMessages: shouldLock ? false : true
-                    });
-                } catch (error) {
-                    throw new Error(`${channel.name} / ${role.name}: ${error.message}`);
+                const existing = overwrites.get(role.id);
+                let allow = existing ? BigInt(existing.allow.bitfield) : 0n;
+                let deny = existing ? BigInt(existing.deny.bitfield) : 0n;
+
+                if (shouldLock) {
+                    allow &= ~sendMessages;
+                    deny |= sendMessages;
+                } else {
+                    allow |= sendMessages;
+                    deny &= ~sendMessages;
                 }
+
+                overwrites.set(role.id, {
+                    id: role.id,
+                    type: 0,
+                    allow,
+                    deny
+                });
             }
+
+            await channel.permissionOverwrites.set([...overwrites.values()].map(overwrite => ({
+                id: overwrite.id,
+                type: overwrite.type,
+                allow: overwrite.allow.bitfield,
+                deny: overwrite.deny.bitfield
+            })));
         }
 
         if (shouldLock) {
