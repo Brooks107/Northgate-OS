@@ -19,6 +19,9 @@ function load() {
         for (const key of KEYS) {
             if (key in raw) state[key] = Boolean(raw[key]);
         }
+        if ("forceLockOverwrites" in raw) {
+            state.forceLockOverwrites = raw.forceLockOverwrites;
+        }
         return state;
     } catch {
         // No state file yet (or it is unreadable): callers fall back to

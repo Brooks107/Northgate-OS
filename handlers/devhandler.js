@@ -40,6 +40,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
     const shouldLock = command === "forcelock";
     const roles = [...(await message.guild.roles.fetch()).values()];
     const startedAt = process.hrtime.bigint();
+    const savedForceLockOverwrites = state.load().forceLockOverwrites;
 
     try {
         const statusReply = await message.reply(
@@ -52,6 +53,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
             stateSaved = state.save({ locked: false });
         }
 
+        const originalOverwrites = {};
         for (const channel of channels) {
             const permission = VOICE_LOCK_CHANNEL_IDS.has(channel.id)
                 ? PermissionFlagsBits.Connect
@@ -65,6 +67,15 @@ module.exports = async function handleDeveloperCommand(message, config) {
                 }])
             );
 
+            if (shouldLock) {
+                originalOverwrites[channel.id] = [...overwrites.values()].map(overwrite => ({
+                    id: overwrite.id,
+                    type: overwrite.type,
+                    allow: overwrite.allow.toString(),
+                    deny: overwrite.deny.toString()
+                }));
+            }
+
             for (const role of roles) {
                 const existing = overwrites.get(role.id);
                 let allow = existing?.allow ?? 0n;
@@ -74,7 +85,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
                     allow &= ~permission;
                     deny |= permission;
                 } else {
-                    allow |= permission;
+                    allow &= ~permission;
                     deny &= ~permission;
                 }
 
@@ -91,7 +102,27 @@ module.exports = async function handleDeveloperCommand(message, config) {
 
         if (shouldLock) {
             config.locked = true;
-            stateSaved = state.save({ locked: true });
+            stateSaved = state.save({
+                locked: true,
+                forceLockOverwrites: originalOverwrites
+            });
+        } else if (savedForceLockOverwrites) {
+            for (const channel of channels) {
+                const original = savedForceLockOverwrites[channel.id];
+                if (!original) continue;
+
+                await channel.permissionOverwrites.set(original.map(overwrite => ({
+                    id: overwrite.id,
+                    type: overwrite.type,
+                    allow: BigInt(overwrite.allow),
+                    deny: BigInt(overwrite.deny)
+                })));
+            }
+
+            stateSaved = state.save({
+                locked: false,
+                forceLockOverwrites: null
+            });
         }
 
         if (!stateSaved) {
