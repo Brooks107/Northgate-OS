@@ -2,7 +2,11 @@ const state = require("../state");
 const { PermissionFlagsBits } = require("discord.js");
 
 const LOCKED_CHANNEL_IDS = [
-    "1518976753492693225"
+    "1518976753492693225",
+    "1530164050816929933",
+    "1530164087802167456",
+    "1518976734433640578",
+    "1543329472873373706"
 ];
 
 module.exports = async function handleDeveloperCommand(message, config) {
