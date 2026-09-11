@@ -6,8 +6,15 @@ const LOCKED_CHANNEL_IDS = [
     "1530164050816929933",
     "1530164087802167456",
     "1518976734433640578",
-    "1543329472873373706"
+    "1543329472873373706",
+    "1533079860673515550",
+    "1533079884639768717"
 ];
+
+const VOICE_LOCK_CHANNEL_IDS = new Set([
+    "1533079860673515550",
+    "1533079884639768717"
+]);
 
 module.exports = async function handleDeveloperCommand(message, config) {
     if (message.author.bot || !message.content.startsWith("d!")) return false;
@@ -46,7 +53,9 @@ module.exports = async function handleDeveloperCommand(message, config) {
         }
 
         for (const channel of channels) {
-            const sendMessages = PermissionFlagsBits.SendMessages;
+            const permission = VOICE_LOCK_CHANNEL_IDS.has(channel.id)
+                ? PermissionFlagsBits.Connect
+                : PermissionFlagsBits.SendMessages;
             const overwrites = new Map(
                 channel.permissionOverwrites.cache.map(overwrite => [overwrite.id, {
                     id: overwrite.id,
@@ -62,11 +71,11 @@ module.exports = async function handleDeveloperCommand(message, config) {
                 let deny = existing?.deny ?? 0n;
 
                 if (shouldLock) {
-                    allow &= ~sendMessages;
-                    deny |= sendMessages;
+                    allow &= ~permission;
+                    deny |= permission;
                 } else {
-                    allow |= sendMessages;
-                    deny &= ~sendMessages;
+                    allow |= permission;
+                    deny &= ~permission;
                 }
 
                 overwrites.set(role.id, {
