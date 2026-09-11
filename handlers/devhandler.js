@@ -44,13 +44,18 @@ module.exports = async function handleDeveloperCommand(message, config) {
         for (const channel of channels) {
             const sendMessages = PermissionFlagsBits.SendMessages;
             const overwrites = new Map(
-                channel.permissionOverwrites.cache.map(overwrite => [overwrite.id, overwrite])
+                channel.permissionOverwrites.cache.map(overwrite => [overwrite.id, {
+                    id: overwrite.id,
+                    type: overwrite.type,
+                    allow: BigInt(overwrite.allow.bitfield),
+                    deny: BigInt(overwrite.deny.bitfield)
+                }])
             );
 
             for (const role of roles) {
                 const existing = overwrites.get(role.id);
-                let allow = existing ? BigInt(existing.allow.bitfield) : 0n;
-                let deny = existing ? BigInt(existing.deny.bitfield) : 0n;
+                let allow = existing?.allow ?? 0n;
+                let deny = existing?.deny ?? 0n;
 
                 if (shouldLock) {
                     allow &= ~sendMessages;
@@ -68,12 +73,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
                 });
             }
 
-            await channel.permissionOverwrites.set([...overwrites.values()].map(overwrite => ({
-                id: overwrite.id,
-                type: overwrite.type,
-                allow: overwrite.allow.bitfield,
-                deny: overwrite.deny.bitfield
-            })));
+            await channel.permissionOverwrites.set([...overwrites.values()]);
         }
 
         if (shouldLock) {
