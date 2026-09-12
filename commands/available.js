@@ -24,16 +24,27 @@ module.exports = {
 		}
 
 		const status = interaction.options.getString("status");
-		const isAvailable = status === "available";
 
-		client.user.setActivity(
-			`Developers are ${isAvailable ? "available" : "unavailable"},`,
-			{ type: ActivityType.Watching }
-		);
+		if (status === "available") {
+			client.user.setActivity("Developers are available, Feel free to open a ticket or DM an online member of the IT team for support", {
+				type: ActivityType.Playing
+			});
 
-		await interaction.reply({
-			content: `✅ Developer availability set to **${isAvailable ? "available" : "unavailable"}**.`,
-			flags: MessageFlags.Ephemeral
-		});
+			return interaction.reply({
+				content: "✅ Developer availability set to **available**.",
+				flags: MessageFlags.Ephemeral
+			});
+		}
+
+		if (status === "unavailable") {
+			client.user.setActivity("Developers are unavailable, Please direct your issues to a member of the High Command Team", {
+				type: ActivityType.Watching
+			});
+
+			return interaction.reply({
+				content: "✅ Developer availability set to **unavailable**.",
+				flags: MessageFlags.Ephemeral
+			});
+		}
 	}
 };
