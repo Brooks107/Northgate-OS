@@ -18,6 +18,10 @@ module.exports = {
         config.locked = false;
         const saved = state.save({ locked: false });
 
+        if (interaction.client && typeof interaction.client.notifyAdminPanelRefresh === "function") {
+            await interaction.client.notifyAdminPanelRefresh();
+        }
+
         await interaction.reply({
             content: saved
                 ? '🔓 All commands have been **unlocked** globally.'

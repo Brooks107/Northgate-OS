@@ -28,6 +28,10 @@ module.exports = {
         config.commissionLocked = true;
         const saved = state.save({ commissionLocked: true });
 
+        if (interaction.client && typeof interaction.client.notifyAdminPanelRefresh === "function") {
+            await interaction.client.notifyAdminPanelRefresh();
+        }
+
         await interaction.reply({
             content: saved
                 ? "🔒 Commission system locked. The commission button is now disabled."

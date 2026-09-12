@@ -157,6 +157,10 @@ const {
                       .setStyle(ButtonStyle.Danger)
               );
 
+              if (client && typeof client.notifyAdminPanelRefresh === "function") {
+                  await client.notifyAdminPanelRefresh();
+              }
+
               await ticketChannel.send({
                   content: "<@&1522596266125688902> <@&1536399184096133221> <@&1518065237771685928> <@&1535764413422899210> <@&1535764412923781270> <@&1536398786346225684> <@&1535023189246345277>",
                   allowedMentions: { roles: ["1522596266125688902", "1536399184096133221", "1518065237771685928", "1535764413422899210", "1535764412923781270", "1536398786346225684", "1535023189246345277"] },
@@ -184,6 +188,10 @@ const {
                   createdAt: new Date().toLocaleString()
               }, client, config);
 
+              if (client && typeof client.notifyAdminPanelRefresh === "function") {
+                  await client.notifyAdminPanelRefresh();
+              }
+
               return interaction.reply({
                   content: `✅ Your ticket (#${ticketId}) has been created: <#${ticketChannel.id}>`,
                   flags: MessageFlags.Ephemeral
@@ -204,6 +212,10 @@ const {
               if (match) {
                   const id = parseInt(match[1]);
                   client.activeTicketIds.delete(id);
+              }
+
+              if (client && typeof client.notifyAdminPanelRefresh === "function") {
+                  await client.notifyAdminPanelRefresh();
               }
 
               await interaction.reply({

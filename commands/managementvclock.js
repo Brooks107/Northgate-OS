@@ -49,6 +49,9 @@ module.exports = {
 
             config.managementVoiceChannelLocked = false;
             const saved = state.save({ managementVoiceChannelLocked: false });
+            if (interaction.client && typeof interaction.client.notifyAdminPanelRefresh === "function") {
+                await interaction.client.notifyAdminPanelRefresh();
+            }
             return interaction.reply({
                 content: saved
                     ? `🔓 ${channel} is now unlocked.`
@@ -67,6 +70,9 @@ module.exports = {
 
         config.managementVoiceChannelLocked = true;
         const saved = state.save({ managementVoiceChannelLocked: true });
+        if (interaction.client && typeof interaction.client.notifyAdminPanelRefresh === "function") {
+            await interaction.client.notifyAdminPanelRefresh();
+        }
         return interaction.reply({
             content: saved
                 ? `🔒 ${channel} is now locked. Only approved management roles can join.`

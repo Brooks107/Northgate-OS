@@ -49,6 +49,10 @@ module.exports = {
             client.activeTicketIds.delete(id);
         }
 
+        if (client && typeof client.notifyAdminPanelRefresh === "function") {
+            await client.notifyAdminPanelRefresh();
+        }
+
         await interaction.editReply(`🔒 Ticket #${id} closed. Saving transcript...`);
         await saveTranscript(ticketChannel, interaction.user, config);
 

@@ -130,6 +130,10 @@ module.exports = {
                 client.activeTicketIds.delete(id);
             }
 
+            if (client && typeof client.notifyAdminPanelRefresh === "function") {
+                await client.notifyAdminPanelRefresh();
+            }
+
             await interaction.reply({
                 content: "🔒 Ticket closed. Saving transcript...",
                 flags: MessageFlags.Ephemeral
@@ -284,6 +288,10 @@ module.exports = {
                     .setStyle(ButtonStyle.Danger)
             );
 
+            if (client && typeof client.notifyAdminPanelRefresh === "function") {
+                await client.notifyAdminPanelRefresh();
+            }
+
             await ticketChannel.send({
                 content: "<@&1535764411510161519> <@&1517982021782339684> <@&1535764196459806850>",
                 allowedmentions: { roles: ["1535764411510161519", "1517982021782339684", "1535764196459806850"] },
@@ -312,6 +320,10 @@ module.exports = {
                 description: `Map Size: ${mapSize}, Payment: ${payment}, Wait: ${waitTime}, Quality: ${quality}`,
                 createdAt: new Date().toLocaleString()
             }, client, config);
+
+            if (client && typeof client.notifyAdminPanelRefresh === "function") {
+                await client.notifyAdminPanelRefresh();
+            }
 
             return interaction.reply({
                 content: `✅ Your commission ticket (#${ticketId}) has been created: <#${ticketChannel.id}>`,

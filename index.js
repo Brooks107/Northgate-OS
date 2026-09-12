@@ -189,6 +189,9 @@ client.on("interactionCreate", async interaction => {
                     state.save({ locked: true });
                     commandInvocations.clear();
                     distinctCommands.clear();
+                    if (client.notifyAdminPanelRefresh) {
+                        await client.notifyAdminPanelRefresh();
+                    }
                     console.warn(
                         `[lock] automatically locked after a command rate limit was reached ` +
                         `(${sameCommandLimitReached ? `${COMMAND_RATE_LIMIT_COUNT} uses of one command in one minute` : `${DISTINCT_COMMAND_COUNT} different commands in two minutes`})`
