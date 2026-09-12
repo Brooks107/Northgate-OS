@@ -19,7 +19,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
     await logCommand(message, config, `d!${command}`, "Developer command");
 
     if (!config.developers?.includes(message.author.id)) {
-        await message.reply("❌ This command is restricted to developers only.");
+        await message.reply("❌ This command is restricted to developers only. Upon authorization, this command will become available to those with Lockdown Permissions");
         return true;
     }
 
