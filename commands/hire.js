@@ -35,7 +35,7 @@ module.exports = {
 
         if (config.locked) {
             return interaction.reply({
-                content: '🚫 NorthGate OS is currently **locked**. Command `/commissionspanel` cannot be used.',
+                content: '🚫 NorthGate OS is currently **locked**. Command `/hire` cannot be used.',
                 flags: MessageFlags.Ephemeral
             });
         }
