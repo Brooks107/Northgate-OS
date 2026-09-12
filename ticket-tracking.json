@@ -1,0 +1,112 @@
+{
+  "1539012141175275590": {
+    "messageId": "1539012144597700679",
+    "channelId": "1539010556701188206",
+    "ticketId": 5,
+    "originalInfo": {
+      "id": 5,
+      "title": "Commission Request",
+      "userId": "1259124148798754907",
+      "description": "Map Size: 78787878787, Payment: 787878, Wait: 78787, Quality: 7878",
+      "createdAt": "8/17/2026, 2:44:48 PM"
+    },
+    "notes": [
+      "• Ticket created",
+      "• test"
+    ]
+  },
+  "1539012721729740801": {
+    "messageId": "1539012731590418453",
+    "channelId": "1539010556701188206",
+    "ticketId": 5,
+    "originalInfo": {
+      "id": 5,
+      "title": "Partnership Request",
+      "userId": "1259124148798754907",
+      "description": "Company: 7878`778, Idea: 7878",
+      "createdAt": "8/17/2026, 2:47:08 PM"
+    },
+    "notes": [
+      "• Ticket created",
+      "• test"
+    ]
+  },
+  "1539012921328144444": {
+    "messageId": "1539012924943634564",
+    "channelId": "1539010556701188206",
+    "ticketId": 6,
+    "originalInfo": {
+      "id": 6,
+      "title": "Partnership Request",
+      "userId": "1259124148798754907",
+      "description": "Company: 439430940, Idea: 898989",
+      "createdAt": "8/17/2026, 2:47:54 PM"
+    },
+    "notes": [
+      "• Ticket created",
+      "• test",
+      "• this is diff right"
+    ]
+  },
+  "1539013348476199054": {
+    "messageId": "1539013351609335880",
+    "channelId": "1539010556701188206",
+    "ticketId": 5,
+    "originalInfo": {
+      "id": 5,
+      "title": "Partnership Request",
+      "userId": "1259124148798754907",
+      "description": "Company: 787878, Idea: 787878",
+      "createdAt": "8/17/2026, 2:49:36 PM"
+    },
+    "notes": [
+      "• Ticket created"
+    ]
+  },
+  "1541401961637748787": {
+    "messageId": "1541401964309385248",
+    "channelId": "1539010556701188206",
+    "ticketId": 3,
+    "originalInfo": {
+      "id": 3,
+      "title": "Partnership Request",
+      "userId": "1282070309184344134",
+      "description": "Company: Axiom Interactive™, Idea: A mutual partnership between NGC and Axiom Interactive.",
+      "createdAt": "8/24/2026, 5:01:06 AM"
+    },
+    "notes": [
+      "• Ticket created",
+      "• Client wishes to have 3D models provided in exchange for 80% revenue from their games"
+    ]
+  },
+  "1545893101548081323": {
+    "messageId": "1545893103934775380",
+    "channelId": "1539010556701188206",
+    "ticketId": 1,
+    "originalInfo": {
+      "id": 1,
+      "title": "Support Ticket",
+      "userId": "1523830991603499081",
+      "description": "Greetings, I would like to know the prices to build a site.",
+      "createdAt": "9/5/2026, 2:27:17 PM"
+    },
+    "notes": [
+      "• Ticket created"
+    ]
+  },
+  "1547918309805006868": {
+    "messageId": "1547918314217406547",
+    "channelId": "1539010556701188206",
+    "ticketId": 2,
+    "originalInfo": {
+      "id": 2,
+      "title": "Hiring Application",
+      "userId": "1396089290748067862",
+      "description": "Role: Hr or sales, Experience: Well I have a lot of experience being a staff member that helps people and helps a server in many servers of scp:rp and jjs I can elaborate if needed.",
+      "createdAt": "9/11/2026, 4:34:44 AM"
+    },
+    "notes": [
+      "• Ticket created"
+    ]
+  }
+}
