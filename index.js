@@ -1,3 +1,4 @@
+process.loadEnvFile();
 const config = require("./config.json");
 const { Client, GatewayIntentBits, Partials, Events, MessageFlags } = require("discord.js");
 

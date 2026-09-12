@@ -130,7 +130,7 @@ async function registerGuildCommands(config, options = {}) {
         return { loaded, skipped, registered: false, reason: "unchanged" };
     }
 
-    const rest = new REST({ version: "10" }).setToken(config.token);
+     const rest = new REST({ version: "10" }).setToken(process.env.DISCORD_TOKEN);
 
     try {
         log(`registering ${payload.length} command(s) with Discord...`);
