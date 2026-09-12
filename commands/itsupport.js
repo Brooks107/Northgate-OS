@@ -49,6 +49,8 @@ module.exports = {
 
             const reply = await interaction.editReply({
                 content: "✅ Your IT support request has been sent to the IT team.",
+                image: {
+				    url: "https://klipy.com/gifs/shits-fucked"},
                 Ephemeral: false,
                 fetchReply: true
             });
