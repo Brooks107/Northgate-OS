@@ -3,17 +3,9 @@ const { PermissionFlagsBits } = require("discord.js");
 
 const LOCKED_CHANNEL_IDS = [
     "1518976753492693225",
-    "1530164050816929933",
-    "1530164087802167456",
-    "1518976734433640578",
-    "1543329472873373706",
-    "1533079860673515550",
-    "1533079884639768717"
 ];
 
-const VOICE_LOCK_CHANNEL_IDS = new Set([
-    "1533079860673515550",
-    "1533079884639768717"
+const VOICE_LOCK_CHANNEL_IDS = new Set([  
 ]);
 
 module.exports = async function handleDeveloperCommand(message, config) {
