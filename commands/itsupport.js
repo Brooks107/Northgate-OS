@@ -49,8 +49,11 @@ module.exports = {
 
             const reply = await interaction.editReply({
                 content: "✅ Your IT support request has been sent to the IT team.",
-                image: {
-				    url: "https://klipy.com/gifs/shits-fucked"},
+                embeds: [{
+                    image: {
+                        url: "https://media.discordapp.net/attachments/1444636404801081448/1535285319123861534/Pixelated_Animated_Nostalgic_90s_Illustrations_Discord_Profile_Banner_13.gif?ex=6a98d3a0&is=6a978220&hm=ce2bb40d5d10ad11b9ec19aa3f0ba9a205639cbc6a95f8ef7b7f684111c81275&"
+                    }
+                }],
                 fetchReply: true
             });
 
