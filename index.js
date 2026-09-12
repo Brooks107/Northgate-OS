@@ -10,6 +10,7 @@ const commissionsHandler = require("./handlers/commissionshandler");
 const hiringHandler = require("./handlers/hiringhandler");
 const partnershipHandler = require("./handlers/partnershiphandler");
 const reactionRoles = require("./handlers/reactionroles");
+const adminHandler = require("./handlers/adminhandler");
 const developerHandler = require("./handlers/devhandler");
 const prefixHandler = require("./handlers/prefixhandler");
 const gitSync = require("./git-sync");
@@ -372,6 +373,7 @@ process.on("uncaughtException", err => {
 
 
 client.on("messageCreate", async message => {
+    if (await adminHandler(message, config)) return;
     if (await developerHandler(message, config)) return;
     return prefixHandler(message, config);
 
