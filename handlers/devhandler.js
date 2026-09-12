@@ -122,6 +122,10 @@ module.exports = async function handleDeveloperCommand(message, config) {
         await saveTranscript(channel, message.author, config);
         await ticketTracker.removeTracking(channel);
 
+        if (message.client && typeof message.client.notifyAdminPanelRefresh === "function") {
+            await message.client.notifyAdminPanelRefresh();
+        }
+
         setTimeout(() => {
             channel.delete("Developer force close").catch(() => {});
         }, 3000);
@@ -153,6 +157,9 @@ module.exports = async function handleDeveloperCommand(message, config) {
             config.locked = false;
             config.forceLocked = false;
             stateSaved = state.save({ locked: false, forceLocked: false });
+            if (message.client && typeof message.client.notifyAdminPanelRefresh === "function") {
+                await message.client.notifyAdminPanelRefresh();
+            }
         }
 
         const originalOverwrites = {};
@@ -210,6 +217,9 @@ module.exports = async function handleDeveloperCommand(message, config) {
                 forceLocked: true,
                 forceLockOverwrites: originalOverwrites
             });
+            if (message.client && typeof message.client.notifyAdminPanelRefresh === "function") {
+                await message.client.notifyAdminPanelRefresh();
+            }
         } else if (savedForceLockOverwrites) {
             for (const channel of channels) {
                 const original = savedForceLockOverwrites[channel.id];
@@ -230,6 +240,9 @@ module.exports = async function handleDeveloperCommand(message, config) {
                 forceLocked: false,
                 forceLockOverwrites: null
             });
+            if (message.client && typeof message.client.notifyAdminPanelRefresh === "function") {
+                await message.client.notifyAdminPanelRefresh();
+            }
         }
 
         if (!stateSaved) {

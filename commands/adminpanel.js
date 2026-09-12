@@ -121,6 +121,17 @@ module.exports = {
 
         client.adminPanelRefreshers.add(refreshMessage);
 
+        if (!client.adminPanelInterval) {
+            client.adminPanelInterval = setInterval(async () => {
+                if (!client.notifyAdminPanelRefresh) return;
+                try {
+                    await client.notifyAdminPanelRefresh();
+                } catch (error) {
+                    console.error("[adminpanel] scheduled refresh failed:", error.message);
+                }
+            }, 60_000);
+        }
+
         return message;
     }
 };
