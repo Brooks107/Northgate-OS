@@ -535,7 +535,7 @@ client.on("messageCreate", async message => {
 // Login
 // -------------------------------------------------
 
-client.login(config.token);
+client.login(process.env.DISCORD_TOKEN);
 
 // -------------------------------------------------
 // Automatic git sync from remote updates
