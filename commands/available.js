@@ -18,8 +18,7 @@ module.exports = {
 	async execute(interaction, client, config) {
 		if (!config.developers?.includes(interaction.user.id)) {
 			return interaction.reply({
-				content: "❌ Only developers can use `/available`.",
-				flags: MessageFlags.Ephemeral
+				content: "❌ Hmmm why are you trying to set a developer status when you aren't one? Interesting...",
 			});
 		}
 
