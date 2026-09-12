@@ -28,7 +28,7 @@ module.exports = {
 			client.user.setPresence({
 				activities: [{
 					name: "custom",
-					state: "Developers are available, Feel free to open a ticket or DM an online member of the IT team for support",
+					state: "Developers are available, run /itsupport to file a incident report.",
 					type: ActivityType.Custom
 				}]
 			});
@@ -43,7 +43,7 @@ module.exports = {
 			client.user.setPresence({
 				activities: [{
 					name: "custom",
-					state: "Developers are unavailable, Please direct any issues with the systems to a member of the High Command Team",
+					state: "Developers are unavailable, run /itsupport and we will get back to you as soon as possible.",
 					type: ActivityType.Custom
 				}]
 			});
