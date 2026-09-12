@@ -53,7 +53,7 @@ module.exports = {
                 content: "✅ Your IT support request has been sent to the IT team.",
                 fetchReply: true
             });
-
+            await interaction.channel.send(gif[0]);
             const reportEmbed = new EmbedBuilder()
                 .setTitle("IT Support Request")
                 .setColor(0xe67e22)
@@ -86,9 +86,7 @@ module.exports = {
                 ]
             });
 
-            await interaction.followUp({
-                content: gif[0]
-            });
+            
         }
 };
 
