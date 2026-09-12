@@ -5,6 +5,32 @@ const { logCommand } = require("../utils/command-logger");
 module.exports = async function handlePrefixCommand(message, config) {
 	if (message.author.bot) return;
 
+	if (message.channel.isDMBased?.() && message.content.startsWith("!msg")) {
+		const match = message.content.match(/^!msg\s+(\d+)\s+([\s\S]+)$/);
+		if (!match) {
+			return message.reply("❌ Usage: `!msg <channel id> <message>`");
+		}
+
+		await logCommand(message, config, "!msg", "Developer DM command");
+
+		if (!config.developers?.includes(message.author.id)) {
+			return message.reply("❌ Only developers can use this command.");
+		}
+
+		const channel = await message.client.channels.fetch(match[1]).catch(() => null);
+		if (!channel?.isTextBased?.() || typeof channel.send !== "function") {
+			return message.reply("❌ I could not find a text channel with that ID or I cannot send messages there.");
+		}
+
+		try {
+			await channel.send(match[2].trim());
+			return message.reply(`✅ Message sent to <#${channel.id}>.`);
+		} catch (error) {
+			console.error("[msg] failed to send message from DM:", error);
+			return message.reply("❌ I could not send a message in that channel. Check my channel permissions.");
+		}
+	}
+
 	if (message.content.startsWith("d!")) {
 		const args = message.content.slice(2).trim().split(/ +/);
 		const command = args.shift()?.toLowerCase();
