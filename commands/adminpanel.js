@@ -11,18 +11,23 @@ function buildAdminPanelEmbed(client, config, guild) {
     if (config.locked) issues.push("Global command lock is active");
     if (config.commissionLocked) issues.push("Commission requests are locked");
     if (config.managementVoiceChannelLocked) issues.push("Management VC is locked");
+    if (config.forceLocked) issues.push("Emergency lockdown is active");
     if (activeTicketIds.length >= 15) issues.push("Ticket pool is nearly full");
     if (activeTicketIds.length === 20) issues.push("All ticket slots are currently occupied");
 
+    const emergency = Boolean(config.forceLocked);
+
     return new EmbedBuilder()
-        .setTitle("🛠️ NorthGate OS State")
+        .setTitle(emergency ? "🚨 EMERGENCY LOCKDOWN" : "🛠️ NorthGate OS Executive Panel")
         .setDescription(
-            guild
-                ? `Current server snapshot for **${guild.name}** • Uptime: **${Math.floor((client.uptime || 0) / 60000)}m**`
-                : "Current server snapshot"
+            emergency
+                ? "A force lockdown is active. Treat the server as restricted until cleared."
+                : guild
+                    ? `Current server snapshot for **${guild.name}** • Uptime: **${Math.floor((client.uptime || 0) / 60000)}m**`
+                    : "Current server snapshot"
         )
         .setColor(
-            issues.length > 0 ? 0xf59e0b : 0x22c55e
+            emergency ? 0x4b5563 : 0x808080
         )
         .addFields(
             {
@@ -31,6 +36,7 @@ function buildAdminPanelEmbed(client, config, guild) {
                     `Global Commands: ${statusLabel(!config.locked, "Open", "Locked")}`,
                     `Commission Requests: ${statusLabel(!config.commissionLocked, "Open", "Locked")}`,
                     `Management VC: ${statusLabel(!config.managementVoiceChannelLocked, "Open", "Locked")}`,
+                    `Emergency Lockdown: ${statusLabel(!config.forceLocked, "Clear", "Active")}`,
                     `Active Ticket Slots: **${activeTicketIds.length}/20**`
                 ].join("\n"),
                 inline: false
@@ -60,7 +66,7 @@ function buildAdminPanelEmbed(client, config, guild) {
             }
         )
         .setFooter({
-            text: "NorthGate OS • One-glance server status"
+            text: emergency ? "NorthGate OS • Emergency lockdown mode" : "NorthGate OS • One-glance server status"
         })
         .setTimestamp();
 }
