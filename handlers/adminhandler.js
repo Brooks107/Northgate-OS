@@ -1,5 +1,10 @@
 const state = require("../state");
-const { PermissionFlagsBits } = require("discord.js");
+const {
+	ActionRowBuilder,
+	ButtonBuilder,
+	ButtonStyle,
+	PermissionFlagsBits
+} = require("discord.js");
 const { logCommand } = require("../utils/command-logger");
 
 const LOCKDOWN_ROLE = "1536806576202186842";
@@ -27,6 +32,50 @@ module.exports = async function handleAdminCommand(message, config) {
 	if (!message.member?.roles?.cache?.has(LOCKDOWN_ROLE)) {
 		await message.reply("❌ This command is restricted to the admin role.");
 		return true;
+	}
+
+	if (command === "forcelock") {
+		const confirmation = await message.reply({
+			content: "⚠️ Are you sure you want to activate the force lock?",
+			components: [
+				new ActionRowBuilder().addComponents(
+					new ButtonBuilder()
+						.setCustomId(`force_lock_proceed_${message.id}`)
+						.setLabel("Proceed")
+						.setStyle(ButtonStyle.Success),
+					new ButtonBuilder()
+						.setCustomId(`force_lock_abort_${message.id}`)
+						.setLabel("Abort")
+						.setStyle(ButtonStyle.Danger)
+				)
+			]
+		});
+
+		try {
+			const choice = await confirmation.awaitMessageComponent({
+				filter: interaction => interaction.user.id === message.author.id,
+				time: 30_000
+			});
+
+			if (choice.customId === `force_lock_abort_${message.id}`) {
+				await choice.update({
+					content: "🛑 Force lock aborted.",
+					components: []
+				});
+				return true;
+			}
+
+			await choice.update({
+				content: "🔒 Force lock confirmed. Applying...",
+				components: []
+			});
+		} catch {
+			await confirmation.edit({
+				content: "⌛ Force lock confirmation expired. No changes were made.",
+				components: []
+			});
+			return true;
+		}
 	}
 
 	const channels = await Promise.all(
