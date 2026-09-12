@@ -26,8 +26,12 @@ module.exports = {
 		const status = interaction.options.getString("status");
 
 		if (status === "available") {
-			client.user.setActivity("Developers are available, Feel free to open a ticket or DM an online member of the IT team for support", {
-				type: ActivityType.Playing
+			client.user.setPresence({
+				activities: [{
+					name: "custom",
+					state: "Developers are available, Feel free to open a ticket or DM an online member of the IT team for support",
+					type: ActivityType.Custom
+				}]
 			});
 
 			return interaction.reply({
@@ -37,8 +41,12 @@ module.exports = {
 		}
 
 		if (status === "unavailable") {
-			client.user.setActivity("Developers are unavailable, Please direct your issues to a member of the High Command Team", {
-				type: ActivityType.Watching
+			client.user.setPresence({
+				activities: [{
+					name: "custom",
+					state: "Developers are unavailable, Please direct your issues to a member of the High Command Team",
+					type: ActivityType.Custom
+				}]
 			});
 
 			return interaction.reply({
