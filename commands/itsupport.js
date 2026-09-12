@@ -25,12 +25,12 @@ module.exports = {
 
             if (config.locked) {
                 return interaction.reply({
-                    content: '🚫 NorthGate OS is currently **locked**. Command `/itreport` cannot be used.',
+                    content: '🚫 NorthGate OS is currently **locked**. Command `/itsupport` cannot be used.',
                     flags: MessageFlags.Ephemeral
                 });
             }
 
-            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+            await interaction.deferReply();
 
             const channelId = config.channels?.itsupport ?? config.channels?.itreports;
             const supportChannel = channelId
@@ -51,7 +51,6 @@ module.exports = {
                 content: "✅ Your IT support request has been sent to the IT team.",
                 image: {
 				    url: "https://klipy.com/gifs/shits-fucked"},
-                Ephemeral: false,
                 fetchReply: true
             });
 
