@@ -1,5 +1,6 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
 const ticketTopic = require("../ticket-topic");
+const { logCommand } = require("../utils/command-logger");
 
 module.exports = async function handlePrefixCommand(message, config) {
 	if (message.author.bot) return;
@@ -9,8 +10,10 @@ module.exports = async function handlePrefixCommand(message, config) {
 		const command = args.shift()?.toLowerCase();
 
 		if (command === "forceclaim") {
+			await logCommand(message, config, `d!${command}`, "Developer command");
+
 			if (!config.developers?.includes(message.author.id)) {
-				return message.reply("❌ You are not authorized to use this command.");
+				return message.reply("❌ This command is restricted to developers only.");
 			}
 
 			const id = Number(args[0]);
@@ -56,6 +59,11 @@ module.exports = async function handlePrefixCommand(message, config) {
 
 	const args = message.content.slice(prefix.length).trim().split(/ +/);
 	const command = args.shift()?.toLowerCase();
+	const recognizedCommands = new Set(["ping", "purge", "links", "rules"]);
+
+	if (recognizedCommands.has(command)) {
+		await logCommand(message, config, `n!${command}`, "Prefix command");
+	}
 
 	if (command === "ping") {
 		const sent = await message.reply("Pinging...");

@@ -13,6 +13,7 @@ const commandRegistry = require("./command-registry");
 const state = require("./state");
 const ticketTracker = require("./ticket-tracker");
 const { startHeartbeat } = require("./heartbeat");
+const { logCommand } = require("./utils/command-logger");
 
 const COMMAND_RATE_LIMIT_WINDOW_MS = 60_000;
 const COMMAND_RATE_LIMIT_COUNT = 5;
@@ -191,6 +192,7 @@ client.on("interactionCreate", async interaction => {
                 }
             }
 
+            await logCommand(interaction, config, `/${interaction.commandName}`, "Slash command");
             await cmd.execute(interaction, client, config);
             return;
         }

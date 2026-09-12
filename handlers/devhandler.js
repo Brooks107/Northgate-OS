@@ -1,5 +1,6 @@
 const state = require("../state");
 const { PermissionFlagsBits } = require("discord.js");
+const { logCommand } = require("../utils/command-logger");
 
 const LOCKED_CHANNEL_IDS = [
     "1518976753492693225",
@@ -15,8 +16,10 @@ module.exports = async function handleDeveloperCommand(message, config) {
     const command = args.shift()?.toLowerCase();
     if (command !== "forcelock" && command !== "forceunlock") return false;
 
+    await logCommand(message, config, `d!${command}`, "Developer command");
+
     if (!config.developers?.includes(message.author.id)) {
-        await message.reply("❌ You are not authorized to use this command.");
+        await message.reply("❌ This command is restricted to developers only.");
         return true;
     }
 
