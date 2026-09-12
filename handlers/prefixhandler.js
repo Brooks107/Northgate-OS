@@ -13,7 +13,7 @@ module.exports = async function handlePrefixCommand(message, config) {
 			await logCommand(message, config, `d!${command}`, "Developer command");
 
 			if (!config.developers?.includes(message.author.id)) {
-				return message.reply("❌ This command is restricted to developers only.");
+				return message.reply("❌ Only developers can run this command - It is used to fix claiming issues and override any problems by forcing claim onto the author of the command");
 			}
 
 			const id = Number(args[0]);
