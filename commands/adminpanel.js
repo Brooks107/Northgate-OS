@@ -4,82 +4,63 @@ function statusLabel(isActive, labelTrue, labelFalse) {
     return isActive ? `🟢 ${labelTrue}` : `🔴 ${labelFalse}`;
 }
 
-function describeChannel(client, channelId, fallbackLabel) {
-    if (!channelId) return `⚠️ ${fallbackLabel}: not configured`;
-    const channel = client.channels.cache.get(channelId) || null;
-    if (!channel) return `⚠️ ${fallbackLabel}: not found (<#${channelId}>)`;
-    return `✅ ${fallbackLabel}: <#${channel.id}>`;
-}
-
 function buildAdminPanelEmbed(client, config, guild) {
     const activeTicketIds = client.activeTicketIds ? [...client.activeTicketIds].sort((a, b) => a - b) : [];
 
+    const issues = [];
+    if (config.locked) issues.push("Global command lock is active");
+    if (config.commissionLocked) issues.push("Commission requests are locked");
+    if (config.managementVoiceChannelLocked) issues.push("Management VC is locked");
+    if (activeTicketIds.length >= 15) issues.push("Ticket pool is nearly full");
+    if (activeTicketIds.length === 20) issues.push("All ticket slots are currently occupied");
+
     return new EmbedBuilder()
-        .setTitle("🛠️ NorthGate OS Admin Overview")
+        .setTitle("🛠️ NorthGate OS State")
         .setDescription(
             guild
-                ? `Live status for **${guild.name}** • Uptime: **${Math.floor((client.uptime || 0) / 60000)}m**`
-                : "Live system overview"
+                ? `Current server snapshot for **${guild.name}** • Uptime: **${Math.floor((client.uptime || 0) / 60000)}m**`
+                : "Current server snapshot"
         )
         .setColor(
-            config.locked || config.commissionLocked || config.managementVoiceChannelLocked
-                ? 0xf59e0b
-                : 0x22c55e
+            issues.length > 0 ? 0xf59e0b : 0x22c55e
         )
         .addFields(
             {
-                name: "📊 System Status",
+                name: "📊 Live Status",
                 value: [
                     `Global Commands: ${statusLabel(!config.locked, "Open", "Locked")}`,
                     `Commission Requests: ${statusLabel(!config.commissionLocked, "Open", "Locked")}`,
-                    `Management VC: ${statusLabel(!config.managementVoiceChannelLocked, "Open", "Locked")}`
+                    `Management VC: ${statusLabel(!config.managementVoiceChannelLocked, "Open", "Locked")}`,
+                    `Active Ticket Slots: **${activeTicketIds.length}/20**`
                 ].join("\n"),
                 inline: false
             },
             {
-                name: "🎫 Ticket Health",
-                value: [
-                    `Active Ticket IDs: **${activeTicketIds.length}**`,
-                    `Current IDs: ${activeTicketIds.length ? `**${activeTicketIds.join(", ")}**` : "None"}`,
-                    `Tracker Channel: ${config.trackerChannelId ? `<#${config.trackerChannelId}>` : "Not configured"}`
-                ].join("\n"),
+                name: "🎫 Ticket State",
+                value: activeTicketIds.length
+                    ? `Open IDs: **${activeTicketIds.join(", ")}**`
+                    : "No active ticket channels right now.",
                 inline: false
             },
             {
-                name: "📍 Key Channels",
-                value: [
-                    describeChannel(client, config.channels?.ticketchannelid, "Ticket Channel"),
-                    describeChannel(client, config.channels?.logging, "Logging"),
-                    describeChannel(client, config.channels?.transcriptschannelid, "Transcripts"),
-                    describeChannel(client, config.managementVoiceChannelId, "Management VC"),
-                    describeChannel(client, config.trackerChannelId, "Tracker")
-                ].join("\n"),
+                name: "⚠️ Needs Attention",
+                value: issues.length
+                    ? issues.map(item => `• ${item}`).join("\n")
+                    : "No active issues detected.",
                 inline: false
             },
             {
-                name: "👥 Access & Roles",
+                name: "🧭 Server Health",
                 value: [
-                    `Support Team Roles: **${Array.isArray(config.supportTeamRoles) ? config.supportTeamRoles.length : 0}**`,
-                    `Operations Roles: **${Array.isArray(config.operationsroles) ? config.operationsroles.length : 0}**`,
-                    `Developers: **${Array.isArray(config.developers) ? config.developers.length : 0}**`,
-                    `General Ticket Access: **${Array.isArray(config.generalticketaccess) ? config.generalticketaccess.length : 0}**`
-                ].join("\n"),
-                inline: false
-            },
-            {
-                name: "📌 Ticket Categories",
-                value: [
-                    `General: ${config.generalticketcategory ? `<#${config.generalticketcategory}>` : "Not set"}`,
-                    `Appeals: ${config.appealsticketcategory ? `<#${config.appealsticketcategory}>` : "Not set"}`,
-                    `Commissions: ${config.commissionsticketcategory ? `<#${config.commissionsticketcategory}>` : "Not set"}`,
-                    `Hiring: ${config.hiringticketcategory ? `<#${config.hiringticketcategory}>` : "Not set"}`,
-                    `Partnerships: ${config.partnershipticketcategory ? `<#${config.partnershipticketcategory}>` : "Not set"}`
+                    `Tracked staff access: **${Array.isArray(config.developers) ? config.developers.length : 0}** developers`,
+                    `Support roles configured: **${Array.isArray(config.supportTeamRoles) ? config.supportTeamRoles.length : 0}**`,
+                    `Operations roles configured: **${Array.isArray(config.operationsroles) ? config.operationsroles.length : 0}**`
                 ].join("\n"),
                 inline: false
             }
         )
         .setFooter({
-            text: "NorthGate OS • One-glance operations dashboard"
+            text: "NorthGate OS • One-glance server status"
         })
         .setTimestamp();
 }
