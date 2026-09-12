@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, MessageFlags, PermissionFlagsBits } = require("discord.js");
+const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, MessageFlags } = require("discord.js");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -6,7 +6,7 @@ module.exports = {
         .setDescription("Send an IT problem report")
         .addStringOption(opt =>
             opt.setName("command")
-                .setDescription("What command did you run?")
+                .setDescription("What command did you run or what problem did you run into")
                 .setRequired(true)
         )
         .addStringOption(opt =>
@@ -49,6 +49,7 @@ module.exports = {
 
             const reply = await interaction.editReply({
                 content: "✅ Your IT support request has been sent to the IT team.",
+                Ephemeral: false,
                 fetchReply: true
             });
 
@@ -57,7 +58,7 @@ module.exports = {
                 .setColor(0xe67e22)
                 .addFields(
                     { name: "User", value: `${interaction.user} (${interaction.user.tag})` },
-                    { name: "Command", value: command },
+                    { name: "Command/Problem", value: command },
                     { name: "What Happened", value: whatHappened },
                     { name: "Bot Reply", value: reply.url || "Reply link unavailable" }
                 )
@@ -73,9 +74,13 @@ module.exports = {
                 components: [
                     new ActionRowBuilder().addComponents(
                         new ButtonBuilder()
-                            .setCustomId("itsupport_completed")
+                            .setCustomId(`itsupport_completed:${interaction.user.id}`)
                             .setLabel("Completed")
-                            .setStyle(ButtonStyle.Success)
+                            .setStyle(ButtonStyle.Success),
+                        new ButtonBuilder()
+                            .setCustomId(`itsupport_denied:${interaction.user.id}`)
+                            .setLabel("Deny")
+                            .setStyle(ButtonStyle.Danger)
                     )
                 ]
             });

@@ -3,7 +3,7 @@ const config = require("./config.json");
 config.token = process.env.DISCORD_TOKEN;
 config.clientId = process.env.CLIENT_ID;
 config.guildId = process.env.GUILD_ID;
-const { Client, GatewayIntentBits, Partials, Events, MessageFlags, PermissionFlagsBits } = require("discord.js");
+const { Client, GatewayIntentBits, Partials, Events, MessageFlags } = require("discord.js");
 
 const supportHandler = require("./handlers/supporthandler");
 const commissionsHandler = require("./handlers/commissionshandler");
@@ -231,7 +231,10 @@ client.on("interactionCreate", async interaction => {
             return;
         }
 
-        if (interaction.isButton() && interaction.customId === "itsupport_completed") {
+        if (interaction.isButton() && (
+            interaction.customId.startsWith("itsupport_completed:") ||
+            interaction.customId.startsWith("itsupport_denied:")
+        )) {
             const isDeveloper = config.developers?.some(userId =>
                 String(userId) === interaction.user.id
             );
@@ -243,7 +246,20 @@ client.on("interactionCreate", async interaction => {
                 });
             }
 
+            const [action, reporterId] = interaction.customId.split(":");
             await interaction.deferUpdate();
+
+            if (action === "itsupport_completed") {
+                try {
+                    const reporter = await client.users.fetch(reporterId);
+                    await reporter.send(
+                        "✅ Your IT support report has been handled. Thank you for taking the time to report it; your contributions are appreciated."
+                    );
+                } catch (error) {
+                    console.error(`[itsupport] could not DM reporter ${reporterId}:`, error.message);
+                }
+            }
+
             await interaction.message.delete();
             return;
         }
