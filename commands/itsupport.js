@@ -1,5 +1,7 @@
 const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, MessageFlags } = require("discord.js");
-
+const gif = [
+    "https://klipy.com/gifs/shits-fucked"
+    ]
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("itsupport")
@@ -49,11 +51,6 @@ module.exports = {
 
             const reply = await interaction.editReply({
                 content: "✅ Your IT support request has been sent to the IT team.",
-                embeds: [{
-                    image: {
-                        url: "https://klipy.com/gifs/shits-fucked"
-                    }
-                }],
                 fetchReply: true
             });
 
@@ -87,6 +84,10 @@ module.exports = {
                             .setStyle(ButtonStyle.Danger)
                     )
                 ]
+            });
+
+            await interaction.followUp({
+                content: gif[0]
             });
         }
 };
