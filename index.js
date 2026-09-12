@@ -1,5 +1,8 @@
-process.loadEnvFile();
+process.loadEnvFile(require("path").join(__dirname, ".env"));
 const config = require("./config.json");
+config.token = process.env.DISCORD_TOKEN;
+config.clientId = process.env.CLIENT_ID;
+config.guildId = process.env.GUILD_ID;
 const { Client, GatewayIntentBits, Partials, Events, MessageFlags } = require("discord.js");
 
 const supportHandler = require("./handlers/supporthandler");
