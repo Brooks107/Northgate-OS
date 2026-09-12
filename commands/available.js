@@ -44,7 +44,7 @@ module.exports = {
 			client.user.setPresence({
 				activities: [{
 					name: "custom",
-					state: "Developers are unavailable, Please direct your issues to a member of the High Command Team",
+					state: "Developers are unavailable, Please direct any issues with the systems to a member of the High Command Team",
 					type: ActivityType.Custom
 				}]
 			});
