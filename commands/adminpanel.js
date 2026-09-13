@@ -42,19 +42,16 @@ function registerAdminPanelRefresh(client, config, panel) {
     client.adminPanelRefreshers.add(refreshMessage);
 }
 
-function roleMemberCounts(guild, roleIds, groupLabel) {
-    if (!guild?.members?.cache || !Array.isArray(roleIds)) return [];
+function roleMemberCount(guild, roleIds, groupLabel) {
+    if (!Array.isArray(roleIds) || roleIds.length === 0) return [];
 
-    const counts = roleIds.map(roleId => {
-        const role = guild.roles.cache.get(roleId);
-        const memberCount = guild.members.cache.filter(member =>
-            member.roles.cache.has(roleId)
-        ).size;
+    const memberCount = guild?.members?.cache
+        ? guild.members.cache.filter(member =>
+            roleIds.some(roleId => member.roles.cache.has(roleId))
+        ).size
+        : 0;
 
-        return `${role?.name || roleId}: **${memberCount}**`;
-    });
-
-    return counts.length ? [`**${groupLabel}**`, ...counts] : [];
+    return [`${groupLabel}: **${memberCount} people**`];
 }
 
 function buildAdminPanelEmbed(client, config, guild) {
@@ -67,14 +64,14 @@ function buildAdminPanelEmbed(client, config, guild) {
     const partnershipTicketAccessRoleIds = Array.isArray(config.partnershipticketaccess) ? config.partnershipticketaccess : [];
     const hiringTicketAccessRoleIds = Array.isArray(config.hiringticketaccess) ? config.hiringticketaccess : [];
     const configuredRoleCounts = [
-        ...roleMemberCounts(guild, supportRoleIds, "Support Roles"),
-        ...roleMemberCounts(guild, operationsRoleIds, "Operations Roles"),
-        ...roleMemberCounts(guild, ownershipRoleIds, "Ownership Roles"),
-        ...roleMemberCounts(guild, generalTicketAccessRoleIds, "General Ticket Access"),
-        ...roleMemberCounts(guild, appealsTicketAccessRoleIds, "Appeal Ticket Access"),
-        ...roleMemberCounts(guild, partnershipTicketAccessRoleIds, "Partnership Ticket Access"),
-        ...roleMemberCounts(guild, hiringTicketAccessRoleIds, "Hiring Ticket Access"),
-        ...roleMemberCounts(guild, ["1536806576202186842"], "Lockdown Authorisation")
+        ...roleMemberCount(guild, supportRoleIds, "Support Roles"),
+        ...roleMemberCount(guild, operationsRoleIds, "Operations Roles"),
+        ...roleMemberCount(guild, ownershipRoleIds, "Ownership Roles"),
+        ...roleMemberCount(guild, generalTicketAccessRoleIds, "General Ticket Access"),
+        ...roleMemberCount(guild, appealsTicketAccessRoleIds, "Appeal Ticket Access"),
+        ...roleMemberCount(guild, partnershipTicketAccessRoleIds, "Partnership Ticket Access"),
+        ...roleMemberCount(guild, hiringTicketAccessRoleIds, "Hiring Ticket Access"),
+        ...roleMemberCount(guild, ["1536806576202186842"], "Lockdown Authorisation")
     ];
 
     const issues = [];
@@ -177,6 +174,8 @@ module.exports = {
             });
         }
 
+        await interaction.guild?.members.fetch().catch(() => null);
+
         const message = await interaction.reply({
             embeds: [buildAdminPanelEmbed(client, config, interaction.guild)],
             fetchReply: true
@@ -200,6 +199,7 @@ module.exports = {
 
         try {
             await client.channels.fetch(panel.channelId);
+            await client.guilds.cache.get(panel.guildId)?.members.fetch().catch(() => null);
             registerAdminPanelRefresh(client, config, panel);
             console.log("[adminpanel] restored persistent panel refresh.");
         } catch (error) {
