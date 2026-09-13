@@ -1,6 +1,45 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require("discord.js");
+const state = require("../state");
+
 function statusLabel(isActive, labelTrue, labelFalse) {
     return isActive ? `🟢 ${labelTrue}` : `🔴 ${labelFalse}`;
+}
+
+function startAdminPanelRefresh(client, config) {
+    if (!client.adminPanelRefreshers) client.adminPanelRefreshers = new Set();
+
+    if (!client.notifyAdminPanelRefresh) {
+        client.notifyAdminPanelRefresh = async function () {
+            if (!this.adminPanelRefreshers) return;
+            for (const refresh of [...this.adminPanelRefreshers]) {
+                try {
+                    await refresh();
+                } catch (error) {
+                    console.error("[adminpanel] refresh failed:", error.message);
+                }
+            }
+        };
+    }
+
+    if (!client.adminPanelInterval) {
+        client.adminPanelInterval = setInterval(() => {
+            client.notifyAdminPanelRefresh?.();
+        }, 60_000);
+    }
+}
+
+function registerAdminPanelRefresh(client, config, panel) {
+    startAdminPanelRefresh(client, config);
+
+    const refreshMessage = async () => {
+        const channel = await client.channels.fetch(panel.channelId);
+        const message = await channel.messages.fetch(panel.messageId);
+        await message.edit({
+            embeds: [buildAdminPanelEmbed(client, config, client.guilds.cache.get(panel.guildId))]
+        });
+    };
+
+    client.adminPanelRefreshers.add(refreshMessage);
 }
 
 function roleMemberCounts(guild, roleIds, groupLabel) {
@@ -138,47 +177,33 @@ module.exports = {
             });
         }
 
-        if (!client.adminPanelRefreshers) {
-            client.adminPanelRefreshers = new Set();
-        }
-
-        if (!client.notifyAdminPanelRefresh) {
-            client.notifyAdminPanelRefresh = async function () {
-                if (!this.adminPanelRefreshers) return;
-                const refreshes = [...this.adminPanelRefreshers];
-                for (const refresh of refreshes) {
-                    try {
-                        await refresh();
-                    } catch (error) {
-                        console.error("[adminpanel] refresh failed:", error.message);
-                    }
-                }
-            };
-        }
-
         const message = await interaction.reply({
             embeds: [buildAdminPanelEmbed(client, config, interaction.guild)],
             fetchReply: true
         });
 
-        const refreshMessage = async () => {
-            if (!message || !message.edit) return;
-            await message.edit({ embeds: [buildAdminPanelEmbed(client, config, interaction.guild)] });
+        const panel = {
+            guildId: interaction.guildId,
+            channelId: interaction.channelId,
+            messageId: message.id
         };
 
-        client.adminPanelRefreshers.add(refreshMessage);
-
-        if (!client.adminPanelInterval) {
-            client.adminPanelInterval = setInterval(async () => {
-                if (!client.notifyAdminPanelRefresh) return;
-                try {
-                    await client.notifyAdminPanelRefresh();
-                } catch (error) {
-                    console.error("[adminpanel] scheduled refresh failed:", error.message);
-                }
-            }, 60_000);
-        }
+        state.save({ adminPanel: panel });
+        registerAdminPanelRefresh(client, config, panel);
 
         return message;
+    },
+
+    async restore(client, config) {
+        const panel = state.load().adminPanel;
+        if (!panel?.guildId || !panel?.channelId || !panel?.messageId) return;
+
+        try {
+            await client.channels.fetch(panel.channelId);
+            registerAdminPanelRefresh(client, config, panel);
+            console.log("[adminpanel] restored persistent panel refresh.");
+        } catch (error) {
+            console.warn("[adminpanel] could not restore panel:", error.message);
+        }
     }
 };

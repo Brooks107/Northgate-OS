@@ -22,6 +22,9 @@ function load() {
         if ("forceLockOverwrites" in raw) {
             state.forceLockOverwrites = raw.forceLockOverwrites;
         }
+        if (raw.adminPanel && typeof raw.adminPanel === "object") {
+            state.adminPanel = raw.adminPanel;
+        }
         return state;
     } catch {
         // No state file yet (or it is unreadable): callers fall back to

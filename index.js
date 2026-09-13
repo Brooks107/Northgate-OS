@@ -19,6 +19,7 @@ const state = require("./state");
 const ticketTracker = require("./ticket-tracker");
 const { startHeartbeat } = require("./heartbeat");
 const { logCommand } = require("./utils/command-logger");
+const adminPanelCommand = require("./commands/adminpanel");
 
 const COMMAND_RATE_LIMIT_WINDOW_MS = 60_000;
 const COMMAND_RATE_LIMIT_COUNT = 5;
@@ -117,7 +118,7 @@ client.getNextTicketId = function () {
 
 const TICKET_CHANNEL_PATTERN = /^(?:support|appeal|commission|hiring|partnership)-(\d+)(?:-|$)/;
 
-client.once(Events.ClientReady, () => {
+client.once(Events.ClientReady, async () => {
     for (const guild of client.guilds.cache.values()) {
         client.refreshActiveTicketIds(guild);
     }
@@ -129,6 +130,7 @@ client.once(Events.ClientReady, () => {
     );
 
     ticketTracker.init();
+    await adminPanelCommand.restore(client, config);
 });
 
 // -------------------------------------------------
