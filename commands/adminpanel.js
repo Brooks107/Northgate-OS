@@ -1,11 +1,42 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require("discord.js");
-
 function statusLabel(isActive, labelTrue, labelFalse) {
     return isActive ? `🟢 ${labelTrue}` : `🔴 ${labelFalse}`;
 }
 
+function roleMemberCounts(guild, roleIds, groupLabel) {
+    if (!guild?.members?.cache || !Array.isArray(roleIds)) return [];
+
+    const counts = roleIds.map(roleId => {
+        const role = guild.roles.cache.get(roleId);
+        const memberCount = guild.members.cache.filter(member =>
+            member.roles.cache.has(roleId)
+        ).size;
+
+        return `${role?.name || roleId}: **${memberCount}**`;
+    });
+
+    return counts.length ? [`**${groupLabel}**`, ...counts] : [];
+}
+
 function buildAdminPanelEmbed(client, config, guild) {
     const activeTicketIds = client.activeTicketIds ? [...client.activeTicketIds].sort((a, b) => a - b) : [];
+    const supportRoleIds = Array.isArray(config.supportTeamRoles) ? config.supportTeamRoles : [];
+    const operationsRoleIds = Array.isArray(config.operationsroles) ? config.operationsroles : [];
+    const ownershipRoleIds = Array.isArray(config.ownershiprole) ? config.ownershiprole : [];
+    const generalTicketAccessRoleIds = Array.isArray(config.generalticketaccess) ? config.generalticketaccess : [];
+    const appealsTicketAccessRoleIds = Array.isArray(config.appealsticketaccess) ? config.appealsticketaccess : [];
+    const partnershipTicketAccessRoleIds = Array.isArray(config.partnershipticketaccess) ? config.partnershipticketaccess : [];
+    const hiringTicketAccessRoleIds = Array.isArray(config.hiringticketaccess) ? config.hiringticketaccess : [];
+    const configuredRoleCounts = [
+        ...roleMemberCounts(guild, supportRoleIds, "Support Roles"),
+        ...roleMemberCounts(guild, operationsRoleIds, "Operations Roles"),
+        ...roleMemberCounts(guild, ownershipRoleIds, "Ownership Roles"),
+        ...roleMemberCounts(guild, generalTicketAccessRoleIds, "General Ticket Access"),
+        ...roleMemberCounts(guild, appealsTicketAccessRoleIds, "Appeal Ticket Access"),
+        ...roleMemberCounts(guild, partnershipTicketAccessRoleIds, "Partnership Ticket Access"),
+        ...roleMemberCounts(guild, hiringTicketAccessRoleIds, "Hiring Ticket Access"),
+        ...roleMemberCounts(guild, ["1536806576202186842"], "Lockdown Authorisation")
+    ];
 
     const issues = [];
     if (config.locked) issues.push("Global command lock is active");
@@ -60,8 +91,16 @@ function buildAdminPanelEmbed(client, config, guild) {
                 value: [
                     `Tracked staff access: **${Array.isArray(config.developers) ? config.developers.length : 0}** developers`,
                     `Support roles configured: **${Array.isArray(config.supportTeamRoles) ? config.supportTeamRoles.length : 0}**`,
-                    `Operations roles configured: **${Array.isArray(config.operationsroles) ? config.operationsroles.length : 0}**`
+                    `Operations roles configured: **${Array.isArray(config.operationsroles) ? config.operationsroles.length : 0}**`,
+                    `Ownership roles configured: **${Array.isArray(config.ownershiprole) ? config.ownershiprole.length : 0}**`
                 ].join("\n"),
+                inline: false
+            },
+            {
+                name: "👥 Role Membership",
+                value: configuredRoleCounts.length
+                    ? configuredRoleCounts.join("\n")
+                    : "No role membership data configured.",
                 inline: false
             }
         )
@@ -84,9 +123,17 @@ module.exports = {
             });
         }
 
-        if (!config.developers?.includes(interaction.user.id)) {
+        const isDeveloper = config.developers?.includes(interaction.user.id);
+        const ownershipRoles = Array.isArray(config.ownershiprole)
+            ? config.ownershiprole
+            : [config.ownershiprole].filter(Boolean);
+        const isOwner = ownershipRoles.some(roleId =>
+            interaction.member?.roles?.cache?.has(roleId)
+        );
+
+        if (!isDeveloper && !isOwner) {
             return interaction.reply({
-                content: "❌ Only developers can use the admin panel.",
+                content: "❌ Only developers or ownership can use the admin panel.",
                 flags: MessageFlags.Ephemeral
             });
         }
