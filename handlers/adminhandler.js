@@ -32,7 +32,7 @@ module.exports = async function handleAdminCommand(message, config) {
 	const command = args.shift()?.toLowerCase();
 	if (!["forcelock", "forceunlock"].includes(command)) return false;
 
-	await logCommand(message, config, `a!${command}`, "Admin command");
+	await logCommand(message, config, `a!${command}`, "Admin command", args);
 
 	if (!message.member?.roles?.cache?.has(LOCKDOWN_ROLE)) {
 		await message.reply("❌ This command is restricted to the admin role.");

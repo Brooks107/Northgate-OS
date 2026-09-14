@@ -71,7 +71,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
     const command = args.shift()?.toLowerCase();
     if (!["forceclose", "power"].includes(command)) return false;
 
-    await logCommand(message, config, `d!${command}`, "Developer command");
+    await logCommand(message, config, `d!${command}`, "Developer command", args);
 
     if (!config.developers?.includes(message.author.id)) {
         await message.reply("❌ This command is developer only - Please contact a member of the IT team to have them run it");

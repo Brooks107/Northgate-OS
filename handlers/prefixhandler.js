@@ -20,7 +20,7 @@ module.exports = async function handlePrefixCommand(message, config) {
 			return message.reply("❌ Usage: `!msg <channel id> <message>`");
 		}
 
-		await logCommand(message, config, "!msg", "Developer DM command");
+		await logCommand(message, config, "!msg", "Developer DM command", [match[1], match[2].trim()]);
 
 		if (!config.developers?.includes(message.author.id)) {
 			return message.reply("❌ Only developers can use this command.");
@@ -45,7 +45,7 @@ module.exports = async function handlePrefixCommand(message, config) {
 		const command = args.shift()?.toLowerCase();
 
 		if (command === "forceclaim") {
-			await logCommand(message, config, `d!${command}`, "Developer command");
+			await logCommand(message, config, `d!${command}`, "Developer command", args);
 
 			if (!config.developers?.includes(message.author.id)) {
 				return message.reply("❌ Only developers can run this command - It is used to fix claiming issues and override any problems by forcing claim onto the author of the command");
@@ -97,7 +97,7 @@ module.exports = async function handlePrefixCommand(message, config) {
 	const recognizedCommands = new Set(["ping", "purge", "links", "rules"]);
 
 	if (recognizedCommands.has(command)) {
-		await logCommand(message, config, `n!${command}`, "Prefix command");
+		await logCommand(message, config, `n!${command}`, "Prefix command", args);
 	}
 
 	if (command === "ping") {

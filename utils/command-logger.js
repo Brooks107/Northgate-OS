@@ -15,7 +15,19 @@ function getChannelLabel(source) {
             : "Unknown channel";
 }
 
-async function logCommand(source, config, commandName, commandType) {
+function formatArguments(argumentsValue) {
+    if (argumentsValue === undefined || argumentsValue === null || argumentsValue === "") {
+        return "None";
+    }
+
+    if (Array.isArray(argumentsValue)) {
+        return argumentsValue.length ? argumentsValue.join(" ") : "None";
+    }
+
+    return String(argumentsValue);
+}
+
+async function logCommand(source, config, commandName, commandType, argumentsValue) {
     const channelId = getLoggingChannelId(config);
     if (!channelId || !source.client) return;
 
@@ -34,6 +46,7 @@ async function logCommand(source, config, commandName, commandType) {
             .addFields(
                 { name: "Command", value: `\`${commandName}\``, inline: true },
                 { name: "Type", value: commandType, inline: true },
+                { name: "Arguments", value: `\`${formatArguments(argumentsValue).slice(0, 1020)}\``, inline: false },
                 { name: "User", value: user ? `${user} (${user.tag})` : "Unknown user", inline: false },
                 { name: "Channel", value: getChannelLabel(source), inline: true },
                 { name: "Guild", value: guild?.name || "Direct message", inline: true }

@@ -216,7 +216,10 @@ client.on("interactionCreate", async interaction => {
                 }
             }
 
-            await logCommand(interaction, config, `/${interaction.commandName}`, "Slash command");
+            const commandArguments = interaction.options.data.map(option =>
+                `${option.name}=${option.value ?? option.options?.map(nested => `${nested.name}=${nested.value ?? ""}`).join(",") ?? ""}`
+            );
+            await logCommand(interaction, config, `/${interaction.commandName}`, "Slash command", commandArguments);
             await cmd.execute(interaction, client, config);
             return;
         }
