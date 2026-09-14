@@ -25,6 +25,9 @@ function load() {
         if (raw.adminPanel && typeof raw.adminPanel === "object") {
             state.adminPanel = raw.adminPanel;
         }
+        if (raw.groupArrays && typeof raw.groupArrays === "object") {
+            state.groupArrays = raw.groupArrays;
+        }
         return state;
     } catch {
         // No state file yet (or it is unreadable): callers fall back to

@@ -1,7 +1,83 @@
-const { AttachmentBuilder } = require("discord.js");
+const {
+    ActionRowBuilder,
+    AttachmentBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    EmbedBuilder
+} = require("discord.js");
 const { logCommand } = require("../utils/command-logger");
 const state = require("../state");
 const ticketTracker = require("../ticket-tracker");
+
+const GROUP_CONFIG_KEYS = {
+    operations: "operationsroles",
+    support: "supportTeamRoles",
+    commissions: "commissionticketaccess",
+    dev: "developers",
+    general: "generalticketaccess",
+    appeal: "appealsticketaccess",
+    partnership: "partnershipticketaccess",
+    hiring: "hiringticketaccess",
+    pr: "prrole",
+    community: "communityrole",
+    developergame: "devrole",
+    staff: "staffrole",
+    hridr: "hrdirectorrole",
+    hrman: "hrmanagerrole",
+    ownership: "ownershiprole"
+};
+
+const ROLE_GROUPS = new Set(Object.keys(GROUP_CONFIG_KEYS).filter(group => group !== "dev"));
+
+function getGroupValues(config, configKey) {
+    const value = config[configKey];
+    return Array.isArray(value) ? [...value] : value ? [value] : [];
+}
+
+async function confirmRoleGroupChange(message, action, group, id) {
+    const warning = new EmbedBuilder()
+        .setTitle("⚠️ Role group change warning")
+        .setColor(0xf59e0b)
+        .setDescription(
+            `You are about to **${action}** \`${id}\` in the **${group}** role group.\n\n` +
+            "This group contains Discord role IDs. Confirm that the value is a role ID before proceeding."
+        )
+        .setFooter({ text: "No change has been made yet." });
+    const confirmation = await message.reply({
+        embeds: [warning],
+        components: [new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setCustomId(`group_confirm_${message.id}`)
+                .setLabel("Proceed")
+                .setStyle(ButtonStyle.Danger),
+            new ButtonBuilder()
+                .setCustomId(`group_cancel_${message.id}`)
+                .setLabel("Cancel")
+                .setStyle(ButtonStyle.Secondary)
+        )]
+    });
+
+    try {
+        const choice = await confirmation.awaitMessageComponent({
+            filter: interaction => interaction.user.id === message.author.id,
+            time: 30_000
+        });
+        const confirmed = choice.customId === `group_confirm_${message.id}`;
+        await choice.update({
+            content: confirmed ? "⚠️ Confirmed. Applying the group change..." : "🛑 Group change cancelled.",
+            embeds: [],
+            components: []
+        });
+        return confirmed;
+    } catch {
+        await confirmation.edit({
+            content: "⌛ Group change confirmation expired. No changes were made.",
+            embeds: [],
+            components: []
+        });
+        return false;
+    }
+}
 
 function evaluateCommandAccess(commandName, member, config, client, commandArguments = []) {
     const hasAnyRole = roleIds => {
@@ -152,7 +228,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
 
     const args = message.content.slice(2).trim().split(/ +/);
     const command = args.shift()?.toLowerCase();
-    if (!["forceclose", "impersonate", "power"].includes(command)) return false;
+    if (!["addgroup", "delgroup", "forceclose", "impersonate", "power"].includes(command)) return false;
 
     await logCommand(message, config, `d!${command}`, "Developer command", args);
 
@@ -178,6 +254,55 @@ module.exports = async function handleDeveloperCommand(message, config) {
         }
     } else if (!isDeveloper) {
         await message.reply("❌ This command is developer only - Please contact a member of the IT team to have them run it");
+        return true;
+    }
+
+    if (command === "addgroup" || command === "delgroup") {
+        const group = args.shift()?.toLowerCase();
+        const id = args.shift();
+        const configKey = GROUP_CONFIG_KEYS[group];
+
+        if (!configKey || !/^\d{17,20}$/.test(id || "")) {
+            await message.reply([
+                "❌ Usage: `d!addgroup <group> <Discord ID>` or `d!delgroup <group> <Discord ID>`",
+                `Groups: ${Object.keys(GROUP_CONFIG_KEYS).join(", ")}`
+            ].join("\n"));
+            return true;
+        }
+
+        if (command === "addgroup" && ROLE_GROUPS.has(group)) {
+            const confirmed = await confirmRoleGroupChange(message, "add", group, id);
+            if (!confirmed) return true;
+        }
+
+        const values = getGroupValues(config, configKey);
+        if (command === "addgroup") {
+            if (values.includes(id)) {
+                await message.reply(`ℹ️ \`${id}\` is already in the **${group}** group.`);
+                return true;
+            }
+            values.push(id);
+        } else {
+            if (!values.includes(id)) {
+                await message.reply(`ℹ️ \`${id}\` is not in the **${group}** group.`);
+                return true;
+            }
+            values.splice(values.indexOf(id), 1);
+        }
+
+        const currentGroups = state.load().groupArrays || {};
+        const saved = state.save({
+            groupArrays: {
+                ...currentGroups,
+                [configKey]: values
+            }
+        });
+        config[configKey] = values;
+
+        await message.reply(
+            `${command === "addgroup" ? "✅ Added" : "🗑️ Removed"} \`${id}\` ${command === "addgroup" ? "to" : "from"} the **${group}** group.` +
+            (saved ? "" : "\n⚠️ The change could not be saved to disk and may reset after restart.")
+        );
         return true;
     }
 

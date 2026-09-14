@@ -55,7 +55,11 @@ function trackDistinctCommand(commandName) {
 // Lock flags are runtime state, not deployment config. Apply the persisted
 // values over the config.json defaults before anything can read them, so a
 // lock survives the restarts that git-sync triggers on every push.
-Object.assign(config, state.load());
+const runtimeState = state.load();
+Object.assign(config, runtimeState);
+for (const [key, values] of Object.entries(runtimeState.groupArrays || {})) {
+    if (Array.isArray(values)) config[key] = values;
+}
 // -------------------------------------------------
 // Create client
 // -------------------------------------------------
