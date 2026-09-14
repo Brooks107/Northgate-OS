@@ -100,7 +100,7 @@ function evaluateCommandAccess(commandName, member, config, client, commandArgum
             : { result: "blocked", reason: powerAction === "on" ? "Only developers can power the bot on." : "Requires developer or ownership access." };
     }
 
-    if (["d!forceclose", "d!forceclaim", "!msg"].includes(commandName)) {
+    if (["d!addgroup", "d!delgroup", "d!forceclose", "d!forceclaim", "!msg"].includes(commandName)) {
         return isDeveloper
             ? { result: "allowed", reason: "Developer-only command." }
             : { result: "blocked", reason: "Developer-only command." };
@@ -339,7 +339,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
         }[access.result];
 
         await message.reply([
-            `🔎 **${resultLabel}**: **${member.user.tag}** running \`/${targetCommand}\``,
+            `🔎 **${resultLabel}**: **${member.user.tag}** running \`${targetCommand.startsWith("d!") || targetCommand === "!msg" ? targetCommand : `/${targetCommand}`}\``,
             "",
             access.reason,
             "No command was executed."
