@@ -31,6 +31,13 @@ module.exports = {
                 .setStyle(TextInputStyle.Short)
                 .setRequired(true);
 
+            const robloxid = new TextInputBuilder()
+                .setCustomId("roblox_id")
+                .setLabel("What is your roblox ID?")
+                .setStyle(TextInputStyle.Short)
+                .setRequired(true);
+    
+            
             const roleInput = new TextInputBuilder()
                 .setCustomId("job_role")
                 .setLabel("Which role are you applying for?")
@@ -52,6 +59,7 @@ module.exports = {
             return interaction.showModal(
                 modal.addComponents(
                     new ActionRowBuilder().addComponents(nameInput),
+                    new ActionRowBuilder().addComponents(robloxid),
                     new ActionRowBuilder().addComponents(roleInput),
                     new ActionRowBuilder().addComponents(experienceInput),
                     new ActionRowBuilder().addComponents(whyInput)
@@ -126,7 +134,8 @@ module.exports = {
             const jobRole = interaction.fields.getTextInputValue("job_role");
             const experience = interaction.fields.getTextInputValue("experience");
             const whyJoin = interaction.fields.getTextInputValue("why_join");
-
+            const robloxId = interaction.fields.getTextInputValue("roblox_id");
+            
             let ticketChannel;
 
             try {
@@ -194,6 +203,7 @@ module.exports = {
                         fields: [
                             { name: "👤 Applicant", value: interaction.user.tag, inline: true },
                             { name: "📛 Name", value: applicantName, inline: true },
+                            { name: "⚙️ Roblox ID", value: robloxId, inline: true },
                             { name: "🎯 Role", value: jobRole, inline: true },
                             { name: "🧠 Experience", value: experience },
                             { name: "💡 Why join?", value: whyJoin }
