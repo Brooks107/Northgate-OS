@@ -3,6 +3,89 @@ const { logCommand } = require("../utils/command-logger");
 const state = require("../state");
 const ticketTracker = require("../ticket-tracker");
 
+function evaluateCommandAccess(commandName, member, config, client, commandArguments = []) {
+    const hasAnyRole = roleIds => {
+        const ids = Array.isArray(roleIds) ? roleIds : [roleIds];
+        return ids.filter(Boolean).some(roleId => member.roles.cache.has(roleId));
+    };
+    const isDeveloper = config.developers?.includes(member.id) === true;
+    const ownershipRoles = Array.isArray(config.ownershiprole)
+        ? config.ownershiprole
+        : [config.ownershiprole].filter(Boolean);
+    const isOwner = hasAnyRole(ownershipRoles);
+    const isAdministrator = member.permissions.has("Administrator");
+    const isManageRoles = member.permissions.has("ManageRoles");
+
+    if (commandName === "d!power") {
+        const powerAction = commandArguments[0];
+        const canUse = isDeveloper || (powerAction === "off" && isOwner);
+        return canUse
+            ? { result: "allowed", reason: "Developer access, or ownership for power off." }
+            : { result: "blocked", reason: powerAction === "on" ? "Only developers can power the bot on." : "Requires developer or ownership access." };
+    }
+
+    if (["d!forceclose", "d!forceclaim", "!msg"].includes(commandName)) {
+        return isDeveloper
+            ? { result: "allowed", reason: "Developer-only command." }
+            : { result: "blocked", reason: "Developer-only command." };
+    }
+
+    if (!client.commands?.has(commandName)) {
+        return { result: "unknown", reason: "That command is not currently registered." };
+    }
+
+    if (config.maintenanceMode && !isDeveloper) {
+        return { result: "blocked", reason: "Maintenance mode allows slash commands only for developers." };
+    }
+
+    if (commandName === "available") {
+        return isDeveloper
+            ? { result: "allowed", reason: "Developer-only command." }
+            : { result: "blocked", reason: "Developer-only command." };
+    }
+
+    if (commandName === "adminpanel") {
+        return isDeveloper || isOwner
+            ? { result: "allowed", reason: "Developer or ownership access." }
+            : { result: "blocked", reason: "Requires a developer ID or ownership role." };
+    }
+
+    if (["cmdlock", "cmdunlock"].includes(commandName)) {
+        return isAdministrator
+            ? { result: "allowed", reason: "Requires Administrator permission." }
+            : { result: "blocked", reason: "Requires Administrator permission." };
+    }
+
+    if (["add", "claim", "remove", "transfer", "unclaim"].includes(commandName)) {
+        return hasAnyRole([...(config.supportTeamRoles || []), ...(config.commissionticketaccess || [])])
+            ? { result: "allowed", reason: "Support or commission access role." }
+            : { result: "blocked", reason: "Requires a support or commission access role." };
+    }
+
+    if (["approve", "deny", "comlock", "comunlock"].includes(commandName)) {
+        return hasAnyRole(config.commissionticketaccess)
+            ? { result: "allowed", reason: "Commission access role." }
+            : { result: "blocked", reason: "Requires a commission access role." };
+    }
+
+    if (commandName === "hire") {
+        return isManageRoles || isAdministrator || hasAnyRole(config.supportTeamRoles)
+            ? { result: "allowed", reason: "Manage Roles, Administrator, or support access." }
+            : { result: "blocked", reason: "Requires Manage Roles, Administrator, or support access." };
+    }
+
+    if (commandName === "managementvclock") {
+        return isDeveloper || isOwner || hasAnyRole(config.hrdirectorrole)
+            ? { result: "allowed", reason: "Developer, ownership, or HR director access." }
+            : { result: "blocked", reason: "Requires developer, ownership, or HR director access." };
+    }
+
+    return {
+        result: "unknown",
+        reason: "The command has additional context-dependent checks; no action was executed."
+    };
+}
+
 async function saveTranscript(channel, closedBy, config) {
     try {
         const all = [];
@@ -100,7 +183,8 @@ module.exports = async function handleDeveloperCommand(message, config) {
 
     if (command === "impersonate") {
         const target = args.shift();
-        const targetCommand = args.shift()?.toLowerCase();
+        const targetCommand = args.shift()?.toLowerCase()?.replace(/^\//, "");
+        const targetPowerAction = args.shift()?.toLowerCase();
         const targetId = target?.match(/^<@!?(\d+)>$/)?.[1] || target;
 
         if (!/^\d{17,20}$/.test(targetId || "") || !targetCommand) {
@@ -116,32 +200,23 @@ module.exports = async function handleDeveloperCommand(message, config) {
             return true;
         }
 
-        const hasAnyRole = roleIds => {
-            const ids = Array.isArray(roleIds) ? roleIds : [roleIds];
-            return ids.filter(Boolean).some(roleId => member.roles.cache.has(roleId));
-        };
-        const ownershipRoles = Array.isArray(config.ownershiprole)
-            ? config.ownershiprole
-            : [config.ownershiprole].filter(Boolean);
-        const access = {
-            Developer: config.developers?.includes(targetId),
-            Owner: hasAnyRole(ownershipRoles),
-            "Support team": hasAnyRole(config.supportTeamRoles),
-            "Commission access": hasAnyRole(config.commissionticketaccess),
-            "Hiring access": hasAnyRole(config.hiringticketaccess),
-            "Partnership access": hasAnyRole(config.partnershipticketaccess),
-            "General ticket access": hasAnyRole(config.generalticketaccess)
-        };
-
-        const accessLines = Object.entries(access)
-            .map(([label, allowed]) => `${allowed ? "✅" : "❌"} ${label}`)
-            .join("\n");
+        const access = evaluateCommandAccess(
+            targetCommand,
+            member,
+            config,
+            message.client,
+            [targetPowerAction, ...args]
+        );
+        const resultLabel = {
+            allowed: "✅ WOULD EXECUTE",
+            blocked: "❌ WOULD BE BLOCKED",
+            unknown: "⚠️ CANNOT DETERMINE"
+        }[access.result];
 
         await message.reply([
-            `🔎 Permission preview for **${member.user.tag}** running \`${targetCommand}\``,
+            `🔎 **${resultLabel}**: **${member.user.tag}** running \`/${targetCommand}\``,
             "",
-            accessLines,
-            "",
+            access.reason,
             "No command was executed."
         ].join("\n"));
         return true;
