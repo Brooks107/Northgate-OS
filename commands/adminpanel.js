@@ -201,6 +201,7 @@ module.exports = {
             await client.channels.fetch(panel.channelId);
             await client.guilds.cache.get(panel.guildId)?.members.fetch().catch(() => null);
             registerAdminPanelRefresh(client, config, panel);
+            await client.notifyAdminPanelRefresh();
             console.log("[adminpanel] restored persistent panel refresh.");
         } catch (error) {
             console.warn("[adminpanel] could not restore panel:", error.message);
