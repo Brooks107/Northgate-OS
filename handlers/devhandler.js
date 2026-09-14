@@ -73,13 +73,33 @@ module.exports = async function handleDeveloperCommand(message, config) {
 
     await logCommand(message, config, `d!${command}`, "Developer command", args);
 
-    if (!config.developers?.includes(message.author.id)) {
+    const isDeveloper = config.developers?.includes(message.author.id);
+    const ownershipRoles = Array.isArray(config.ownershiprole)
+        ? config.ownershiprole
+        : [config.ownershiprole].filter(Boolean);
+    const isOwner = ownershipRoles.some(roleId =>
+        message.member?.roles?.cache?.has(roleId)
+    );
+    const powerAction = command === "power" ? args.shift()?.toLowerCase() : null;
+
+    if (command === "power") {
+        const canUsePower = isDeveloper || (powerAction === "off" && isOwner);
+
+        if (!canUsePower) {
+            await message.reply(
+                powerAction === "on"
+                    ? "❌ Only developers can turn the bot back on."
+                    : "❌ Only developers or ownership can turn the bot off."
+            );
+            return true;
+        }
+    } else if (!isDeveloper) {
         await message.reply("❌ This command is developer only - Please contact a member of the IT team to have them run it");
         return true;
     }
 
     if (command === "power") {
-        const action = args.shift()?.toLowerCase();
+        const action = powerAction;
 
         if (!["off", "on", "status"].includes(action)) {
             await message.reply("❌ Usage: `d!power <off|on|status>`");
