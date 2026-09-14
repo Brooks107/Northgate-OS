@@ -69,7 +69,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
 
     const args = message.content.slice(2).trim().split(/ +/);
     const command = args.shift()?.toLowerCase();
-    if (!["forceclose", "power"].includes(command)) return false;
+    if (!["forceclose", "impersonate", "power"].includes(command)) return false;
 
     await logCommand(message, config, `d!${command}`, "Developer command", args);
 
@@ -95,6 +95,55 @@ module.exports = async function handleDeveloperCommand(message, config) {
         }
     } else if (!isDeveloper) {
         await message.reply("❌ This command is developer only - Please contact a member of the IT team to have them run it");
+        return true;
+    }
+
+    if (command === "impersonate") {
+        const target = args.shift();
+        const targetCommand = args.shift()?.toLowerCase();
+        const targetId = target?.match(/^<@!?(\d+)>$/)?.[1] || target;
+
+        if (!/^\d{17,20}$/.test(targetId || "") || !targetCommand) {
+            await message.reply("❌ Usage: `d!impersonate <user ID or mention> <command>`");
+            return true;
+        }
+
+        const guild = await message.client.guilds.fetch(config.guildId).catch(() => null);
+        const member = guild ? await guild.members.fetch(targetId).catch(() => null) : null;
+
+        if (!member) {
+            await message.reply("❌ That user could not be found in the configured server.");
+            return true;
+        }
+
+        const hasAnyRole = roleIds => {
+            const ids = Array.isArray(roleIds) ? roleIds : [roleIds];
+            return ids.filter(Boolean).some(roleId => member.roles.cache.has(roleId));
+        };
+        const ownershipRoles = Array.isArray(config.ownershiprole)
+            ? config.ownershiprole
+            : [config.ownershiprole].filter(Boolean);
+        const access = {
+            Developer: config.developers?.includes(targetId),
+            Owner: hasAnyRole(ownershipRoles),
+            "Support team": hasAnyRole(config.supportTeamRoles),
+            "Commission access": hasAnyRole(config.commissionticketaccess),
+            "Hiring access": hasAnyRole(config.hiringticketaccess),
+            "Partnership access": hasAnyRole(config.partnershipticketaccess),
+            "General ticket access": hasAnyRole(config.generalticketaccess)
+        };
+
+        const accessLines = Object.entries(access)
+            .map(([label, allowed]) => `${allowed ? "✅" : "❌"} ${label}`)
+            .join("\n");
+
+        await message.reply([
+            `🔎 Permission preview for **${member.user.tag}** running \`${targetCommand}\``,
+            "",
+            accessLines,
+            "",
+            "No command was executed."
+        ].join("\n"));
         return true;
     }
 
