@@ -259,12 +259,13 @@ module.exports = async function handleDeveloperCommand(message, config) {
 
     if (command === "addgroup" || command === "delgroup") {
         const group = args.shift()?.toLowerCase();
-        const id = args.shift();
+        const suppliedId = args.shift();
+        const id = suppliedId?.match(/^<@&?(\d+)>$/)?.[1] || suppliedId;
         const configKey = GROUP_CONFIG_KEYS[group];
 
         if (!configKey || !/^\d{17,20}$/.test(id || "")) {
             await message.reply([
-                "❌ Usage: `d!addgroup <group> <Discord ID>` or `d!delgroup <group> <Discord ID>`",
+                "❌ Usage: `d!addgroup <group> <Discord ID or mention>` or `d!delgroup <group> <Discord ID or mention>`",
                 `Groups: ${Object.keys(GROUP_CONFIG_KEYS).join(", ")}`
             ].join("\n"));
             return true;
