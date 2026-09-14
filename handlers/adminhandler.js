@@ -23,6 +23,11 @@ const VOICE_LOCK_CHANNEL_IDS = new Set([
 module.exports = async function handleAdminCommand(message, config) {
 	if (message.author.bot || !message.content.startsWith("a!")) return false;
 
+	if (config.maintenanceMode && !config.developers?.includes(message.author.id)) {
+		await message.reply("🔴 The bot is currently offline for maintenance.");
+		return true;
+	}
+
 	const args = message.content.slice(2).trim().split(/ +/);
 	const command = args.shift()?.toLowerCase();
 	if (!["forcelock", "forceunlock"].includes(command)) return false;

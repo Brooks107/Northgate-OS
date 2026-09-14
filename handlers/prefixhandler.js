@@ -5,6 +5,15 @@ const { logCommand } = require("../utils/command-logger");
 module.exports = async function handlePrefixCommand(message, config) {
 	if (message.author.bot) return;
 
+	if (
+		config.maintenanceMode &&
+		(message.content.startsWith("!msg") || message.content.startsWith("d!") || message.content.startsWith("n!")) &&
+		!config.developers?.includes(message.author.id)
+	) {
+		await message.reply("🔴 The bot is currently offline for maintenance.");
+		return;
+	}
+
 	if (message.channel.isDMBased?.() && message.content.startsWith("!msg")) {
 		const match = message.content.match(/^!msg\s+(\d+)\s+([\s\S]+)$/);
 		if (!match) {

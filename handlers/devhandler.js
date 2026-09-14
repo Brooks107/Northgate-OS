@@ -1,5 +1,6 @@
 const { AttachmentBuilder } = require("discord.js");
 const { logCommand } = require("../utils/command-logger");
+const state = require("../state");
 const ticketTracker = require("../ticket-tracker");
 
 async function saveTranscript(channel, closedBy, config) {
@@ -68,12 +69,46 @@ module.exports = async function handleDeveloperCommand(message, config) {
 
     const args = message.content.slice(2).trim().split(/ +/);
     const command = args.shift()?.toLowerCase();
-    if (command !== "forceclose") return false;
+    if (!["forceclose", "power"].includes(command)) return false;
 
     await logCommand(message, config, `d!${command}`, "Developer command");
 
     if (!config.developers?.includes(message.author.id)) {
         await message.reply("❌ This command is developer only - Please contact a member of the IT team to have them run it");
+        return true;
+    }
+
+    if (command === "power") {
+        const action = args.shift()?.toLowerCase();
+
+        if (!["off", "on", "status"].includes(action)) {
+            await message.reply("❌ Usage: `d!power <off|on|status>`");
+            return true;
+        }
+
+        if (action === "status") {
+            await message.reply(
+                config.maintenanceMode
+                    ? "🔴 Power mode: **off** (invisible maintenance mode)."
+                    : "🟢 Power mode: **on**."
+            );
+            return true;
+        }
+
+        const maintenanceMode = action === "off";
+        config.maintenanceMode = maintenanceMode;
+        const saved = state.save({ maintenanceMode });
+
+        message.client.user.setPresence({
+            status: maintenanceMode ? "invisible" : "online",
+            activities: []
+        });
+
+        await message.reply(
+            maintenanceMode
+                ? `🔴 Bot set to **invisible maintenance mode**.${saved ? "" : "\n⚠️ Could not save this state to disk."}`
+                : `🟢 Bot is **online** again.${saved ? "" : "\n⚠️ Could not save this state to disk."}`
+        );
         return true;
     }
 

@@ -119,6 +119,12 @@ client.getNextTicketId = function () {
 const TICKET_CHANNEL_PATTERN = /^(?:support|appeal|commission|hiring|partnership)-(\d+)(?:-|$)/;
 
 client.once(Events.ClientReady, async () => {
+    client.user.setPresence({
+        status: config.maintenanceMode ? "invisible" : "online",
+        activities: []
+    });
+    console.log(`[presence] bot is ${config.maintenanceMode ? "invisible" : "online"}.`);
+
     for (const guild of client.guilds.cache.values()) {
         client.refreshActiveTicketIds(guild);
     }
@@ -173,6 +179,13 @@ async function reportInteractionFailure(interaction, err) {
 
 client.on("interactionCreate", async interaction => {
     try {
+        if (config.maintenanceMode && !config.developers?.includes(interaction.user.id)) {
+            return interaction.reply({
+                content: "🔴 The bot is currently offline for maintenance.",
+                flags: MessageFlags.Ephemeral
+            });
+        }
+
         if (interaction.isChatInputCommand()) {
             const cmd = client.commands.get(interaction.commandName);
 
@@ -302,6 +315,11 @@ client.on("messageCreate", async message => {
     try {
         if (message.author.bot) return;
         if (!message.content.startsWith("!inject ")) return;
+
+        if (config.maintenanceMode && !config.developers?.includes(message.author.id)) {
+            return message.reply("🔴 The bot is currently offline for maintenance.");
+        }
+
         if (!message.channel.name?.match(/^(?:support|appeal|commission|hiring|partnership)-(\d+)/)) return;
 
         const isStaff = config.supportTeamRoles.some(roleId =>
