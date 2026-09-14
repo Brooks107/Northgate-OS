@@ -183,6 +183,14 @@ async function reportInteractionFailure(interaction, err) {
 
 client.on("interactionCreate", async interaction => {
     try {
+        if (interaction.isButton() && (
+            interaction.customId.startsWith("group_confirm_") ||
+            interaction.customId.startsWith("group_cancel_")
+        )) {
+            // The confirmation collector in devhandler owns these buttons.
+            return;
+        }
+
         if (config.maintenanceMode && !config.developers?.includes(interaction.user.id)) {
             return interaction.reply({
                 content: "🔴 The bot is currently offline for maintenance.",
