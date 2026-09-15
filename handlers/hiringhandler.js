@@ -8,7 +8,8 @@ const {
     ButtonBuilder,
     ButtonStyle,
     AttachmentBuilder,
-    MessageFlags
+    MessageFlags,
+    OverwriteType
 } = require("discord.js");
 
 const ticketTopic = require("../ticket-topic");
@@ -29,12 +30,15 @@ module.exports = {
                 .setCustomId("applicant_name")
                 .setLabel("What is your name?")
                 .setStyle(TextInputStyle.Short)
+                .setMaxLength(50)
                 .setRequired(true);
 
             const robloxid = new TextInputBuilder()
                 .setCustomId("roblox_id")
                 .setLabel("What is your roblox ID?")
+                .setPlaceholder("Numbers only, for example 123456789")
                 .setStyle(TextInputStyle.Short)
+                .setMaxLength(20)
                 .setRequired(true);
     
             
@@ -135,7 +139,17 @@ module.exports = {
             const experience = interaction.fields.getTextInputValue("experience");
             const whyJoin = interaction.fields.getTextInputValue("why_join");
             const robloxId = interaction.fields.getTextInputValue("roblox_id");
-            
+
+            // NorthGate Studios Staff Management reads the bc!hire line sent below, and
+            // posts the welcome in this ticket when staff run /hire, so it has to be
+            // able to see the ticket. Only added when that bot is really in this
+            // server: an overwrite for someone who is not would stop the ticket being
+            // created at all.
+            const staffBotId = String(config.staffmanagerbotid || "");
+            const staffBot = /^\d{17,20}$/.test(staffBotId)
+                ? await interaction.guild.members.fetch(staffBotId).catch(() => null)
+                : null;
+
             let ticketChannel;
 
             try {
@@ -172,7 +186,18 @@ module.exports = {
                                 PermissionFlagsBits.ReadMessageHistory,
                                 PermissionFlagsBits.ManageChannels
                             ]
-                        }
+                        },
+                        ...(staffBot ? [{
+                            id: staffBot.id,
+                            type: OverwriteType.Member,
+                            allow: [
+                                PermissionFlagsBits.ViewChannel,
+                                PermissionFlagsBits.SendMessages,
+                                PermissionFlagsBits.ReadMessageHistory,
+                                PermissionFlagsBits.EmbedLinks,
+                                PermissionFlagsBits.AddReactions
+                            ]
+                        }] : [])
                     ]
                 });
             } catch (err) {
@@ -212,6 +237,10 @@ module.exports = {
                 ],
                 components: [buttons]
             });
+
+            // Hand the applicant's details to Staff Management, which fills them in
+            // when staff run /hire in this ticket after the interview.
+            await sendHireDetails(ticketChannel, interaction.user.id, applicantName, robloxId);
 
             // Create tracking embed
             await ticketTracker.createTicketEmbed(ticketChannel, {
@@ -258,6 +287,44 @@ module.exports = {
         }
     }
 };
+
+// "bc" is bot communication: a line one NorthGate bot posts for another to read.
+//
+//   bc!hire <Discord ID> <nickname> <Roblox ID>
+//
+// NorthGate Studios Staff Management only listens to this bot (set there with
+// /config ticket_bot), remembers the details for this ticket, and uses them when
+// staff run /hire here. It only accepts a Roblox ID made of digits and a nickname
+// of up to 50 characters, so details that would be rejected are not sent. Staff
+// are told instead, and fill them in on /hire themselves.
+async function sendHireDetails(channel, discordId, name, robloxId) {
+    const nickname = String(name ?? "").trim().replace(/\s+/g, " ");
+    const roblox = String(robloxId ?? "").trim();
+
+    const problems = [];
+    if (!/^\d{1,20}$/.test(roblox)) problems.push("the Roblox ID is not a number");
+    if (!nickname || nickname.length > 50) problems.push("the name is empty or longer than 50 characters");
+
+    try {
+        if (problems.length) {
+            await channel.send({
+                content: `ℹ️ These hiring details were not passed to Staff Management because ${problems.join(" and ")}. When hiring, run /hire with user, nickname and roblox_id filled in.`,
+                allowedMentions: { parse: [] }
+            });
+            return false;
+        }
+
+        // The name is whatever the applicant typed, so nothing in it may ping.
+        await channel.send({
+            content: `bc!hire ${discordId} ${nickname} ${roblox}`,
+            allowedMentions: { parse: [] }
+        });
+        return true;
+    } catch (err) {
+        console.error("[bc] could not send the hiring details:", err.message);
+        return false;
+    }
+}
 
 async function saveTranscript(channel, closedBy, config) {
     try {
