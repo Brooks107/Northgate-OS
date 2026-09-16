@@ -3,8 +3,105 @@ const ticketTopic = require("../ticket-topic");
 const ticketTracker = require("../ticket-tracker");
 const { logCommand } = require("../utils/command-logger");
 
+const PREFIX_HELP_COMMANDS = [
+	["!help", "Show this private command list.", "Everyone"],
+	["n!ping", "Check the bot's response latency.", "Everyone"],
+	["n!purge <1-100>", "Delete recent messages from the current channel.", "Everyone with permission to manage messages"],
+	["n!links", "Post the official Northgate links in the configured links channel.", "Everyone"],
+	["n!rules", "Post the server rules in the configured rules channel.", "Everyone"],
+	["n!inject <ticket id> <info>", "Add information to a tracked ticket.", "Support, commission access, or developers"],
+	["d!forceclaim <ticket id>", "Force-claim a ticket for yourself.", "Developers"],
+	["d!addgroup <group> <role/user ID>", "Add an ID to a configured role group.", "Developers"],
+	["d!delgroup <group> <role/user ID>", "Remove an ID from a configured role group.", "Developers"],
+	["d!forceclose", "Force-close a ticket and save its transcript.", "Developers, inside a ticket"],
+	["d!impersonate <user> <command>", "Check whether a user could run a command without executing it.", "Developers"],
+	["d!power <on|off|status>", "Turn the bot on/off or view its power status.", "Developers; ownership can turn it off"],
+	["!msg <channel id> <message>", "Send a message to a channel from a developer DM.", "Developers, from DMs"]
+];
+
+const SLASH_COMMAND_ACCESS = {
+	available: "Developers",
+	adminpanel: "Developers or ownership",
+	cmdlock: "Server administrators",
+	cmdunlock: "Server administrators",
+	add: "Support or commission access",
+	claim: "Support or commission access",
+	remove: "Support or commission access",
+	transfer: "Support or commission access",
+	unclaim: "Support or commission access",
+	approve: "Commission access",
+	deny: "Commission access",
+	comlock: "Commission access",
+	comunlock: "Commission access",
+	hire: "Manage Roles, administrators, or support access",
+	managementvclock: "Developers, ownership, or HR directors",
+	close: "Ticket users/staff, subject to ticket access",
+	itsupport: "Everyone",
+	requestmanagementvc: "Everyone",
+	ticketpanel: "Staff with ticket-panel access",
+	commissionspanel: "Staff with commission-panel access",
+	hiringpanel: "Staff with hiring-panel access",
+	partnerpanel: "Staff with partnership-panel access",
+	reactionpanel: "Staff with reaction-panel access"
+};
+
+function buildHelpLines(client) {
+	const slashCommands = [...(client.commands?.values() || [])]
+		.map(command => command.data.toJSON())
+		.sort((a, b) => a.name.localeCompare(b.name))
+		.map(command => [
+			`/${command.name}`,
+			command.description || "No description provided.",
+			SLASH_COMMAND_ACCESS[command.name] || "Available to server members where the command's ticket/channel rules allow it"
+		]);
+
+	return [
+		"**Northgate OS commands**",
+		"Use the command prefix shown. This help is sent privately by DM.",
+		"",
+		"**Slash commands**",
+		...slashCommands.map(([name, description, access]) => `**${name}** - ${description} | **Who:** ${access}`),
+		"",
+		"**Prefix commands**",
+		...PREFIX_HELP_COMMANDS.map(([name, description, access]) => `**${name}** - ${description} | **Who:** ${access}`)
+	];
+}
+
+async function sendPrivateHelp(message) {
+	const lines = buildHelpLines(message.client);
+	const chunks = [];
+	let chunk = "";
+
+	for (const line of lines) {
+		if ((chunk + (chunk ? "\n" : "") + line).length > 1900) {
+			chunks.push(chunk);
+			chunk = line;
+		} else {
+			chunk += (chunk ? "\n" : "") + line;
+		}
+	}
+	if (chunk) chunks.push(chunk);
+
+	await message.delete().catch(() => {});
+	try {
+		for (const helpChunk of chunks) await message.author.send(helpChunk);
+	} catch {
+		const fallback = await message.channel.send({
+			content: "❌ I could not DM you the command list. Please enable server-member DMs and try `!help` again.",
+			allowedMentions: { users: [] }
+		});
+		setTimeout(() => fallback.delete().catch(() => {}), 10_000);
+	}
+}
+
 module.exports = async function handlePrefixCommand(message, config) {
 	if (message.author.bot) return;
+
+	if (message.content.trim().toLowerCase() === "!help") {
+		await logCommand(message, config, "!help", "Prefix command", []);
+		await sendPrivateHelp(message);
+		return;
+	}
 
 	if (
 		config.maintenanceMode &&
