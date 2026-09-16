@@ -322,50 +322,6 @@ client.on("interactionCreate", async interaction => {
     }
 });
 
-// -------------------------------------------------
-// Message handling for prefix commands (!inject)
-// -------------------------------------------------
-
-client.on("messageCreate", async message => {
-    try {
-        if (message.author.bot) return;
-        if (!message.content.startsWith("!inject ")) return;
-
-        if (config.maintenanceMode && !config.developers?.includes(message.author.id)) {
-            return message.reply("🔴 The bot is currently offline for maintenance.");
-        }
-
-        if (!message.channel.name?.match(/^(?:support|appeal|commission|hiring|partnership)-(\d+)/)) return;
-
-        const isStaff = config.supportTeamRoles.some(roleId =>
-            message.member?.roles?.cache?.has(roleId)
-        ) || config.commissionticketaccess?.some(roleId =>
-            message.member?.roles?.cache?.has(roleId)
-        );
-
-        if (!isStaff) {
-            return message.reply({ content: "❌ Only staff can inject info.", ephemeral: true });
-        }
-
-        const info = message.content.slice(8).trim(); // Remove "!inject " prefix
-
-        if (!info) {
-            return message.reply({ content: "❌ Please provide info to inject: `!inject <info>`", ephemeral: true });
-        }
-
-        const result = await ticketTracker.injectInfo(message.channel, info, client);
-
-        if (result.success) {
-            await message.react("✅");
-            console.log(`[inject] ${message.author.tag} injected info into ${message.channel.name}`);
-        } else {
-            await message.reply({ content: `❌ ${result.error}`, ephemeral: true });
-        }
-    } catch (err) {
-        console.error("[messageCreate] error:", err);
-    }
-});
-
 // Permission overwrites do not stop members with Administrator from joining.
 // Enforce the management VC lock at the voice-state boundary as well.
 client.on(Events.VoiceStateUpdate, async (oldState, newState) => {

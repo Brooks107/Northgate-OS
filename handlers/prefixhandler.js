@@ -1,5 +1,6 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
 const ticketTopic = require("../ticket-topic");
+const ticketTracker = require("../ticket-tracker");
 const { logCommand } = require("../utils/command-logger");
 
 module.exports = async function handlePrefixCommand(message, config) {
@@ -94,10 +95,61 @@ module.exports = async function handlePrefixCommand(message, config) {
 
 	const args = message.content.slice(prefix.length).trim().split(/ +/);
 	const command = args.shift()?.toLowerCase();
-	const recognizedCommands = new Set(["ping", "purge", "links", "rules"]);
+	const recognizedCommands = new Set(["ping", "purge", "links", "rules", "inject"]);
 
 	if (recognizedCommands.has(command)) {
 		await logCommand(message, config, `n!${command}`, "Prefix command", args);
+	}
+
+	if (command === "inject") {
+		const ticketId = Number(args.shift());
+		const info = args.join(" ");
+
+		if (!Number.isInteger(ticketId) || ticketId < 1) {
+			return message.reply("❌ Usage: `n!inject <ticket id> <info>`");
+		}
+
+		const isStaff = config.supportTeamRoles?.some(roleId =>
+			message.member?.roles?.cache?.has(roleId)
+		) || config.commissionticketaccess?.some(roleId =>
+			message.member?.roles?.cache?.has(roleId)
+		) || config.developers?.includes(message.author.id);
+
+		if (!isStaff) {
+			return message.reply({ content: "❌ Only staff can inject info into a ticket.", ephemeral: true });
+		}
+
+		if (!info) {
+			return message.reply({ content: "❌ Please provide info to inject: `n!inject <ticket id> <info>`", ephemeral: true });
+		}
+
+		const ticketChannel = message.guild?.channels.cache.find(channel =>
+			channel.name.startsWith("support-") ||
+			channel.name.startsWith("appeal-") ||
+			channel.name.startsWith("commission-") ||
+			channel.name.startsWith("hiring-") ||
+			channel.name.startsWith("partnership-")
+		) && message.guild.channels.cache.find(channel =>
+			channel.name === `support-${ticketId}` ||
+			channel.name === `appeal-${ticketId}` ||
+			channel.name === `commission-${ticketId}` ||
+			channel.name === `hiring-${ticketId}` ||
+			channel.name === `partnership-${ticketId}`
+		);
+
+		if (!ticketChannel) {
+			return message.reply(`❌ Ticket #${ticketId} does not exist in this server.`);
+		}
+
+		const result = await ticketTracker.injectInfo(ticketChannel, info, message.client);
+		if (result.success) {
+			await message.react("✅");
+			await message.Reply("Your info has been loaded into the ticket tracker and archived")
+			console.log(`[inject] ${message.author.tag} injected info into ${ticketChannel.name}`);
+			return;
+		}
+
+		return message.reply({ content: `❌ ${result.error}`, ephemeral: true });
 	}
 
 	if (command === "ping") {
