@@ -2,94 +2,19 @@ const { ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } = re
 const ticketTopic = require("../ticket-topic");
 const ticketTracker = require("../ticket-tracker");
 const { logCommand } = require("../utils/command-logger");
+const { buildHelpEmbeds, packIntoMessages } = require("../utils/help");
 
-const PREFIX_HELP_COMMANDS = [
-	["!help", "Show this private command list.", "Everyone"],
-	["n!ping", "Check the bot's response latency.", "Everyone"],
-	["n!purge <1-100>", "Delete recent messages from the current channel.", "Anyone with the Manage Messages permission"],
-	["n!links", "Post the official Northgate links in the configured links channel.", "Anyone with the Administrator permission"],
-	["n!rules", "Post the server rules in the configured rules channel.", "Anyone with the Administrator permission"],
-	["n!inject <ticket id> <info>", "Add information to a tracked ticket.", "Support, commission access, or developers"],
-	["d!forceclaim <ticket id>", "Force-claim a ticket for yourself.", "Developers"],
-	["d!addgroup <group> <role/user ID>", "Add an ID to a configured role group.", "Developers"],
-	["d!delgroup <group> <role/user ID>", "Remove an ID from a configured role group.", "Developers"],
-	["d!forceclose", "Force-close a ticket and save its transcript.", "Developers, inside a ticket"],
-	["d!impersonate <user> <command>", "Check whether a user could run a command without executing it.", "Developers"],
-	["d!power <on|off|status>", "Turn the bot on/off or view its power status.", "Developers; ownership can turn it off"],
-	["!msg <channel id> <message>", "Send a message to a channel from a developer DM.", "Developers, from DMs"],
-	["a!forcelock", "Lock configured channels and voice channels immediately.", "Members with the lockdown role"],
-	["a!forceunlock", "Restore configured channels and voice channels after a force lock.", "Members with the lockdown role"]
-];
-
-const SLASH_COMMAND_ACCESS = {
-	available: "Developers",
-	adminpanel: "Developers or ownership",
-	cmdlock: "Server administrators",
-	cmdunlock: "Server administrators",
-	add: "Support or commission access",
-	claim: "Support or commission access",
-	remove: "Support or commission access",
-	transfer: "Support or commission access",
-	unclaim: "Support or commission access",
-	approve: "Commission access",
-	deny: "Commission access",
-	comlock: "Commission access",
-	comunlock: "Commission access",
-	hire: "Manage Roles, administrators, or support access",
-	managementvclock: "Developers, ownership, or HR directors",
-	close: "Ticket users/staff, subject to ticket access",
-	itsupport: "Everyone",
-	requestmanagementvc: "Everyone",
-	ticketpanel: "Staff with ticket-panel access",
-	commissionspanel: "Staff with commission-panel access",
-	hiringpanel: "Staff with hiring-panel access",
-	partnerpanel: "Staff with partnership-panel access",
-	reactionpanel: "Staff with reaction-panel access"
-};
-
-function buildHelpLines(client) {
-	const slashCommands = [...(client.commands?.values() || [])]
-		.map(command => command.data.toJSON())
-		.sort((a, b) => a.name.localeCompare(b.name))
-		.map(command => [
-			`/${command.name}`,
-			command.description || "No description provided.",
-			SLASH_COMMAND_ACCESS[command.name] || "Available to server members where the command's ticket/channel rules allow it"
-		]);
-
-	return [
-		"**Northgate OS commands**",
-		"Use the command prefix shown. This help is sent privately by DM.",
-		"",
-		"**Slash commands**",
-		...slashCommands.map(([name, description, access]) => `**${name}** - ${description} | **Who:** ${access}`),
-		"",
-		"**Prefix commands**",
-		...PREFIX_HELP_COMMANDS.map(([name, description, access]) => `**${name}** - ${description} | **Who:** ${access}`)
-	];
-}
-
+// !help sends one embed per NorthGate bot. The command tables live in
+// ../utils/help, which is also where a new command has to be added.
 async function sendPrivateHelp(message) {
-	const lines = buildHelpLines(message.client);
-	const chunks = [];
-	let chunk = "";
-
-	for (const line of lines) {
-		if ((chunk + (chunk ? "\n" : "") + line).length > 1900) {
-			chunks.push(chunk);
-			chunk = line;
-		} else {
-			chunk += (chunk ? "\n" : "") + line;
-		}
-	}
-	if (chunk) chunks.push(chunk);
+	const messages = packIntoMessages(buildHelpEmbeds(message.client));
 
 	await message.delete().catch(() => {});
 	try {
-		for (const helpChunk of chunks) await message.author.send(helpChunk);
+		for (const embeds of messages) await message.author.send({ embeds });
 	} catch {
 		const fallback = await message.channel.send({
-			content: "❌ I could not DM you the command list. Please enable server-member DMs and try `!help` again.",
+			content: "❌ I could not DM you the command list. Please turn on direct messages from server members and try `!help` again.",
 			allowedMentions: { users: [] }
 		});
 		setTimeout(() => fallback.delete().catch(() => {}), 10_000);
