@@ -1,4 +1,4 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } = require("discord.js");
 const ticketTopic = require("../ticket-topic");
 const ticketTracker = require("../ticket-tracker");
 const { logCommand } = require("../utils/command-logger");
@@ -6,9 +6,9 @@ const { logCommand } = require("../utils/command-logger");
 const PREFIX_HELP_COMMANDS = [
 	["!help", "Show this private command list.", "Everyone"],
 	["n!ping", "Check the bot's response latency.", "Everyone"],
-	["n!purge <1-100>", "Delete recent messages from the current channel.", "Everyone (the bot needs Manage Messages)"],
-	["n!links", "Post the official Northgate links in the configured links channel.", "Everyone"],
-	["n!rules", "Post the server rules in the configured rules channel.", "Everyone"],
+	["n!purge <1-100>", "Delete recent messages from the current channel.", "Anyone with the Manage Messages permission"],
+	["n!links", "Post the official Northgate links in the configured links channel.", "Anyone with the Administrator permission"],
+	["n!rules", "Post the server rules in the configured rules channel.", "Anyone with the Administrator permission"],
 	["n!inject <ticket id> <info>", "Add information to a tracked ticket.", "Support, commission access, or developers"],
 	["d!forceclaim <ticket id>", "Force-claim a ticket for yourself.", "Developers"],
 	["d!addgroup <group> <role/user ID>", "Add an ID to a configured role group.", "Developers"],
@@ -259,6 +259,10 @@ module.exports = async function handlePrefixCommand(message, config) {
 	}
    
 	if (command === "purge") {
+	if (!message.member?.permissions.has(PermissionFlagsBits.ManageMessages)) {
+	    return message.reply("❌ You need the **Manage Messages** permission to use this command.");
+	}
+
         const amount = parseInt(args[0]);
         if (!amount || amount < 1 || amount > 100) {
             return message.reply("Please provide a number between **1** and **100**.");
@@ -274,6 +278,10 @@ module.exports = async function handlePrefixCommand(message, config) {
 
 
 	if (command === "links") {
+		if (!message.member?.permissions.has(PermissionFlagsBits.Administrator)) {
+			return message.reply("❌ Only administrators can use this command.");
+		}
+
 		const linksChannelId = (
 			config.channels?.linkschannel?.id ??
 			config.channels?.linkschannelid ??
@@ -338,6 +346,10 @@ module.exports = async function handlePrefixCommand(message, config) {
 	}
 
 	if (command === "rules") {
+		if (!message.member?.permissions.has(PermissionFlagsBits.Administrator)) {
+			return message.reply("❌ Only administrators can use this command.");
+		}
+
 		const rulesChannelId = (
 			config.channels?.ruleschannel?.id ??
 			config.channels?.ruleschannelid ??
