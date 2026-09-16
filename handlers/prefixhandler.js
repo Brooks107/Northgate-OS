@@ -6,7 +6,7 @@ const { logCommand } = require("../utils/command-logger");
 const PREFIX_HELP_COMMANDS = [
 	["!help", "Show this private command list.", "Everyone"],
 	["n!ping", "Check the bot's response latency.", "Everyone"],
-	["n!purge <1-100>", "Delete recent messages from the current channel.", "Everyone with permission to manage messages"],
+	["n!purge <1-100>", "Delete recent messages from the current channel.", "Everyone (the bot needs Manage Messages)"],
 	["n!links", "Post the official Northgate links in the configured links channel.", "Everyone"],
 	["n!rules", "Post the server rules in the configured rules channel.", "Everyone"],
 	["n!inject <ticket id> <info>", "Add information to a tracked ticket.", "Support, commission access, or developers"],
@@ -16,7 +16,9 @@ const PREFIX_HELP_COMMANDS = [
 	["d!forceclose", "Force-close a ticket and save its transcript.", "Developers, inside a ticket"],
 	["d!impersonate <user> <command>", "Check whether a user could run a command without executing it.", "Developers"],
 	["d!power <on|off|status>", "Turn the bot on/off or view its power status.", "Developers; ownership can turn it off"],
-	["!msg <channel id> <message>", "Send a message to a channel from a developer DM.", "Developers, from DMs"]
+	["!msg <channel id> <message>", "Send a message to a channel from a developer DM.", "Developers, from DMs"],
+	["a!forcelock", "Lock configured channels and voice channels immediately.", "Members with the lockdown role"],
+	["a!forceunlock", "Restore configured channels and voice channels after a force lock.", "Members with the lockdown role"]
 ];
 
 const SLASH_COMMAND_ACCESS = {
