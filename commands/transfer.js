@@ -3,6 +3,8 @@ const {
 	ActionRowBuilder,
 	ButtonBuilder,
 	ButtonStyle,
+	ChannelType,
+	PermissionFlagsBits,
 	MessageFlags
 } = require("discord.js");
 
@@ -48,7 +50,13 @@ module.exports = {
 
 		const id = interaction.options.getInteger("id");
 		const recipient = interaction.options.getUser("user");
+		// guild.channels.cache holds threads as well as channels, and /approve
+		// opens a forum thread named "commission-<id>" -- exactly the ticket
+		// channel's own name. A thread has no topic and no setTopic(), so
+		// matching one here either loses the claim or throws. Only ever take the
+		// ticket's text channel.
 		const ticketChannel = interaction.guild.channels.cache.find(ch =>
+			ch.type === ChannelType.GuildText &&
 			/^(?:commission|support|appeal|hiring|partnership)-\d+(?:-|$)/.test(ch.name) &&
 			ch.name.match(/-(\d+)(?:-|$)/)?.[1] === String(id)
 		);
@@ -101,25 +109,56 @@ module.exports = {
 					? "support_close"
 					: "ticket_close";
 
-		await ticketMessage.edit({
-			embeds: ticketMessage.embeds,
-			components: [new ActionRowBuilder().addComponents(
-				new ButtonBuilder()
-					.setCustomId(claimCustomId)
-					.setLabel(`Claimed by ${recipient.username}`)
-					.setStyle(ButtonStyle.Primary)
-					.setDisabled(true),
-				new ButtonBuilder()
-					.setCustomId(closeCustomId)
-					.setLabel("🔒 Close Ticket")
-					.setStyle(ButtonStyle.Danger)
-			)]
-		});
+		// -------------------------------------------------
+		// MOVE THE CLAIM (TOPIC FIRST)
+		// -------------------------------------------------
+		// The topic is the only record of who holds the ticket -- /claim,
+		// /unclaim and /transfer all read it. Write it before touching the
+		// buttons, so a failure here cannot leave a message advertising a
+		// transfer that never actually happened.
+		const botMember = interaction.guild.members.me;
+		if (botMember && !ticketChannel.permissionsFor(botMember)?.has(PermissionFlagsBits.ManageChannels)) {
+			return interaction.editReply(
+				`❌ I need the **Manage Channel** permission in <#${ticketChannel.id}> to transfer this ticket.`
+			);
+		}
 
-		await ticketChannel.setTopic(ticketTopic.build({
-			ownerId,
-			claimedBy: recipient.id
-		}));
+		try {
+			await ticketChannel.setTopic(ticketTopic.build({
+				ownerId,
+				claimedBy: recipient.id
+			}));
+		} catch (err) {
+			console.error(`[transfer] could not set the topic of #${ticketChannel.name}:`, err);
+			return interaction.editReply(
+				`❌ Ticket #${id} was not transferred -- I could not update the channel topic: ${err.message}`
+			);
+		}
+
+		// The claim has moved at this point. A failed button edit leaves a stale
+		// label, which is worth reporting but must not read as a failed transfer.
+		try {
+			await ticketMessage.edit({
+				embeds: ticketMessage.embeds,
+				components: [new ActionRowBuilder().addComponents(
+					new ButtonBuilder()
+						.setCustomId(claimCustomId)
+						.setLabel(`Claimed by ${recipient.username}`)
+						.setStyle(ButtonStyle.Primary)
+						.setDisabled(true),
+					new ButtonBuilder()
+						.setCustomId(closeCustomId)
+						.setLabel("🔒 Close Ticket")
+						.setStyle(ButtonStyle.Danger)
+				)]
+			});
+		} catch (err) {
+			console.error(`[transfer] could not update the ticket message in #${ticketChannel.name}:`, err);
+			return interaction.editReply(
+				`⚠️ Ticket #${id} has been transferred to <@${recipient.id}>, but the ticket buttons could not be updated: ${err.message}`
+			);
+		}
+
 		await interaction.editReply(`✅ Ticket #${id} has been transferred to <@${recipient.id}>.`);
 	}
 };
