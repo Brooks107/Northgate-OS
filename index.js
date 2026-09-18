@@ -6,6 +6,7 @@ config.guildId = process.env.GUILD_ID;
 const { Client, GatewayIntentBits, Partials, Events, MessageFlags } = require("discord.js");
 
 const supportHandler = require("./handlers/supporthandler");
+const interoHandler = require("./handlers/interohandler");
 const commissionsHandler = require("./handlers/commissionshandler");
 const hiringHandler = require("./handlers/hiringhandler");
 const partnershipHandler = require("./handlers/partnershiphandler");
@@ -120,7 +121,7 @@ client.getNextTicketId = function () {
     return null;
 };
 
-const TICKET_CHANNEL_PATTERN = /^(?:support|appeal|commission|hiring|partnership)-(\d+)(?:-|$)/;
+const TICKET_CHANNEL_PATTERN = /^(?:support|appeal|commission|hiring|partnership|interogation)-(\d+)(?:-|$)/;
 
 client.once(Events.ClientReady, async () => {
     client.user.setPresence({
@@ -305,7 +306,9 @@ client.on("interactionCreate", async interaction => {
             const isSupportTicket = interaction.customId === "ticket_support" || interaction.customId === "ticket_appeal" || interaction.customId === "modal_ticket_support" || interaction.customId === "modal_ticket_appeal" || interaction.customId === "support_claim" || interaction.customId === "support_close" || (interaction.customId === "ticket_claim" && (channelName.startsWith("support-") || channelName.startsWith("appeal-"))) || (interaction.customId === "ticket_close" && (channelName.startsWith("support-") || channelName.startsWith("appeal-")));
             const isHiringTicket = interaction.customId === "ticket_hire" || interaction.customId === "modal_ticket_hire" || interaction.customId === "hiring_claim" || interaction.customId === "hiring_close" || (interaction.customId === "ticket_claim" && channelName.startsWith("hiring-")) || (interaction.customId === "ticket_close" && channelName.startsWith("hiring-"));
             const isPartnershipTicket = interaction.customId === "ticket_partnership" || interaction.customId === "modal_ticket_partnership" || interaction.customId === "partnership_claim" || interaction.customId === "partnership_close" || (interaction.customId === "ticket_claim" && channelName.startsWith("partnership-")) || (interaction.customId === "ticket_close" && channelName.startsWith("partnership-"));
+            const isInterogationTicket = interaction.customId === "intero_claim" || interaction.customId === "intero_close";
 
+            if (isInterogationTicket) return await interoHandler.execute(interaction, client, config);
             if (isCommissionTicket) return await commissionsHandler.execute(interaction, client, config);
             if (isSupportTicket) return await supportHandler.execute(interaction, client, config);
             if (isHiringTicket) return await hiringHandler.execute(interaction, client, config);

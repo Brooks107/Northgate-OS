@@ -132,6 +132,12 @@ function evaluateCommandAccess(commandName, member, config, client, commandArgum
             : { result: "blocked", reason: "Requires Administrator permission." };
     }
 
+    if (commandName === "interogate") {
+        return hasAnyRole(config.operationsroles)
+            ? { result: "allowed", reason: "Operations access role." }
+            : { result: "blocked", reason: "Requires an Operations access role." };
+    }
+
     if (["add", "claim", "remove", "transfer", "unclaim"].includes(commandName)) {
         return hasAnyRole([...(config.supportTeamRoles || []), ...(config.commissionticketaccess || [])])
             ? { result: "allowed", reason: "Support or commission access role." }
