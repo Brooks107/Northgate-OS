@@ -45,7 +45,7 @@ module.exports = {
             ticketChannel = await interaction.guild.channels.create({
                 name: `interrogation-${ticketId}`,
                 type: ChannelType.GuildText,
-                parent: config.generalticketcategory,
+                parent: config.interrogationticketcategory,
                 topic: ticketTopic.build({ ownerId: user.id }),
                 permissionOverwrites: [
                     {
