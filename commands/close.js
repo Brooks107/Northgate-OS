@@ -39,7 +39,7 @@ module.exports = {
                 ch.name.startsWith(`appeal-${id}`) ||
                 ch.name.startsWith(`hiring-${id}`) ||
                 ch.name.startsWith(`partnership-${id}`) ||
-                ch.name.startsWith(`interogation-${id}`)
+                ch.name.startsWith(`interrogation-${id}`)
         );
 
         if (!ticketChannel) {

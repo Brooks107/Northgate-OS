@@ -110,6 +110,11 @@ module.exports = {
                 ownerId: ticketState.ownerId,
                 claimedBy: interaction.user.id
             }));
+            await ticketTracker.syncTicket(interaction.channel, {
+                type: "claimed",
+                status: `🟡 Claimed by ${interaction.user.tag}`,
+                userId: interaction.user.id
+            });
 
             return interaction.editReply("📝 You have claimed this ticket.");
         }

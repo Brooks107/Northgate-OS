@@ -20,6 +20,7 @@ const state = require("./state");
 const ticketTracker = require("./ticket-tracker");
 const { startHeartbeat } = require("./heartbeat");
 const { logCommand } = require("./utils/command-logger");
+const ticketArchive = require("./utils/ticket-archive");
 const adminPanelCommand = require("./commands/adminpanel");
 
 const COMMAND_RATE_LIMIT_WINDOW_MS = 60_000;
@@ -121,7 +122,7 @@ client.getNextTicketId = function () {
     return null;
 };
 
-const TICKET_CHANNEL_PATTERN = /^(?:support|appeal|commission|hiring|partnership|interogation)-(\d+)(?:-|$)/;
+const TICKET_CHANNEL_PATTERN = /^(?:support|appeal|commission|hiring|partnership|interrogation)-(\d+)(?:-|$)/;
 
 client.once(Events.ClientReady, async () => {
     client.user.setPresence({
@@ -368,6 +369,10 @@ process.on("uncaughtException", err => {
 
 
 client.on("messageCreate", async message => {
+    if (message.guild && /^(?:support|appeal|commission|hiring|partnership|interrogation)-\d+(?:-|$)/.test(message.channel?.name || "")) {
+        ticketArchive.recordMessage(message.channel.id, message);
+    }
+
     if (await adminHandler(message, config)) return;
     if (await developerHandler(message, config)) return;
     return prefixHandler(message, config);

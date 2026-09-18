@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, PermissionFlagsBits, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } = require("discord.js");
 
 const ticketTopic = require("../ticket-topic");
+const ticketTracker = require("../ticket-tracker");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -43,7 +44,8 @@ module.exports = {
             ch.name.startsWith(`support-${id}`) ||
             ch.name.startsWith(`appeal-${id}`) ||
             ch.name.startsWith(`hiring-${id}`) ||
-            ch.name.startsWith(`partnership-${id}`)
+            ch.name.startsWith(`partnership-${id}`) ||
+            ch.name.startsWith(`interrogation-${id}`)
         );
 
         if (!ticketChannel) {
@@ -125,6 +127,10 @@ module.exports = {
         // ticket forever -- the buttons come back but the command never works.
         const { ownerId } = ticketTopic.parse(ticketChannel.topic);
         await ticketChannel.setTopic(ticketTopic.build({ ownerId }));
+        await ticketTracker.syncTicket(ticketChannel, {
+            type: "unclaimed",
+            status: "🟢 Open"
+        });
 
         return interaction.editReply(`✅ Ticket #${id} has been unclaimed.`);
     }

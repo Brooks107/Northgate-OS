@@ -43,7 +43,7 @@ module.exports = {
 
         try {
             ticketChannel = await interaction.guild.channels.create({
-                name: `interogation-${ticketId}`,
+                name: `interrogation-${ticketId}`,
                 type: ChannelType.GuildText,
                 parent: config.generalticketcategory,
                 topic: ticketTopic.build({ ownerId: user.id }),
@@ -85,7 +85,7 @@ module.exports = {
                 allowedMentions: { users: [user.id] },
                 embeds: [new EmbedBuilder()
                     .setColor(0x8e44ad)
-                    .setTitle(`New interogation ticket opened #${ticketId}`)
+                    .setTitle(`New interrogation ticket opened #${ticketId}`)
                     .setDescription(
                         `Welcome ${user}, a member of the Human Resources team has opened this ticket with you, please wait until they respond.`
                     )
@@ -95,9 +95,9 @@ module.exports = {
 
             await ticketTracker.createTicketEmbed(ticketChannel, {
                 id: ticketId,
-                title: "Interogation Ticket",
+                title: "Interrogation Ticket",
                 userId: user.id,
-                description: `Interogation ticket opened for ${user.tag}.`,
+                description: `Interrogation ticket opened for ${user.tag}.`,
                 createdAt: new Date().toLocaleString()
             }, client, config);
         } catch (error) {
@@ -148,12 +148,17 @@ module.exports = {
                 ownerId: ticketState.ownerId,
                 claimedBy: interaction.user.id
             }));
+            await ticketTracker.syncTicket(interaction.channel, {
+                type: "claimed",
+                status: `🟡 Claimed by ${interaction.user.tag}`,
+                userId: interaction.user.id
+            });
             return interaction.editReply("📝 You have claimed this interrogation ticket.");
         }
 
         if (interaction.customId === "intero_close") {
             const channel = interaction.channel;
-            const match = channel.name.match(/^interogation-(\d+)/);
+            const match = channel.name.match(/^interrogation-(\d+)/);
             if (match) client.activeTicketIds.delete(Number(match[1]));
 
             await interaction.reply({

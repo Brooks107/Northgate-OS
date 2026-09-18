@@ -9,6 +9,7 @@ const {
 } = require("discord.js");
 
 const ticketTopic = require("../ticket-topic");
+const ticketTracker = require("../ticket-tracker");
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -57,7 +58,7 @@ module.exports = {
 		// ticket's text channel.
 		const ticketChannel = interaction.guild.channels.cache.find(ch =>
 			ch.type === ChannelType.GuildText &&
-			/^(?:commission|support|appeal|hiring|partnership)-\d+(?:-|$)/.test(ch.name) &&
+			/^(?:commission|support|appeal|hiring|partnership|interrogation)-\d+(?:-|$)/.test(ch.name) &&
 			ch.name.match(/-(\d+)(?:-|$)/)?.[1] === String(id)
 		);
 
@@ -94,20 +95,25 @@ module.exports = {
 			ticketChannel.name.startsWith("appeal-");
 		const isHiringTicket = ticketChannel.name.startsWith("hiring-");
 		const isPartnershipTicket = ticketChannel.name.startsWith("partnership-");
+		const isInterrogationTicket = ticketChannel.name.startsWith("interrogation-");
 		const claimCustomId = isPartnershipTicket
 			? "partnership_claim"
 			: isHiringTicket
 				? "hiring_claim"
 				: isSupportTicket
 					? "support_claim"
-					: "commission_claim";
+					: isInterrogationTicket
+						? "intero_claim"
+						: "commission_claim";
 		const closeCustomId = isPartnershipTicket
 			? "partnership_close"
 			: isHiringTicket
 				? "hiring_close"
 				: isSupportTicket
 					? "support_close"
-					: "ticket_close";
+					: isInterrogationTicket
+						? "intero_close"
+						: "ticket_close";
 
 		// -------------------------------------------------
 		// MOVE THE CLAIM (TOPIC FIRST)
@@ -134,6 +140,12 @@ module.exports = {
 				`❌ Ticket #${id} was not transferred -- I could not update the channel topic: ${err.message}`
 			);
 		}
+
+		await ticketTracker.syncTicket(ticketChannel, {
+			type: "transferred",
+			status: `🟡 Transferred to ${recipient.tag}`,
+			userId: recipient.id
+		});
 
 		// The claim has moved at this point. A failed button edit leaves a stale
 		// label, which is worth reporting but must not read as a failed transfer.

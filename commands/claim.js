@@ -3,8 +3,11 @@ const {
     PermissionFlagsBits,
     ActionRowBuilder,
     ButtonBuilder,
-    ButtonStyle
+    ButtonStyle,
+    MessageFlags
 } = require("discord.js");
+
+const ticketTracker = require("../ticket-tracker");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -51,7 +54,8 @@ module.exports = {
                    ch.name.startsWith(`support-${id}`) ||
                    ch.name.startsWith(`appeal-${id}`) ||
                    ch.name.startsWith(`hiring-${id}`) ||
-                   ch.name.startsWith(`partnership-${id}`)
+                   ch.name.startsWith(`partnership-${id}`) ||
+                   ch.name.startsWith(`interrogation-${id}`)
         );
 
         if (!ticketChannel) {
@@ -92,6 +96,11 @@ module.exports = {
         // STORE CLAIMER IN CHANNEL TOPIC
         // -------------------------------------------------
         await ticketChannel.setTopic(`claimed:${interaction.user.id}`);
+        await ticketTracker.syncTicket(ticketChannel, {
+            type: "claimed",
+            status: `🟡 Claimed by ${interaction.user.tag}`,
+            userId: interaction.user.id
+        });
 
         // -------------------------------------------------
         // CONFIRM TO STAFF

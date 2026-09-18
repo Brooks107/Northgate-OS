@@ -86,7 +86,8 @@ module.exports = async function handlePrefixCommand(message, config) {
 				channel.name.startsWith(`support-${id}`) ||
 				channel.name.startsWith(`appeal-${id}`) ||
 				channel.name.startsWith(`hiring-${id}`) ||
-				channel.name.startsWith(`partnership-${id}`)
+				channel.name.startsWith(`partnership-${id}`) ||
+				channel.name.startsWith(`interrogation-${id}`)
 			);
 
 			if (!ticketChannel) {
@@ -158,7 +159,8 @@ module.exports = async function handlePrefixCommand(message, config) {
 			channel.name === `appeal-${ticketId}` ||
 			channel.name === `commission-${ticketId}` ||
 			channel.name === `hiring-${ticketId}` ||
-			channel.name === `partnership-${ticketId}`
+			channel.name === `partnership-${ticketId}` ||
+			channel.name === `interrogation-${ticketId}`
 		);
 
 		if (!ticketChannel) {

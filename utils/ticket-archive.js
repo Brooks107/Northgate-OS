@@ -75,9 +75,32 @@ function get(ticketChannelId) {
     return loadArchive()[ticketChannelId] || null;
 }
 
+function recordMessage(channelId, message) {
+    const archive = loadArchive();
+    const ticket = archive[channelId];
+    if (!ticket) return;
+
+    ticket.messages = Array.isArray(ticket.messages) ? ticket.messages : [];
+    ticket.messages.push({
+        id: message.id,
+        authorId: message.author?.id || null,
+        authorTag: message.author?.tag || message.author?.username || null,
+        content: message.content || "",
+        attachments: [...(message.attachments?.values() || [])].map(attachment => ({
+            name: attachment.name,
+            url: attachment.url
+        })),
+        embeds: message.embeds?.map(serializeEmbed) || [],
+        createdAt: message.createdAt?.toISOString?.() || new Date().toISOString()
+    });
+    ticket.updatedAt = new Date().toISOString();
+    saveArchive(archive);
+}
+
 module.exports = {
     get,
     loadArchive,
+    recordMessage,
     recordEvent,
     serializeDashboardMessage,
     upsert

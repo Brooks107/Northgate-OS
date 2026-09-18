@@ -263,6 +263,19 @@ module.exports = {
 
         if (!tracked) {
             console.warn(`[ticket-tracker] No tracking found for ${ticketChannel.name}`);
+            ticketArchive.upsert(ticketChannel.id, {
+                status: "closed",
+                closedAt: new Date().toISOString(),
+                channel: {
+                    id: ticketChannel.id,
+                    name: ticketChannel.name,
+                    topic: ticketChannel.topic || null
+                },
+                events: [
+                    ...(ticketArchive.get(ticketChannel.id)?.events || []),
+                    { type: "closed", timestamp: new Date().toISOString() }
+                ]
+            });
             return;
         }
 

@@ -4,11 +4,11 @@ const interoHandler = require("../handlers/interohandler");
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName("interogate")
-        .setDescription("Open an interogation ticket with a user.")
+        .setName("interrogate")
+        .setDescription("Open an interrogation ticket with a user.")
         .addUserOption(option =>
             option.setName("user")
-                .setDescription("The user to include in the interogation ticket.")
+                .setDescription("The user to include in the interrogation ticket.")
                 .setRequired(true)
         ),
 
@@ -29,7 +29,7 @@ module.exports = {
 
             if (!isOperations) {
                 return interaction.reply({
-                    content: "❌ Only Operations staff can open an interogation ticket.",
+                    content: "❌ Only Operations staff can open an interrogation ticket.",
                     flags: MessageFlags.Ephemeral
                 });
             }
@@ -37,7 +37,7 @@ module.exports = {
             const user = interaction.options.getUser("user");
             if (!user || user.bot) {
                 return interaction.reply({
-                    content: "❌ Choose a real server member for the interogation ticket.",
+                    content: "❌ Choose a real server member for the interrogation ticket.",
                     flags: MessageFlags.Ephemeral
                 });
             }
@@ -47,7 +47,7 @@ module.exports = {
             if (result.error) return interaction.editReply(result.error);
 
             return interaction.editReply(
-                `✅ Interogation ticket (#${result.ticketId}) created: <#${result.ticketChannel.id}>`
+                `✅ Interrogation ticket (#${result.ticketId}) created: <#${result.ticketChannel.id}>`
             );
     }
 };
