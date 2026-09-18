@@ -86,6 +86,7 @@ module.exports = {
             ticketChannel.name.startsWith("appeal-");
         const isHiringTicket = ticketChannel.name.startsWith("hiring-");
         const isPartnershipTicket = ticketChannel.name.startsWith("partnership-");
+        const isInterrogationTicket = ticketChannel.name.startsWith("interrogation-");
 
         const claimCustomId = isPartnershipTicket
             ? "partnership_claim"
@@ -93,7 +94,9 @@ module.exports = {
                 ? "hiring_claim"
                 : isSupportTicket
                     ? "support_claim"
-                    : "commission_claim";
+                    : isInterrogationTicket
+                        ? "intero_claim"
+                        : "commission_claim";
 
         const closeCustomId = isPartnershipTicket
             ? "partnership_close"
@@ -101,7 +104,9 @@ module.exports = {
                 ? "hiring_close"
                 : isSupportTicket
                     ? "support_close"
-                    : "ticket_close";
+                    : isInterrogationTicket
+                        ? "intero_close"
+                        : "ticket_close";
 
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()

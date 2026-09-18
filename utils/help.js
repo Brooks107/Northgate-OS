@@ -27,6 +27,7 @@ const SLASH_COMMAND_ACCESS = {
 	cmdunlock: "Server administrators",
 	add: "Support or commission access",
 	claim: "Support or commission access",
+	interrogate: "Operations access",
 	remove: "Support or commission access",
 	transfer: "Support or commission access",
 	unclaim: "Support or commission access",

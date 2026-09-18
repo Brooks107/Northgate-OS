@@ -132,7 +132,7 @@ function evaluateCommandAccess(commandName, member, config, client, commandArgum
             : { result: "blocked", reason: "Requires Administrator permission." };
     }
 
-    if (commandName === "interogate") {
+    if (commandName === "interrogate") {
         return hasAnyRole(config.operationsroles)
             ? { result: "allowed", reason: "Operations access role." }
             : { result: "blocked", reason: "Requires an Operations access role." };

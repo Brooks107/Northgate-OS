@@ -8,6 +8,7 @@ const {
 } = require("discord.js");
 
 const ticketTracker = require("../ticket-tracker");
+const ticketTopic = require("../ticket-topic");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -83,9 +84,10 @@ module.exports = {
         // -------------------------------------------------
         // UPDATE BUTTONS (remove claim button)
         // -------------------------------------------------
+        const isInterrogationTicket = ticketChannel.name.startsWith("interrogation-");
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
-                .setCustomId("ticket_close")
+            .setCustomId(isInterrogationTicket ? "intero_close" : "ticket_close")
                 .setLabel("🔒 Close Ticket")
                 .setStyle(ButtonStyle.Danger)
         );
@@ -95,7 +97,8 @@ module.exports = {
         // -------------------------------------------------
         // STORE CLAIMER IN CHANNEL TOPIC
         // -------------------------------------------------
-        await ticketChannel.setTopic(`claimed:${interaction.user.id}`);
+        const { ownerId } = ticketTopic.parse(ticketChannel.topic);
+        await ticketChannel.setTopic(ticketTopic.build({ ownerId, claimedBy: interaction.user.id }));
         await ticketTracker.syncTicket(ticketChannel, {
             type: "claimed",
             status: `🟡 Claimed by ${interaction.user.tag}`,
