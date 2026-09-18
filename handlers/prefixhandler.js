@@ -94,15 +94,19 @@ module.exports = async function handlePrefixCommand(message, config) {
 				return message.reply(`❌ Ticket #${id} does not exist.`);
 			}
 
-			const messages = await ticketChannel.messages.fetch({ limit: 10 });
-			const ticketMessage = messages.find(ticket => ticket.author.id === message.client.user.id);
+			const messages = await ticketChannel.messages.fetch({ limit: 100 });
+			const ticketMessage = messages.find(ticket =>
+				ticket.author.id === message.client.user.id &&
+				ticket.embeds.some(embed => embed.title?.includes(`#${id}`))
+			);
 			if (!ticketMessage) {
 				return message.reply("❌ Could not find the ticket message.");
 			}
 
+			const isInterrogationTicket = ticketChannel.name.startsWith("interrogation-");
 			const row = new ActionRowBuilder().addComponents(
 				new ButtonBuilder()
-					.setCustomId("ticket_close")
+					.setCustomId(isInterrogationTicket ? "intero_close" : "ticket_close")
 					.setLabel("🔒 Close Ticket")
 					.setStyle(ButtonStyle.Danger)
 			);
