@@ -60,6 +60,7 @@ const NORTHGATE_OS_PREFIX = [
 	["d!forceclose", "Force-close a ticket and save its transcript.", "Developers, inside a ticket"],
 	["d!impersonate <user> <command>", "Check whether someone could run a command, without running it.", "Developers"],
 	["d!power <on|off|status>", "Turn the bot on or off, or see its power status.", "Developers; ownership can turn it off"],
+	["d!gitsync", "Restart the bot immediately.", "Developers"],
 	["!msg <channel id> <message>", "Send a message to a channel from a developer DM.", "Developers, from DMs"],
 	["a!forcelock", "Lock the configured channels and voice channels immediately.", "Members with the lockdown role"],
 	["a!forceunlock", "Restore the configured channels after a force lock.", "Members with the lockdown role"]

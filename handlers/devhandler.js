@@ -234,7 +234,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
 
     const args = message.content.slice(2).trim().split(/ +/);
     const command = args.shift()?.toLowerCase();
-    if (!["addgroup", "delgroup", "forceclose", "impersonate", "power"].includes(command)) return false;
+    if (!["addgroup", "delgroup", "forceclose", "impersonate", "power", "gitsync"].includes(command)) return false;
 
     await logCommand(message, config, `d!${command}`, "Developer command", args);
 
@@ -385,6 +385,13 @@ module.exports = async function handleDeveloperCommand(message, config) {
                 ? `🔴 Bot set to **invisible maintenance mode**.${saved ? "" : "\n⚠️ Could not save this state to disk."}`
                 : `🟢 Bot is **online** again.${saved ? "" : "\n⚠️ Could not save this state to disk."}`
         );
+        return true;
+    }
+
+    if (command === "gitsync") {
+        await message.reply("🔄 Restarting the bot...");
+        await message.client.destroy();
+        process.exit(0);
         return true;
     }
 
