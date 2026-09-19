@@ -124,7 +124,7 @@ module.exports = async function handlePrefixCommand(message, config) {
 
 	const args = message.content.slice(prefix.length).trim().split(/ +/);
 	const command = args.shift()?.toLowerCase();
-	const recognizedCommands = new Set(["ping", "purge", "links", "rules", "inject"]);
+	const recognizedCommands = new Set(["ping", "purge", "links", "rules", "inject", "sub"]);
 
 	if (recognizedCommands.has(command)) {
 		await logCommand(message, config, `n!${command}`, "Prefix command", args);
@@ -176,6 +176,48 @@ module.exports = async function handlePrefixCommand(message, config) {
 			await message.react("✅");
 			await message.Reply("Your info has been loaded into the ticket tracker and archived")
 			console.log(`[inject] ${message.author.tag} injected info into ${ticketChannel.name}`);
+			return;
+		}
+
+		return message.reply({ content: `❌ ${result.error}`, ephemeral: true });
+	}
+
+	if (command === "sub") {
+		const ticketId = Number(args.shift());
+		const noteId = Number(args.shift());
+		const note = args.join(" ").trim();
+
+		if (!Number.isInteger(ticketId) || ticketId < 1 || !Number.isInteger(noteId) || noteId < 1) {
+			return message.reply("❌ Usage: `n!sub <ticket id> <note id> <message>` (leave message blank to delete)");
+		}
+
+		const isStaff = config.supportTeamRoles?.some(roleId =>
+			message.member?.roles?.cache?.has(roleId)
+		) || config.commissionticketaccess?.some(roleId =>
+			message.member?.roles?.cache?.has(roleId)
+		) || config.developers?.includes(message.author.id);
+
+		if (!isStaff) {
+			return message.reply({ content: "❌ Only staff can substitute notes in a ticket.", ephemeral: true });
+		}
+
+		const ticketChannel = message.guild?.channels.cache.find(channel =>
+			channel.name === `support-${ticketId}` ||
+			channel.name === `appeal-${ticketId}` ||
+			channel.name === `commission-${ticketId}` ||
+			channel.name === `hiring-${ticketId}` ||
+			channel.name === `partnership-${ticketId}` ||
+			channel.name === `interrogation-${ticketId}`
+		);
+
+		if (!ticketChannel) {
+			return message.reply(`❌ Ticket #${ticketId} does not exist in this server.`);
+		}
+
+		const result = await ticketTracker.substituteNote(ticketChannel, noteId, note, message.client);
+		if (result.success) {
+			await message.react("✅");
+			console.log(`[sub] ${message.author.tag} ${note ? "updated" : "deleted"} note ${noteId} in ${ticketChannel.name}`);
 			return;
 		}
 

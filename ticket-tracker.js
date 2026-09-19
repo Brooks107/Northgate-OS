@@ -168,6 +168,69 @@ module.exports = {
     },
 
     /**
+     * Replace or delete a note by its 1-based position in the progress notes.
+     */
+    async substituteNote(ticketChannel, noteId, note, client) {
+        const tracked = trackedTickets[ticketChannel.id];
+        if (!tracked) {
+            return { success: false, error: "Ticket not tracked" };
+        }
+
+        const noteIndex = noteId - 1;
+        if (!Number.isInteger(noteId) || noteId < 1 || noteIndex >= tracked.notes.length) {
+            return { success: false, error: `Note ${noteId} does not exist on this ticket.` };
+        }
+
+        try {
+            const channel = await client.channels.fetch(tracked.channelId);
+            const message = await channel.messages.fetch(tracked.messageId);
+
+            if (note) {
+                tracked.notes[noteIndex] = `• ${note}`;
+            } else {
+                tracked.notes.splice(noteIndex, 1);
+            }
+
+            const embed = new EmbedBuilder()
+                .setTitle(`🎫 ${tracked.originalInfo.title || "Support Ticket"} #${tracked.ticketId || "?"}`)
+                .setColor("#0099ff")
+                .setDescription(tracked.originalInfo.description || "No description")
+                .addFields(
+                    { name: "📋 User", value: `<@${tracked.originalInfo.userId}>` || "Unknown", inline: true },
+                    { name: "📌 Status", value: "🟢 Open", inline: true },
+                    { name: "📝 Progress Notes", value: tracked.notes.join("\n") || "No notes", inline: false },
+                    { name: "⏰ Created", value: tracked.originalInfo.createdAt || new Date().toLocaleString(), inline: true },
+                    { name: "🔄 Last Updated", value: new Date().toLocaleString(), inline: true }
+                )
+                .setFooter({ text: `Channel: ${ticketChannel.name}` })
+                .setTimestamp();
+
+            await message.edit({ embeds: [embed] });
+            saveTracking();
+
+            ticketArchive.upsert(ticketChannel.id, {
+                status: "open",
+                channel: {
+                    id: ticketChannel.id,
+                    name: ticketChannel.name,
+                    topic: ticketChannel.topic || null
+                },
+                notes: [...tracked.notes],
+                dashboardMessage: ticketArchive.serializeDashboardMessage(message),
+                events: [
+                    ...(ticketArchive.get(ticketChannel.id)?.events || []),
+                    { type: note ? "note_updated" : "note_deleted", noteId, note, timestamp: new Date().toISOString() }
+                ]
+            });
+
+            return { success: true, noteCount: tracked.notes.length };
+        } catch (err) {
+            console.error(`[ticket-tracker] Failed to substitute note in ${ticketChannel.name}:`, err.message);
+            return { success: false, error: err.message };
+        }
+    },
+
+    /**
      * Update ticket status
      */
     async updateStatus(ticketChannel, newStatus, client) {

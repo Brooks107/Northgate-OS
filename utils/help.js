@@ -53,6 +53,7 @@ const NORTHGATE_OS_PREFIX = [
 	["n!links", "Post the official Northgate links in the links channel.", "Administrators"],
 	["n!rules", "Post the server rules in the rules channel.", "Administrators"],
 	["n!inject <ticket id> <info>", "Add information to a tracked ticket.", "Support, commission access, or developers"],
+	["n!sub <ticket id> <note id> <message>", "Replace a progress note, or delete it when the message is blank.", "Support, commission access, or developers"],
 	["d!forceclaim <ticket id>", "Force-claim a ticket for yourself.", "Developers"],
 	["d!addgroup <group> <role/user ID>", "Add an ID to a configured role group.", "Developers"],
 	["d!delgroup <group> <role/user ID>", "Remove an ID from a configured role group.", "Developers"],
