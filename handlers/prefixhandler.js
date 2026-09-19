@@ -423,6 +423,7 @@ module.exports = async function handlePrefixCommand(message, config) {
 						"",
 						"TL:DR",
 						"Have Common Sense"
+						""
 					].join("\n")
 				}
 			]
