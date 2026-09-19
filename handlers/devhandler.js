@@ -388,7 +388,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
         return true;
     }
 
-    if (command === "gitsync") {
+    if (command === "forcerestart") {
         await message.reply("🔄 Restarting the bot...");
         await message.client.destroy();
         process.exit(0);
