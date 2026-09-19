@@ -373,7 +373,7 @@ module.exports = async function handlePrefixCommand(message, config) {
 				},
 				{
 					name: "No spamming.",
-					value: "Do not send a series of small messages one after another. These interupt the chat and can make it difficult to scroll through the server. Pleqase keep your messages to atleast 5 words long while chatting unless the situation is deemed appropriate by staff."
+					value: "Do not send a series of small messages one after another. These interupt the chat and can make it difficult to scroll through the server. Please keep your messages to atleast 5 words long while chatting unless the situation is deemed appropriate by staff."
 				},
 				{
 					name: "No pornographic, explicit or adult content",
