@@ -1,1 +1,572 @@
-{}
+{
+  "1550568273530196128": {
+    "ticketId": 7,
+    "status": "closed",
+    "openedAt": "9/18/2026, 12:04:45 PM",
+    "ticket": {
+      "id": 7,
+      "title": "Interogation Ticket",
+      "userId": "1458576084051165277",
+      "description": "Interogation ticket opened for thesealofficial.",
+      "createdAt": "9/18/2026, 12:04:45 PM"
+    },
+    "channel": {
+      "id": "1550568273530196128",
+      "name": "interogation-7",
+      "topic": "owner:1458576084051165277 claimed:1259124148798754907"
+    },
+    "notes": [
+      "• Ticket created"
+    ],
+    "events": [
+      {
+        "type": "created",
+        "timestamp": "2026-09-18T18:04:45.028Z"
+      },
+      {
+        "type": "closed",
+        "timestamp": "2026-09-18T18:05:36.623Z"
+      }
+    ],
+    "dashboardChannel": {
+      "id": "1539010556701188206",
+      "name": "ticket-dashboard"
+    },
+    "dashboardMessage": {
+      "id": "1550568275845582982",
+      "channelId": "1539010556701188206",
+      "url": "https://discord.com/channels/1517978818135195740/1539010556701188206/1550568275845582982",
+      "content": "",
+      "embeds": [
+        {
+          "type": "rich",
+          "title": "🎫 Interogation Ticket #7",
+          "timestamp": "2026-09-18T18:04:45.029000+00:00",
+          "id": "1550568275845582981",
+          "footer": {
+            "text": "Channel: interogation-7"
+          },
+          "fields": [
+            {
+              "value": "<@1458576084051165277>",
+              "name": "📋 User",
+              "inline": true
+            },
+            {
+              "value": "🟢 Open",
+              "name": "📌 Status",
+              "inline": true
+            },
+            {
+              "value": "• Ticket created",
+              "name": "📝 Progress Notes",
+              "inline": false
+            },
+            {
+              "value": "9/18/2026, 12:04:45 PM",
+              "name": "⏰ Created",
+              "inline": true
+            }
+          ],
+          "description": "Interogation ticket opened for thesealofficial.",
+          "content_scan_version": 4,
+          "color": 39423
+        }
+      ],
+      "components": [],
+      "editedTimestamp": null,
+      "updatedAt": "2026-09-18T18:05:36.622Z"
+    },
+    "channelId": "1550568273530196128",
+    "updatedAt": "2026-09-18T18:05:36.623Z",
+    "closedAt": "2026-09-18T18:05:36.622Z"
+  },
+  "1550535137706512464": {
+    "status": "closed",
+    "closedAt": "2026-09-18T18:06:29.818Z",
+    "channel": {
+      "id": "1550535137706512464",
+      "name": "support-6",
+      "topic": "owner:1259124148798754907 claimed:1259124148798754907"
+    },
+    "dashboardMessage": {
+      "id": "1550535142408323135",
+      "channelId": "1539010556701188206",
+      "url": "https://discord.com/channels/1517978818135195740/1539010556701188206/1550535142408323135",
+      "content": "",
+      "embeds": [
+        {
+          "type": "rich",
+          "title": "🎫 Support Ticket #6",
+          "description": "454",
+          "color": 39423,
+          "timestamp": "2026-09-18T15:53:05.370000+00:00",
+          "fields": [
+            {
+              "name": "📋 User",
+              "value": "<@1259124148798754907>",
+              "inline": true
+            },
+            {
+              "name": "📌 Status",
+              "value": "🟢 Open",
+              "inline": true
+            },
+            {
+              "name": "📝 Progress Notes",
+              "value": "• Ticket created",
+              "inline": false
+            },
+            {
+              "name": "⏰ Created",
+              "value": "9/18/2026, 9:53:05 AM",
+              "inline": true
+            }
+          ],
+          "footer": {
+            "text": "Channel: support-6"
+          },
+          "content_scan_version": 4
+        }
+      ],
+      "components": [],
+      "editedTimestamp": null,
+      "updatedAt": "2026-09-18T18:06:29.818Z"
+    },
+    "events": [
+      {
+        "type": "closed",
+        "timestamp": "2026-09-18T18:06:29.819Z"
+      }
+    ],
+    "channelId": "1550535137706512464",
+    "updatedAt": "2026-09-18T18:06:29.819Z"
+  },
+  "1550585911073312840": {
+    "ticketId": 6,
+    "status": "closed",
+    "openedAt": "9/18/2026, 1:14:50 PM",
+    "ticket": {
+      "id": 6,
+      "title": "Interrogation Ticket",
+      "userId": "1267321190821789780",
+      "description": "Interrogation ticket opened for coffeetopss.",
+      "createdAt": "9/18/2026, 1:14:50 PM"
+    },
+    "channel": {
+      "id": "1550585911073312840",
+      "name": "interrogation-6",
+      "topic": "owner:1267321190821789780"
+    },
+    "notes": [
+      "• Ticket created"
+    ],
+    "events": [
+      {
+        "type": "created",
+        "timestamp": "2026-09-18T19:14:50.502Z"
+      },
+      {
+        "type": "closed",
+        "timestamp": "2026-09-19T06:51:04.584Z"
+      }
+    ],
+    "dashboardChannel": {
+      "id": "1539010556701188206",
+      "name": "ticket-dashboard"
+    },
+    "dashboardMessage": {
+      "id": "1550585915007701064",
+      "channelId": "1539010556701188206",
+      "url": "https://discord.com/channels/1517978818135195740/1539010556701188206/1550585915007701064",
+      "content": "",
+      "embeds": [
+        {
+          "type": "rich",
+          "title": "🎫 Interrogation Ticket #6",
+          "timestamp": "2026-09-18T19:14:50.503000+00:00",
+          "id": "1550585915007701063",
+          "footer": {
+            "text": "Channel: interrogation-6"
+          },
+          "fields": [
+            {
+              "value": "<@1267321190821789780>",
+              "name": "📋 User",
+              "inline": true
+            },
+            {
+              "value": "🟢 Open",
+              "name": "📌 Status",
+              "inline": true
+            },
+            {
+              "value": "• Ticket created",
+              "name": "📝 Progress Notes",
+              "inline": false
+            },
+            {
+              "value": "9/18/2026, 1:14:50 PM",
+              "name": "⏰ Created",
+              "inline": true
+            }
+          ],
+          "description": "Interrogation ticket opened for coffeetopss.",
+          "content_scan_version": 4,
+          "color": 39423
+        }
+      ],
+      "components": [],
+      "editedTimestamp": null,
+      "updatedAt": "2026-09-19T06:51:04.584Z"
+    },
+    "channelId": "1550585911073312840",
+    "updatedAt": "2026-09-19T06:51:04.585Z",
+    "messages": [
+      {
+        "id": "1550585959572045846",
+        "authorId": "895312798211534888",
+        "authorTag": "this.is.a.cool.username",
+        "content": "Im interogatin toy",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-18T19:15:01.256Z"
+      },
+      {
+        "id": "1550585983605407896",
+        "authorId": "895312798211534888",
+        "authorTag": "this.is.a.cool.username",
+        "content": "Raghhhhhh",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-18T19:15:06.986Z"
+      },
+      {
+        "id": "1550586029533307031",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Wha",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-18T19:15:17.936Z"
+      },
+      {
+        "id": "1550586104351031416",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "https://klipy.com/gifs/get-the-fuck-out-gtfo-2",
+        "attachments": [],
+        "embeds": [
+          {
+            "video": {
+              "width": 640,
+              "url": "https://static.klipy.com/ii/4493325008d34b7bf8cd6813cd5c1619/96/af/EIK3dUzWV5zvF.mp4",
+              "proxy_url": "https://images-ext-1.discordapp.net/external/ArRZcMYox4e7gaaqTgeNmU-rTbj5OX-uJ65cir2wgHY/https/static.klipy.com/ii/4493325008d34b7bf8cd6813cd5c1619/96/af/EIK3dUzWV5zvF.mp4",
+              "placeholder_version": 1,
+              "placeholder": "GRgKBIBlDzfpVUd9eXiQP4TjIA==",
+              "height": 360,
+              "flags": 0
+            },
+            "url": "https://klipy.com/gifs/get-the-fuck-out-gtfo-2",
+            "type": "gifv",
+            "title": "Get The Fuck Out Gtfo",
+            "thumbnail": {
+              "width": 498,
+              "url": "https://static.klipy.com/ii/4493325008d34b7bf8cd6813cd5c1619/96/af/78AoppIBnyHFQga.webp",
+              "proxy_url": "https://images-ext-1.discordapp.net/external/ZzUPdHSkKua3GTBb3_EPI4nkwaFcaox5TZntROa7yzw/https/static.klipy.com/ii/4493325008d34b7bf8cd6813cd5c1619/96/af/78AoppIBnyHFQga.webp",
+              "placeholder_version": 1,
+              "placeholder": "GRgKBIBlDzfpVUd9eXiQP4TjIA==",
+              "height": 280,
+              "flags": 0,
+              "content_type": ""
+            },
+            "provider": {
+              "url": "https://klipy.com",
+              "name": "Klipy"
+            },
+            "id": "1550586104351031417",
+            "content_scan_version": 4
+          }
+        ],
+        "createdAt": "2026-09-18T19:15:35.774Z"
+      },
+      {
+        "id": "1550586149414768671",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "",
+        "attachments": [
+          {
+            "name": "Screenshot_20260917_192839_Samsung_Browser.jpg",
+            "url": "https://cdn.discordapp.com/attachments/1550585911073312840/1550586149075161308/Screenshot_20260917_192839_Samsung_Browser.jpg?ex=6aaedf62&is=6aad8de2&hm=1244cda1702ad64825da6d0aa8cbebdbc09cdbe9c277fe92d4471d830f4e6d0f&"
+          }
+        ],
+        "embeds": [],
+        "createdAt": "2026-09-18T19:15:46.518Z"
+      },
+      {
+        "id": "1550589440618008616",
+        "authorId": "1410407078643765340",
+        "authorTag": "coolbeanz02778",
+        "content": "https://giphy.com/gifs/m7mdiq-efnjj-squid-game-meme-zA4OBth2AmV9fJyUhb",
+        "attachments": [],
+        "embeds": [
+          {
+            "video": {
+              "width": 480,
+              "url": "https://i.giphy.com/media/zA4OBth2AmV9fJyUhb/giphy.mp4",
+              "proxy_url": "https://images-ext-1.discordapp.net/external/pX9IhhhDsYKoR5itDHFEiu3uBC8ujwoorbkeDDu2xak/https/i.giphy.com/media/zA4OBth2AmV9fJyUhb/giphy.mp4",
+              "placeholder_version": 1,
+              "placeholder": "FvgJDoJfill6h4d1iPhXuYd1H4j8gMg=",
+              "height": 442,
+              "flags": 0,
+              "content_type": "video/mp4"
+            },
+            "url": "https://giphy.com/gifs/m7mdiq-efnjj-squid-game-meme-zA4OBth2AmV9fJyUhb",
+            "type": "gifv",
+            "thumbnail": {
+              "width": 480,
+              "url": "https://i.giphy.com/media/zA4OBth2AmV9fJyUhb/giphy_s.gif",
+              "proxy_url": "https://images-ext-1.discordapp.net/external/J7TrUqCRFPUUCVoZjl_kPiMC-GHOd-xnwI17zkIBRFE/https/i.giphy.com/media/zA4OBth2AmV9fJyUhb/giphy_s.gif",
+              "placeholder_version": 1,
+              "placeholder": "FvgJDoJfill6h4d1iPhXuYd1H4j8gMg=",
+              "height": 442,
+              "flags": 0,
+              "content_type": "image/gif"
+            },
+            "provider": {
+              "url": "https://giphy.com",
+              "name": "Giphy"
+            },
+            "id": "1550589440618008617",
+            "content_scan_version": 4
+          }
+        ],
+        "createdAt": "2026-09-18T19:28:51.202Z"
+      },
+      {
+        "id": "1550761123157114962",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "🔒 Ticket closed. Saving transcript...",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-19T06:51:03.509Z"
+      }
+    ],
+    "closedAt": "2026-09-19T06:51:04.584Z"
+  },
+  "1550260920427618374": {
+    "status": "open",
+    "channel": {
+      "id": "1550260920427618374",
+      "name": "hiring-4",
+      "topic": "owner:1281445753923047475 claimed:1172089323223519235"
+    },
+    "notes": [
+      "• Ticket created",
+      "• Client is applying for development ( game ), Checking whether it is open or not.",
+      "• SirCosmix has force claimed ticket - Ticket moving nicely as of 17/9/26 23:05 BST",
+      "• client passed questions phase - moving to interview"
+    ],
+    "dashboardMessage": {
+      "id": "1550260924378775573",
+      "channelId": "1539010556701188206",
+      "url": "https://discord.com/channels/1517978818135195740/1539010556701188206/1550260924378775573",
+      "content": "",
+      "embeds": [
+        {
+          "type": "rich",
+          "title": "🎫 Hiring Application #4",
+          "timestamp": "2026-09-19T09:55:47.873000+00:00",
+          "id": "1550807615360081920",
+          "footer": {
+            "text": "Channel: hiring-4"
+          },
+          "fields": [
+            {
+              "value": "<@1281445753923047475>",
+              "name": "📋 User",
+              "inline": true
+            },
+            {
+              "value": "🟢 Open",
+              "name": "📌 Status",
+              "inline": true
+            },
+            {
+              "value": "• Ticket created\n• Client is applying for development ( game ), Checking whether it is open or not.\n• SirCosmix has force claimed ticket - Ticket moving nicely as of 17/9/26 23:05 BST\n• client passed questions phase - moving to interview",
+              "name": "📝 Progress Notes",
+              "inline": false
+            },
+            {
+              "value": "9/17/2026, 3:43:26 PM",
+              "name": "⏰ Created",
+              "inline": true
+            },
+            {
+              "value": "9/19/2026, 3:55:47 AM",
+              "name": "🔄 Last Updated",
+              "inline": true
+            }
+          ],
+          "description": "Role: Dev, Experience: I been building for 4 years. Ive worked with big creators such as norakulus and JD.",
+          "content_scan_version": 0,
+          "color": 39423
+        }
+      ],
+      "components": [],
+      "editedTimestamp": 1789811748124,
+      "updatedAt": "2026-09-19T09:55:48.209Z"
+    },
+    "events": [
+      {
+        "type": "note",
+        "info": "client passed questions phase - moving to interview",
+        "timestamp": "2026-09-19T09:55:48.209Z"
+      }
+    ],
+    "channelId": "1550260920427618374",
+    "updatedAt": "2026-09-20T00:49:23.087Z",
+    "messages": [
+      {
+        "id": "1550985810243756113",
+        "authorId": "1281445753923047475",
+        "authorTag": "l.divi",
+        "content": "-",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-19T21:43:53.085Z"
+      },
+      {
+        "id": "1550987020648710256",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "Sorry for the lack of response Devi, Cosmix’s activity is a little unpredictable rn due to bombing of his area, please bear with us 🙏",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-19T21:48:41.668Z"
+      },
+      {
+        "id": "1550987653825036380",
+        "authorId": "1281445753923047475",
+        "authorTag": "l.divi",
+        "content": "its okay",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-19T21:51:12.629Z"
+      },
+      {
+        "id": "1550992141239459892",
+        "authorId": "1172089323223519235",
+        "authorTag": "sircosmix",
+        "content": "Yeah a lot of outages sometimes",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-19T22:09:02.512Z"
+      },
+      {
+        "id": "1551032231559045142",
+        "authorId": "1281445753923047475",
+        "authorTag": "l.divi",
+        "content": "the same thing happened to me when i was in libya",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-20T00:48:20.789Z"
+      },
+      {
+        "id": "1551032310768467999",
+        "authorId": "1281445753923047475",
+        "authorTag": "l.divi",
+        "content": "forced to sleep in hot weather so i understand what ur going through",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-20T00:48:39.674Z"
+      },
+      {
+        "id": "1551032438195486721",
+        "authorId": "1281445753923047475",
+        "authorTag": "l.divi",
+        "content": "especially the bombings, some almost hit my aunts house but hit a field next to it.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-20T00:49:10.055Z"
+      },
+      {
+        "id": "1551032491815731231",
+        "authorId": "1281445753923047475",
+        "authorTag": "l.divi",
+        "content": "there was a libyan civil war at the time",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-20T00:49:22.839Z"
+      }
+    ]
+  },
+  "1549747116530733067": {
+    "status": "closed",
+    "closedAt": "2026-09-19T10:20:24.111Z",
+    "channel": {
+      "id": "1549747116530733067",
+      "name": "hiring-2",
+      "topic": "owner:1298575375755907072 claimed:1267321190821789780"
+    },
+    "dashboardMessage": {
+      "id": "1549747123849793567",
+      "channelId": "1539010556701188206",
+      "url": "https://discord.com/channels/1517978818135195740/1539010556701188206/1549747123849793567",
+      "content": "",
+      "embeds": [
+        {
+          "type": "rich",
+          "title": "🎫 Hiring Application #2",
+          "description": "Role: Human Resources and Staff Operations, Experience: So much yap D:\nDiscord management and leadership.\nManaging large teams and departments.\nStaff promotions, discipline, and misconduct.\nCreating policies and procedures.\nTraining and mentoring staff.\nConflict resolution and decision-making.\nLeading staff and coordinating departments.\nKeeping teams organised, active, and professional.\nModeration and appeal processing",
+          "color": 39423,
+          "timestamp": "2026-09-16T15:04:38.417000+00:00",
+          "fields": [
+            {
+              "name": "📋 User",
+              "value": "<@1298575375755907072>",
+              "inline": true
+            },
+            {
+              "name": "📌 Status",
+              "value": "🟢 Open",
+              "inline": true
+            },
+            {
+              "name": "📝 Progress Notes",
+              "value": "• Ticket created\n• Questions given - to be continued tomorrow",
+              "inline": false
+            },
+            {
+              "name": "⏰ Created",
+              "value": "9/16/2026, 5:41:46 AM",
+              "inline": true
+            },
+            {
+              "name": "🔄 Last Updated",
+              "value": "9/16/2026, 9:04:38 AM",
+              "inline": true
+            }
+          ],
+          "footer": {
+            "text": "Channel: hiring-2"
+          },
+          "content_scan_version": 4
+        }
+      ],
+      "components": [],
+      "editedTimestamp": 1789571078755,
+      "updatedAt": "2026-09-19T10:20:24.111Z"
+    },
+    "events": [
+      {
+        "type": "closed",
+        "timestamp": "2026-09-19T10:20:24.111Z"
+      }
+    ],
+    "channelId": "1549747116530733067",
+    "updatedAt": "2026-09-19T10:20:24.111Z"
+  }
+}

@@ -94,16 +94,34 @@
       "• Ticket created"
     ]
   },
-  "1547918309805006868": {
-    "messageId": "1547918314217406547",
+  "1550260920427618374": {
+    "messageId": "1550260924378775573",
     "channelId": "1539010556701188206",
-    "ticketId": 2,
+    "ticketId": 4,
     "originalInfo": {
-      "id": 2,
+      "id": 4,
       "title": "Hiring Application",
-      "userId": "1396089290748067862",
-      "description": "Role: Hr or sales, Experience: Well I have a lot of experience being a staff member that helps people and helps a server in many servers of scp:rp and jjs I can elaborate if needed.",
-      "createdAt": "9/11/2026, 4:34:44 AM"
+      "userId": "1281445753923047475",
+      "description": "Role: Dev, Experience: I been building for 4 years. Ive worked with big creators such as norakulus and JD.",
+      "createdAt": "9/17/2026, 3:43:26 PM"
+    },
+    "notes": [
+      "• Ticket created",
+      "• Client is applying for development ( game ), Checking whether it is open or not.",
+      "• SirCosmix has force claimed ticket - Ticket moving nicely as of 17/9/26 23:05 BST",
+      "• client passed questions phase - moving to interview"
+    ]
+  },
+  "1550346400770818078": {
+    "messageId": "1550346404193509477",
+    "channelId": "1539010556701188206",
+    "ticketId": 5,
+    "originalInfo": {
+      "id": 5,
+      "title": "Support Ticket",
+      "userId": "1501030561316208790",
+      "description": "Alt of hacked account",
+      "createdAt": "9/17/2026, 9:23:06 PM"
     },
     "notes": [
       "• Ticket created"
