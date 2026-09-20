@@ -9,7 +9,6 @@
         "linkschannelid": "1530157246095294464",
         "logging": "1548403110236524564",
         "itreports": "1548324112303128616"
-
     },
     "trackerChannelId": "1539010556701188206",
     "managementVoiceChannelId": "1536025830050758797",
@@ -35,11 +34,10 @@
     "commissionticketaccess": [
         "1534327769599574066"
     ],
-    "developers":[
+    "developers": [
         "1259124148798754907",
         "1410407078643765340"
     ],
-
     "pings": {
         "announcementid": "1542957445696069702",
         "eventpingid": "1542957471902203947",
@@ -50,11 +48,9 @@
         "importantid": "1544640673779556462",
         "headerrole": "1542957233212620830"
     },
-
     "generalticketaccess": [
         "1539369973468635228"
     ],
-
     "appealsticketaccess": [
         "1539369973468635228"
     ],
@@ -71,8 +67,14 @@
         "remote": "origin",
         "branch": "main",
         "autoInstall": true,
-        "hardReset": false,
-        "restartOnUpdate": true
+        "restartOnUpdate": true,
+        "push": true,
+        "pushIntervalSeconds": 300,
+        "commitMessage": "chore(sync): runtime state",
+        "dataFiles": [
+            "ticket-tracking.json",
+            "utils/ticket-archive.json"
+        ]
     },
     "commissionLocked": false,
     "prrole": "1535023189246345277",
@@ -84,11 +86,11 @@
     "staffrepingtime": "24",
     "clientrepingtime": "24",
     "hrdirectorrole": "1535764413422899210",
-    "hrmanagerrole":"895312798211534888",
+    "hrmanagerrole": "895312798211534888",
     "ownershiprole": [
         "1517982021782339684",
         "1517978929661612233",
         "1535764196459806850",
         "1535764412923781270"
     ]
-}   
+}
