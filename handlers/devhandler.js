@@ -234,7 +234,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
 
     const args = message.content.slice(2).trim().split(/ +/);
     const command = args.shift()?.toLowerCase();
-    if (!["addgroup", "delgroup", "forceclose", "impersonate", "power", "gitsync"].includes(command)) return false;
+    if (!["addgroup", "delgroup", "forceclose", "impersonate", "power", "forcerestart"].includes(command)) return false;
 
     await logCommand(message, config, `d!${command}`, "Developer command", args);
 
