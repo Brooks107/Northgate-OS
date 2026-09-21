@@ -246,7 +246,12 @@ module.exports = async function handleDeveloperCommand(message, config) {
         message.member?.roles?.cache?.has(roleId)
     );
     const powerAction = command === "power" ? args.shift()?.toLowerCase() : null;
-
+    if (command === "forcerestart") {
+        await message.reply("🔄 Restarting the bot...");
+        await message.client.destroy();
+        process.exit(0);
+        return true;
+    }
     if (command === "power") {
         const canUsePower = isDeveloper || (powerAction === "off" && isOwner);
 
@@ -385,13 +390,6 @@ module.exports = async function handleDeveloperCommand(message, config) {
                 ? `🔴 Bot set to **invisible maintenance mode**.${saved ? "" : "\n⚠️ Could not save this state to disk."}`
                 : `🟢 Bot is **online** again.${saved ? "" : "\n⚠️ Could not save this state to disk."}`
         );
-        return true;
-    }
-
-    if (command === "forcerestart") {
-        await message.reply("🔄 Restarting the bot...");
-        await message.client.destroy();
-        process.exit(0);
         return true;
     }
 
