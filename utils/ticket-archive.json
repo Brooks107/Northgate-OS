@@ -427,7 +427,7 @@
       }
     ],
     "channelId": "1550260920427618374",
-    "updatedAt": "2026-09-22T01:18:00.175Z",
+    "updatedAt": "2026-09-22T01:27:53.788Z",
     "messages": [
       {
         "id": "1550985810243756113",
@@ -509,6 +509,15 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-22T01:18:00.113Z"
+      },
+      {
+        "id": "1551766960050671718",
+        "authorId": "1458576084051165277",
+        "authorTag": "thesealofficial",
+        "content": "Yeah we sincerely apologise for this inconvenience, this shouldn't happen again, but once again, we sincerely apologise for the long wait and lack of response.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-22T01:27:53.712Z"
       }
     ]
   },
