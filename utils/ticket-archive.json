@@ -680,7 +680,7 @@
       "updatedAt": "2026-09-23T15:13:01.064Z"
     },
     "channelId": "1552336992413548584",
-    "updatedAt": "2026-09-23T17:23:37.752Z",
+    "updatedAt": "2026-09-23T17:28:17.359Z",
     "messages": [
       {
         "id": "1552337063511068734",
@@ -843,6 +843,24 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-23T17:23:37.697Z"
+      },
+      {
+        "id": "1552370914014920839",
+        "authorId": "1386708847690780783",
+        "authorTag": "tikohunts11",
+        "content": "<@1259124148798754907>  \n**What exactly do you want from NGC.**\n**How will this partnership benefit both of us.**\n**What do we get from you.** \n**What do we give to you.**",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-23T17:27:47.558Z"
+      },
+      {
+        "id": "1552371038736613547",
+        "authorId": "1386708847690780783",
+        "authorTag": "tikohunts11",
+        "content": "Please answer these the best of your ability",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-23T17:28:17.294Z"
       }
     ]
   }
