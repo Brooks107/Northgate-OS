@@ -604,5 +604,82 @@
     ],
     "channelId": "1549747116530733067",
     "updatedAt": "2026-09-19T10:20:24.111Z"
+  },
+  "1552336992413548584": {
+    "ticketId": 2,
+    "status": "open",
+    "openedAt": "9/23/2026, 9:13:00 AM",
+    "ticket": {
+      "id": 2,
+      "title": "Partnership Request",
+      "userId": "1259124148798754907",
+      "description": "Company: Beanz Server Creating Helpers, Idea: Advertisement and Referrals",
+      "createdAt": "9/23/2026, 9:13:00 AM"
+    },
+    "channel": {
+      "id": "1552336992413548584",
+      "name": "partnership-2",
+      "topic": "owner:1259124148798754907"
+    },
+    "notes": [
+      "• Ticket created"
+    ],
+    "events": [
+      {
+        "type": "created",
+        "timestamp": "2026-09-23T15:13:00.662Z"
+      }
+    ],
+    "dashboardChannel": {
+      "id": "1539010556701188206",
+      "name": "ticket-dashboard"
+    },
+    "dashboardMessage": {
+      "id": "1552336995756286064",
+      "channelId": "1539010556701188206",
+      "url": "https://discord.com/channels/1517978818135195740/1539010556701188206/1552336995756286064",
+      "content": "",
+      "embeds": [
+        {
+          "type": "rich",
+          "title": "🎫 Partnership Request #2",
+          "timestamp": "2026-09-23T15:13:00.663000+00:00",
+          "id": "1552336995756286063",
+          "footer": {
+            "text": "Channel: partnership-2"
+          },
+          "fields": [
+            {
+              "value": "<@1259124148798754907>",
+              "name": "📋 User",
+              "inline": true
+            },
+            {
+              "value": "🟢 Open",
+              "name": "📌 Status",
+              "inline": true
+            },
+            {
+              "value": "• Ticket created",
+              "name": "📝 Progress Notes",
+              "inline": false
+            },
+            {
+              "value": "9/23/2026, 9:13:00 AM",
+              "name": "⏰ Created",
+              "inline": true
+            }
+          ],
+          "description": "Company: Beanz Server Creating Helpers, Idea: Advertisement and Referrals",
+          "content_scan_version": 0,
+          "color": 39423
+        }
+      ],
+      "components": [],
+      "editedTimestamp": null,
+      "updatedAt": "2026-09-23T15:13:01.064Z"
+    },
+    "channelId": "1552336992413548584",
+    "updatedAt": "2026-09-23T15:13:01.065Z"
   }
 }
