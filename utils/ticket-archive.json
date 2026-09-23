@@ -680,7 +680,7 @@
       "updatedAt": "2026-09-23T15:13:01.064Z"
     },
     "channelId": "1552336992413548584",
-    "updatedAt": "2026-09-23T17:30:03.505Z",
+    "updatedAt": "2026-09-23T17:40:04.176Z",
     "messages": [
       {
         "id": "1552337063511068734",
@@ -870,6 +870,69 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-23T17:30:03.423Z"
+      },
+      {
+        "id": "1552373164393369702",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "1. From NGC I simply want to have a medium to get our name put out there and to broaden our reach, possibly creating a triangle of services for communities, this being Northgate Studios, Vortigern and BSCH. The idea being if someone comes to NGC requiring a custom discord bot, they direct them to Vortigern, server? BSCH, and it cycles round per company. \n2. As NGC begins to develop, within 1 day of official launch BSCH has had a member come to us asking for a map, instead of the server, whom of which I could've directed to NGC whenever we're taking commissions. While all we're really looking for is getting our name out there, both benefitting mutually as we simply do what we do.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-23T17:36:44.090Z"
+      },
+      {
+        "id": "1552373497299337268",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "-# also as all of hicom found out asking me to do that is a horrific idea",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-23T17:38:03.461Z"
+      },
+      {
+        "id": "1552373670117376022",
+        "authorId": "1386708847690780783",
+        "authorTag": "tikohunts11",
+        "content": "💔",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-23T17:38:44.664Z"
+      },
+      {
+        "id": "1552373925584044143",
+        "authorId": "1386708847690780783",
+        "authorTag": "tikohunts11",
+        "content": "<@1259124148798754907>  I'll make a collective choice and ask some questions later on today.\n\nSince you are already staff, what we ask is you just keep working on the bots. \n(I feel like I can say that for all of us)",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-23T17:39:45.572Z"
+      },
+      {
+        "id": "1552373978503585827",
+        "authorId": "1386708847690780783",
+        "authorTag": "tikohunts11",
+        "content": "Anyways",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-23T17:39:58.189Z"
+      },
+      {
+        "id": "1552373984518082591",
+        "authorId": "1386708847690780783",
+        "authorTag": "tikohunts11",
+        "content": "<@1296810419834589221>",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-23T17:39:59.623Z"
+      },
+      {
+        "id": "1552374003325210675",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "highest of keys my job regardless",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-23T17:40:04.107Z"
       }
     ]
   }
