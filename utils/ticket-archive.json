@@ -622,12 +622,18 @@
       "topic": "owner:1259124148798754907"
     },
     "notes": [
-      "• Ticket created"
+      "• Ticket created",
+      "• force inject"
     ],
     "events": [
       {
         "type": "created",
         "timestamp": "2026-09-23T15:13:00.662Z"
+      },
+      {
+        "type": "note",
+        "info": "force inject",
+        "timestamp": "2026-09-23T20:56:30.274Z"
       }
     ],
     "dashboardChannel": {
@@ -643,8 +649,8 @@
         {
           "type": "rich",
           "title": "🎫 Partnership Request #2",
-          "timestamp": "2026-09-23T15:13:00.663000+00:00",
-          "id": "1552336995756286063",
+          "timestamp": "2026-09-23T20:56:30.085000+00:00",
+          "id": "1552423437761388714",
           "footer": {
             "text": "Channel: partnership-2"
           },
@@ -660,13 +666,18 @@
               "inline": true
             },
             {
-              "value": "• Ticket created",
+              "value": "• Ticket created\n• force inject",
               "name": "📝 Progress Notes",
               "inline": false
             },
             {
               "value": "9/23/2026, 9:13:00 AM",
               "name": "⏰ Created",
+              "inline": true
+            },
+            {
+              "value": "9/23/2026, 2:56:30 PM",
+              "name": "🔄 Last Updated",
               "inline": true
             }
           ],
@@ -676,11 +687,11 @@
         }
       ],
       "components": [],
-      "editedTimestamp": null,
-      "updatedAt": "2026-09-23T15:13:01.064Z"
+      "editedTimestamp": 1790196990198,
+      "updatedAt": "2026-09-23T20:56:30.273Z"
     },
     "channelId": "1552336992413548584",
-    "updatedAt": "2026-09-23T18:58:36.790Z",
+    "updatedAt": "2026-09-23T20:57:23.278Z",
     "messages": [
       {
         "id": "1552337063511068734",
@@ -1122,7 +1133,176 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-23T18:58:36.668Z"
+      },
+      {
+        "id": "1552423611778727937",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "n!claim 2",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-23T20:57:11.684Z"
+      },
+      {
+        "id": "1552423659916886046",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-23T20:57:23.161Z"
       }
     ]
+  },
+  "1552423876120682560": {
+    "ticketId": 6,
+    "status": "closed",
+    "openedAt": "9/23/2026, 2:58:15 PM",
+    "ticket": {
+      "id": 6,
+      "title": "Appeal Ticket",
+      "userId": "1259124148798754907",
+      "description": "FORCE UPDATE OF TICKET STATUS",
+      "createdAt": "9/23/2026, 2:58:15 PM"
+    },
+    "channel": {
+      "id": "1552423876120682560",
+      "name": "appeal-6",
+      "topic": "owner:1259124148798754907"
+    },
+    "notes": [
+      "• Ticket created"
+    ],
+    "events": [
+      {
+        "type": "created",
+        "timestamp": "2026-09-23T20:58:15.688Z"
+      },
+      {
+        "type": "closed",
+        "timestamp": "2026-09-23T20:58:52.161Z"
+      }
+    ],
+    "dashboardChannel": {
+      "id": "1539010556701188206",
+      "name": "ticket-dashboard"
+    },
+    "dashboardMessage": {
+      "id": "1552423880813973547",
+      "channelId": "1539010556701188206",
+      "url": "https://discord.com/channels/1517978818135195740/1539010556701188206/1552423880813973547",
+      "content": "",
+      "embeds": [
+        {
+          "type": "rich",
+          "title": "🎫 Appeal Ticket #6",
+          "timestamp": "2026-09-23T20:58:15.689000+00:00",
+          "id": "1552423880813973544",
+          "footer": {
+            "text": "Channel: appeal-6"
+          },
+          "fields": [
+            {
+              "value": "<@1259124148798754907>",
+              "name": "📋 User",
+              "inline": true
+            },
+            {
+              "value": "🟢 Open",
+              "name": "📌 Status",
+              "inline": true
+            },
+            {
+              "value": "• Ticket created",
+              "name": "📝 Progress Notes",
+              "inline": false
+            },
+            {
+              "value": "9/23/2026, 2:58:15 PM",
+              "name": "⏰ Created",
+              "inline": true
+            }
+          ],
+          "description": "FORCE UPDATE OF TICKET STATUS",
+          "content_scan_version": 0,
+          "color": 39423
+        }
+      ],
+      "components": [],
+      "editedTimestamp": null,
+      "updatedAt": "2026-09-23T20:58:52.161Z"
+    },
+    "channelId": "1552423876120682560",
+    "updatedAt": "2026-09-23T20:58:52.162Z",
+    "messages": [
+      {
+        "id": "1552423935960813668",
+        "authorId": "895312798211534888",
+        "authorTag": "this.is.a.cool.username",
+        "content": "https://klipy.com/gifs/yuko-yoshida",
+        "attachments": [],
+        "embeds": [
+          {
+            "video": {
+              "width": 572,
+              "url": "https://static.klipy.com/ii/8ce8357c78ea940b9c2015daf05ce1a5/dd/a0/ZBisWAc9Y8HgD8EKmNz.mp4",
+              "proxy_url": "https://images-ext-1.discordapp.net/external/MRIn0uxhwFAxSMJSRENHR7Ge0rhFtUGZWvLQ-ukik5Q/https/static.klipy.com/ii/8ce8357c78ea940b9c2015daf05ce1a5/dd/a0/ZBisWAc9Y8HgD8EKmNz.mp4",
+              "placeholder_version": 1,
+              "placeholder": "LSgGFgj4zFe8eWk3VF5oaZVWCImEoGY=",
+              "height": 640,
+              "flags": 0
+            },
+            "url": "https://klipy.com/gifs/yuko-yoshida",
+            "type": "gifv",
+            "title": "Yuko Yoshida: Nervous Anime Girl",
+            "thumbnail": {
+              "width": 445,
+              "url": "https://static.klipy.com/ii/8ce8357c78ea940b9c2015daf05ce1a5/dd/a0/A1xoM7HV.webp",
+              "proxy_url": "https://images-ext-1.discordapp.net/external/O_qb-6Ip40AIytVQ6Yp02haD-R6Yzany7xKZ0x14ndM/https/static.klipy.com/ii/8ce8357c78ea940b9c2015daf05ce1a5/dd/a0/A1xoM7HV.webp",
+              "placeholder_version": 1,
+              "placeholder": "LSgGFgj4zFe8eWk3VF5oaZVWCImEoGY=",
+              "height": 498,
+              "flags": 0,
+              "content_type": ""
+            },
+            "provider": {
+              "url": "https://klipy.com",
+              "name": "Klipy"
+            },
+            "id": "1552423935960813669",
+            "content_scan_version": 4
+          }
+        ],
+        "createdAt": "2026-09-23T20:58:28.975Z"
+      },
+      {
+        "id": "1552423995125538949",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "Force update completed - All tickets now tracked",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-23T20:58:43.081Z"
+      },
+      {
+        "id": "1552424017661796473",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "( this’ll be fixed soon )",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-23T20:58:48.454Z"
+      },
+      {
+        "id": "1552424026964758579",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "🔒 Ticket closed. Saving transcript...",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-23T20:58:50.672Z"
+      }
+    ],
+    "closedAt": "2026-09-23T20:58:52.161Z"
   }
 }
