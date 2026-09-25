@@ -709,7 +709,7 @@
       "updatedAt": "2026-09-23T20:56:30.273Z"
     },
     "channelId": "1552336992413548584",
-    "updatedAt": "2026-09-25T02:02:41.107Z",
+    "updatedAt": "2026-09-25T02:04:01.673Z",
     "messages": [
       {
         "id": "1552337063511068734",
@@ -1259,6 +1259,51 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-25T02:02:41.042Z"
+      },
+      {
+        "id": "1552862910873862245",
+        "authorId": "1410407078643765340",
+        "authorTag": "coolbeanz02778",
+        "content": "All I’m saying is",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-25T02:02:48.750Z"
+      },
+      {
+        "id": "1552862991899168779",
+        "authorId": "1410407078643765340",
+        "authorTag": "coolbeanz02778",
+        "content": "we would promote NGC in every time someone asks for a map or asks who’s good for maps",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-25T02:03:08.068Z"
+      },
+      {
+        "id": "1552863023033622580",
+        "authorId": "1410407078643765340",
+        "authorTag": "coolbeanz02778",
+        "content": "it’s not much",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-25T02:03:15.491Z"
+      },
+      {
+        "id": "1552863161915416637",
+        "authorId": "1410407078643765340",
+        "authorTag": "coolbeanz02778",
+        "content": "but it’s kinda all I think we can offer, I would appreciate if you guys can give some ideas on what you would request out of the partnership",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-25T02:03:48.603Z"
+      },
+      {
+        "id": "1552863216366002299",
+        "authorId": "1410407078643765340",
+        "authorTag": "coolbeanz02778",
+        "content": "we are just looking for a meaningful way for cross advertisement",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-25T02:04:01.585Z"
       }
     ]
   },
