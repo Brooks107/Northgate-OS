@@ -1475,5 +1475,98 @@
       }
     ],
     "closedAt": "2026-09-23T20:58:52.161Z"
+  },
+  "1553148215321174137": {
+    "ticketId": 6,
+    "status": "closed",
+    "openedAt": "9/25/2026, 2:56:31 PM",
+    "ticket": {
+      "id": 6,
+      "title": "Support Ticket",
+      "userId": "1259124148798754907",
+      "description": "Refresher ticket - problem should be solved 1st oct",
+      "createdAt": "9/25/2026, 2:56:31 PM"
+    },
+    "channel": {
+      "id": "1553148215321174137",
+      "name": "support-6",
+      "topic": "owner:1259124148798754907"
+    },
+    "notes": [
+      "• Ticket created"
+    ],
+    "events": [
+      {
+        "type": "created",
+        "timestamp": "2026-09-25T20:56:31.397Z"
+      },
+      {
+        "type": "closed",
+        "timestamp": "2026-09-25T20:56:49.818Z"
+      }
+    ],
+    "dashboardChannel": {
+      "id": "1539010556701188206",
+      "name": "ticket-dashboard"
+    },
+    "dashboardMessage": {
+      "id": "1553148219029069829",
+      "channelId": "1539010556701188206",
+      "url": "https://discord.com/channels/1517978818135195740/1539010556701188206/1553148219029069829",
+      "content": "",
+      "embeds": [
+        {
+          "type": "rich",
+          "title": "🎫 Support Ticket #6",
+          "timestamp": "2026-09-25T20:56:31.397000+00:00",
+          "id": "1553148219029069828",
+          "footer": {
+            "text": "Channel: support-6"
+          },
+          "fields": [
+            {
+              "value": "<@1259124148798754907>",
+              "name": "📋 User",
+              "inline": true
+            },
+            {
+              "value": "🟢 Open",
+              "name": "📌 Status",
+              "inline": true
+            },
+            {
+              "value": "• Ticket created",
+              "name": "📝 Progress Notes",
+              "inline": false
+            },
+            {
+              "value": "9/25/2026, 2:56:31 PM",
+              "name": "⏰ Created",
+              "inline": true
+            }
+          ],
+          "description": "Refresher ticket - problem should be solved 1st oct",
+          "content_scan_version": 0,
+          "color": 39423
+        }
+      ],
+      "components": [],
+      "editedTimestamp": null,
+      "updatedAt": "2026-09-25T20:56:49.818Z"
+    },
+    "channelId": "1553148215321174137",
+    "updatedAt": "2026-09-25T20:56:49.819Z",
+    "messages": [
+      {
+        "id": "1553148289921192037",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "🔒 Ticket closed. Saving transcript...",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-25T20:56:48.417Z"
+      }
+    ],
+    "closedAt": "2026-09-25T20:56:49.818Z"
   }
 }
