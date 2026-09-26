@@ -142,5 +142,20 @@
       "• Ticket created",
       "• force inject"
     ]
+  },
+  "1553385156667248720": {
+    "messageId": "1553385160618287187",
+    "channelId": "1539010556701188206",
+    "ticketId": 6,
+    "originalInfo": {
+      "id": 6,
+      "title": "Hiring Application",
+      "userId": "1467047294468882555",
+      "description": "Role: Builder, Experience: i have been building stuff in roblox studio for over 2 years.i can build most of different style of buildings and have a good sense in how to let those buildings look cool and beautiful.mostly i build landscapes but im also good at building interior.",
+      "createdAt": "9/26/2026, 6:38:02 AM"
+    },
+    "notes": [
+      "• Ticket created"
+    ]
   }
 }

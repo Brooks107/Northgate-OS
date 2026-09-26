@@ -1568,5 +1568,82 @@
       }
     ],
     "closedAt": "2026-09-25T20:56:49.818Z"
+  },
+  "1553385156667248720": {
+    "ticketId": 6,
+    "status": "open",
+    "openedAt": "9/26/2026, 6:38:02 AM",
+    "ticket": {
+      "id": 6,
+      "title": "Hiring Application",
+      "userId": "1467047294468882555",
+      "description": "Role: Builder, Experience: i have been building stuff in roblox studio for over 2 years.i can build most of different style of buildings and have a good sense in how to let those buildings look cool and beautiful.mostly i build landscapes but im also good at building interior.",
+      "createdAt": "9/26/2026, 6:38:02 AM"
+    },
+    "channel": {
+      "id": "1553385156667248720",
+      "name": "hiring-6",
+      "topic": "owner:1467047294468882555"
+    },
+    "notes": [
+      "• Ticket created"
+    ],
+    "events": [
+      {
+        "type": "created",
+        "timestamp": "2026-09-26T12:38:02.676Z"
+      }
+    ],
+    "dashboardChannel": {
+      "id": "1539010556701188206",
+      "name": "ticket-dashboard"
+    },
+    "dashboardMessage": {
+      "id": "1553385160618287187",
+      "channelId": "1539010556701188206",
+      "url": "https://discord.com/channels/1517978818135195740/1539010556701188206/1553385160618287187",
+      "content": "",
+      "embeds": [
+        {
+          "type": "rich",
+          "title": "🎫 Hiring Application #6",
+          "timestamp": "2026-09-26T12:38:02.676000+00:00",
+          "id": "1553385160618287186",
+          "footer": {
+            "text": "Channel: hiring-6"
+          },
+          "fields": [
+            {
+              "value": "<@1467047294468882555>",
+              "name": "📋 User",
+              "inline": true
+            },
+            {
+              "value": "🟢 Open",
+              "name": "📌 Status",
+              "inline": true
+            },
+            {
+              "value": "• Ticket created",
+              "name": "📝 Progress Notes",
+              "inline": false
+            },
+            {
+              "value": "9/26/2026, 6:38:02 AM",
+              "name": "⏰ Created",
+              "inline": true
+            }
+          ],
+          "description": "Role: Builder, Experience: i have been building stuff in roblox studio for over 2 years.i can build most of different style of buildings and have a good sense in how to let those buildings look cool and beautiful.mostly i build landscapes but im also good at building interior.",
+          "content_scan_version": 0,
+          "color": 39423
+        }
+      ],
+      "components": [],
+      "editedTimestamp": null,
+      "updatedAt": "2026-09-26T12:38:02.895Z"
+    },
+    "channelId": "1553385156667248720",
+    "updatedAt": "2026-09-26T12:38:02.896Z"
   }
 }
