@@ -3,6 +3,7 @@ const config = require("./config.json");
 config.token = process.env.DISCORD_TOKEN;
 config.clientId = process.env.CLIENT_ID;
 config.guildId = process.env.GUILD_ID;
+
 const { Client, GatewayIntentBits, Partials, Events, MessageFlags } = require("discord.js");
 
 const supportHandler = require("./handlers/supporthandler");
@@ -54,17 +55,11 @@ function trackDistinctCommand(commandName) {
     return distinctCommands.size >= DISTINCT_COMMAND_COUNT;
 }
 
-// Lock flags are runtime state, not deployment config. Apply the persisted
-// values over the config.json defaults before anything can read them, so a
-// lock survives the restarts that git-sync triggers on every push.
 const runtimeState = state.load();
 Object.assign(config, runtimeState);
 for (const [key, values] of Object.entries(runtimeState.groupArrays || {})) {
     if (Array.isArray(values)) config[key] = values;
 }
-// -------------------------------------------------
-// Create client
-// -------------------------------------------------
 
 const client = new Client({
     partials: [Partials.Message, Partials.Channel, Partials.Reaction],
@@ -78,6 +73,8 @@ const client = new Client({
         GatewayIntentBits.GuildMessageReactions
     ]
 });
+
+client.commands = new Map();
 
 client.on(Events.MessageReactionAdd, async (reaction, user) => {
     try {
@@ -96,10 +93,6 @@ client.on(Events.MessageReactionRemove, async (reaction, user) => {
 });
 
 startHeartbeat(client);
-
-// -------------------------------------------------
-// Ticket ID system (1–20)
-// -------------------------------------------------
 
 client.activeTicketIds = new Set();
 
@@ -145,28 +138,6 @@ client.once(Events.ClientReady, async () => {
     await adminPanelCommand.restore(client, config);
 });
 
-// -------------------------------------------------
-// Load slash commands, and register them with Discord
-// only when the command set has actually changed
-// -------------------------------------------------
-
-client.commands = new Map();
-
-(async () => {
-    const result = await commandRegistry.registerGuildCommands(config);
-
-    client.commands = new Map(
-        [...result.loaded].map(([name, entry]) => [name, entry.command])
-    );
-
-    if (result.skipped.length > 0) {
-        console.warn(
-            `[commands] ${result.skipped.length} command file(s) were skipped and are NOT available:`,
-            result.skipped.map(s => s.file).join(", ")
-        );
-    }
-})();
-
 async function reportInteractionFailure(interaction, err) {
     console.error(`[interaction] handler failed for "${interaction.commandName ?? interaction.customId}":`, err);
 
@@ -189,7 +160,6 @@ client.on("interactionCreate", async interaction => {
             interaction.customId.startsWith("group_confirm_") ||
             interaction.customId.startsWith("group_cancel_")
         )) {
-            // The confirmation collector in devhandler owns these buttons.
             return;
         }
 
@@ -326,8 +296,6 @@ client.on("interactionCreate", async interaction => {
     }
 });
 
-// Permission overwrites do not stop members with Administrator from joining.
-// Enforce the management VC lock at the voice-state boundary as well.
 client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
     if (!newState.channelId) return;
     if (newState.channelId !== config.managementVoiceChannelId) return;
@@ -358,7 +326,6 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
     }
 });
 
-// Last-resort guards so a stray async error does not silently kill the bot.
 process.on("unhandledRejection", err => {
     console.error("[fatal-guard] unhandled promise rejection:", err);
 });
@@ -367,7 +334,6 @@ process.on("uncaughtException", err => {
     console.error("[fatal-guard] uncaught exception:", err);
 });
 
-
 client.on("messageCreate", async message => {
     if (message.guild && /^(?:support|appeal|commission|hiring|partnership|interrogation)-\d+(?:-|$)/.test(message.channel?.name || "")) {
         ticketArchive.recordMessage(message.channel.id, message);
@@ -375,7 +341,9 @@ client.on("messageCreate", async message => {
 
     if (await adminHandler(message, config)) return;
     if (await developerHandler(message, config)) return;
-    return prefixHandler(message, config);
+
+    const handledByPrefix = await prefixHandler(message, config);
+    if (handledByPrefix) return;
 
     if (message.author.bot) return;
 
@@ -573,23 +541,39 @@ client.on("messageCreate", async message => {
     }
 });
 
-// -------------------------------------------------
-// Login
-// -------------------------------------------------
+// Wrap registration + login in a single sequence so commands are ready before login
+async function main() {
+    try {
+        const targetGuildId = process.env.GUILD_ID || (config && config.guildId) || process.env.guildId;
+        
+        // Pass as an object or raw argument depending on what command-registry.js expects:
+        const result = await commandRegistry.registerGuildCommands({ guildId: targetGuildId });
 
-client.login(process.env.DISCORD_TOKEN);
+        client.commands = new Map(
+            [...result.loaded].map(([name, entry]) => [name, entry.command])
+        );
 
-// -------------------------------------------------
-// Automatic git sync from remote updates
-// -------------------------------------------------
-
-gitSync.startAutoSync(config.gitSync, {
-    // Close the gateway connection cleanly before pm2 restarts us.
-    onBeforeRestart: async () => {
-        try {
-            await client.destroy();
-        } catch {
-            /* already disconnected */
+        if (result.skipped && result.skipped.length > 0) {
+            console.warn(
+                `[commands] ${result.skipped.length} command file(s) were skipped and are NOT available:`,
+                result.skipped.map(s => s.file).join(", ")
+            );
         }
+
+        await client.login(process.env.DISCORD_TOKEN);
+
+        gitSync.startAutoSync(config.gitSync, {
+            onBeforeRestart: async () => {
+                try {
+                    await client.destroy();
+                } catch {
+                    /* already disconnected */
+                }
+            }
+        });
+    } catch (err) {
+        console.error("Fatal startup error:", err);
     }
-});
+}
+
+main();
