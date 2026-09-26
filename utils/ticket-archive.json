@@ -1779,5 +1779,82 @@
         "createdAt": "2026-09-26T13:40:00.776Z"
       }
     ]
+  },
+  "1553403608777756755": {
+    "ticketId": 7,
+    "status": "open",
+    "openedAt": "9/26/2026, 7:51:22 AM",
+    "ticket": {
+      "id": 7,
+      "title": "Hiring Application",
+      "userId": "1419379683455271034",
+      "description": "Role: IT Helpdesk Technician, Experience: I do this for a good portion of my life.",
+      "createdAt": "9/26/2026, 7:51:22 AM"
+    },
+    "channel": {
+      "id": "1553403608777756755",
+      "name": "hiring-7",
+      "topic": "owner:1419379683455271034"
+    },
+    "notes": [
+      "• Ticket created"
+    ],
+    "events": [
+      {
+        "type": "created",
+        "timestamp": "2026-09-26T13:51:22.082Z"
+      }
+    ],
+    "dashboardChannel": {
+      "id": "1539010556701188206",
+      "name": "ticket-dashboard"
+    },
+    "dashboardMessage": {
+      "id": "1553403613613785170",
+      "channelId": "1539010556701188206",
+      "url": "https://discord.com/channels/1517978818135195740/1539010556701188206/1553403613613785170",
+      "content": "",
+      "embeds": [
+        {
+          "type": "rich",
+          "title": "🎫 Hiring Application #7",
+          "timestamp": "2026-09-26T13:51:22.082000+00:00",
+          "id": "1553403613613785169",
+          "footer": {
+            "text": "Channel: hiring-7"
+          },
+          "fields": [
+            {
+              "value": "<@1419379683455271034>",
+              "name": "📋 User",
+              "inline": true
+            },
+            {
+              "value": "🟢 Open",
+              "name": "📌 Status",
+              "inline": true
+            },
+            {
+              "value": "• Ticket created",
+              "name": "📝 Progress Notes",
+              "inline": false
+            },
+            {
+              "value": "9/26/2026, 7:51:22 AM",
+              "name": "⏰ Created",
+              "inline": true
+            }
+          ],
+          "description": "Role: IT Helpdesk Technician, Experience: I do this for a good portion of my life.",
+          "content_scan_version": 0,
+          "color": 39423
+        }
+      ],
+      "components": [],
+      "editedTimestamp": null,
+      "updatedAt": "2026-09-26T13:51:22.613Z"
+    },
+    "channelId": "1553403608777756755",
+    "updatedAt": "2026-09-26T13:51:22.614Z"
   }
 }
