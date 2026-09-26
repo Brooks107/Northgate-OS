@@ -1782,7 +1782,7 @@
   },
   "1553403608777756755": {
     "ticketId": 7,
-    "status": "open",
+    "status": "🟡 Claimed by brooksy246",
     "openedAt": "9/26/2026, 7:51:22 AM",
     "ticket": {
       "id": 7,
@@ -1794,7 +1794,7 @@
     "channel": {
       "id": "1553403608777756755",
       "name": "hiring-7",
-      "topic": "owner:1419379683455271034"
+      "topic": "owner:1419379683455271034 claimed:1259124148798754907"
     },
     "notes": [
       "• Ticket created"
@@ -1803,6 +1803,12 @@
       {
         "type": "created",
         "timestamp": "2026-09-26T13:51:22.082Z"
+      },
+      {
+        "type": "claimed",
+        "status": "🟡 Claimed by brooksy246",
+        "userId": "1259124148798754907",
+        "timestamp": "2026-09-26T14:09:08.247Z"
       }
     ],
     "dashboardChannel": {
@@ -1819,7 +1825,7 @@
           "type": "rich",
           "title": "🎫 Hiring Application #7",
           "timestamp": "2026-09-26T13:51:22.082000+00:00",
-          "id": "1553403613613785169",
+          "id": "1553408084087541760",
           "footer": {
             "text": "Channel: hiring-7"
           },
@@ -1830,7 +1836,7 @@
               "inline": true
             },
             {
-              "value": "🟢 Open",
+              "value": "🟡 Claimed by brooksy246",
               "name": "📌 Status",
               "inline": true
             },
@@ -1851,11 +1857,11 @@
         }
       ],
       "components": [],
-      "editedTimestamp": null,
-      "updatedAt": "2026-09-26T13:51:22.613Z"
+      "editedTimestamp": 1790431748183,
+      "updatedAt": "2026-09-26T14:09:08.247Z"
     },
     "channelId": "1553403608777756755",
-    "updatedAt": "2026-09-26T14:06:41.147Z",
+    "updatedAt": "2026-09-26T14:12:00.007Z",
     "messages": [
       {
         "id": "1553403762414981141",
@@ -2280,6 +2286,78 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-26T14:06:41.088Z"
+      },
+      {
+        "id": "1553407771205046272",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "1. Fair point\n\n2. I am valuable in experience and technical knowledge, while not being able to code is quite the conundrum, it would provide a great learning opportunity for myself, while also providing valuable knowledge along the way. Tl;dr, this can be mutually benefitial.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:07:53.576Z"
+      },
+      {
+        "id": "1553408051317579936",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:09:00.360Z"
+      },
+      {
+        "id": "1553408077330522242",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:09:06.562Z"
+      },
+      {
+        "id": "1553408117516271780",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "hm interesting",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:09:16.143Z"
+      },
+      {
+        "id": "1553408220289171488",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "so we essentially teach you how to code in return for knowledge on what to code",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:09:40.646Z"
+      },
+      {
+        "id": "1553408451881734196",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Essentially I can help advise in topics with other fields of IT, while learning DevOps.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:10:35.862Z"
+      },
+      {
+        "id": "1553408529891856447",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "May or may not come in useful later, we'll have to figure that out.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:10:54.461Z"
+      },
+      {
+        "id": "1553408804400398471",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "But unless you've been fist-deep in an enterprise switch before, I think I can offer some niche knowledge.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:11:59.909Z"
       }
     ]
   }
