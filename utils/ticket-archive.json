@@ -1855,7 +1855,7 @@
       "updatedAt": "2026-09-26T13:51:22.613Z"
     },
     "channelId": "1553403608777756755",
-    "updatedAt": "2026-09-26T14:01:52.721Z",
+    "updatedAt": "2026-09-26T14:06:41.147Z",
     "messages": [
       {
         "id": "1553403762414981141",
@@ -2158,6 +2158,128 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-26T14:01:52.526Z"
+      },
+      {
+        "id": "1553406390985433200",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "I'm starting to homelab soon if you need infrastructure techs.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:02:24.506Z"
+      },
+      {
+        "id": "1553406418873360395",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "(Tl;dr hosting)",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:02:31.155Z"
+      },
+      {
+        "id": "1553406560649220127",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "Our systems already have 2 raspberry pis that can be use",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:03:04.957Z"
+      },
+      {
+        "id": "1553406561773428799",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "d",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:03:05.225Z"
+      },
+      {
+        "id": "1553406746066682009",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Though even if I cannot be considered for a position directly, I would like to make it known I possess valuable knowledge and technical literacy in topics most people would consider niche.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:03:49.164Z"
+      },
+      {
+        "id": "1553406803750948977",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Most people on Discord's platform*",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:04:02.917Z"
+      },
+      {
+        "id": "1553406810671546419",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "so, If i was to convince ownership and the Human Resources director to let me include a helpdesk position within the team, what would you intend to do within it",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:04:04.567Z"
+      },
+      {
+        "id": "1553406888971083809",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Well, it's simple. So simple I'm going to pull up a definition.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:04:23.235Z"
+      },
+      {
+        "id": "1553406979060531343",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "So you pretty much intend to help people use our bots?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:04:44.714Z"
+      },
+      {
+        "id": "1553407036224442398",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "",
+        "attachments": [
+          {
+            "name": "qxqphr8.png",
+            "url": "https://cdn.discordapp.com/attachments/1553403608777756755/1553407035796885634/qxqphr8.png?ex=6ab9228a&is=6ab7d10a&hm=f5ff69ee9e8a5c9755d545157c7528b5ae0ac830965b30765bcee9254292390a&"
+          }
+        ],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:04:58.343Z"
+      },
+      {
+        "id": "1553407122039906385",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Well, essentially that's one way you could incorporate helpdesk support into NGC, yes.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:05:18.803Z"
+      },
+      {
+        "id": "1553407453545103423",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "But at that point you need to\n\n1 - Have access to our systems which you will not be provided unless supervised, in which case it might as well be the current IT Personnels job anyway \n\n2 - I dont see the point of having someone in the team who doesnt know how to work the code and simply tells people what to do, which we can do anyway",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:06:37.840Z"
+      },
+      {
+        "id": "1553407467168338031",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Though the difference that seperates me and any other potential applicants from said position is, **I am actually a helpdesk technician, working with a production environment of 1.3k+ users, and a test environment**. Any other person who applies may not actually be in a position of IT at all.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:06:41.088Z"
       }
     ]
   }
