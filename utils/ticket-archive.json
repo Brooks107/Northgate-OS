@@ -1866,7 +1866,7 @@
       "updatedAt": "2026-09-26T14:27:04.508Z"
     },
     "channelId": "1553403608777756755",
-    "updatedAt": "2026-09-26T14:54:04.049Z",
+    "updatedAt": "2026-09-26T14:59:05.187Z",
     "messages": [
       {
         "id": "1553403762414981141",
@@ -2660,6 +2660,87 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-26T14:54:03.995Z"
+      },
+      {
+        "id": "1553419498147807275",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Now Do you have ANY Management Experience?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:54:29.497Z"
+      },
+      {
+        "id": "1553419658869211257",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "It IS Required for this Department.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:55:07.816Z"
+      },
+      {
+        "id": "1553419959609196545",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Yes.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:56:19.518Z"
+      },
+      {
+        "id": "1553420085928919151",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Can you List your Previous Employers? If you have any, IRL Management Experience is a Bonus",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:56:49.635Z"
+      },
+      {
+        "id": "1553420290879528961",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "This is Purely a Background Check, We don't contact Previous Employers.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:57:38.499Z"
+      },
+      {
+        "id": "1553420370420310049",
+        "authorId": "1274236550250762273",
+        "authorTag": "shock12344",
+        "content": "<@1267321190821789780> DMs",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:57:57.463Z"
+      },
+      {
+        "id": "1553420512573792307",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Need group names, supervisor UIDs, ...?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:58:31.355Z"
+      },
+      {
+        "id": "1553420625752629420",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "If you can.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:58:58.339Z"
+      },
+      {
+        "id": "1553420654165098567",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Both?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:59:05.113Z"
       }
     ]
   }
