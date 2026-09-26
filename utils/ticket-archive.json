@@ -1855,7 +1855,7 @@
       "updatedAt": "2026-09-26T13:51:22.613Z"
     },
     "channelId": "1553403608777756755",
-    "updatedAt": "2026-09-26T13:55:01.851Z",
+    "updatedAt": "2026-09-26T14:01:52.721Z",
     "messages": [
       {
         "id": "1553403762414981141",
@@ -1964,6 +1964,200 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-26T13:55:01.728Z"
+      },
+      {
+        "id": "1553405063479951471",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "*spawns*",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T13:57:08.004Z"
+      },
+      {
+        "id": "1553405131872018499",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "hit me with your best questions.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T13:57:24.310Z"
+      },
+      {
+        "id": "1553405201862496256",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "",
+        "attachments": [
+          {
+            "name": "45jvfn5.png",
+            "url": "https://cdn.discordapp.com/attachments/1553403608777756755/1553405201585668237/45jvfn5.png?ex=6ab920d4&is=6ab7cf54&hm=fd624874d07e93c4a1323a6c5dcbd5d71f241858f049d50a8459a15280e1e737&"
+          }
+        ],
+        "embeds": [],
+        "createdAt": "2026-09-26T13:57:40.997Z"
+      },
+      {
+        "id": "1553405280287727728",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "Greetings <@1419379683455271034>, Do you understand that the IT department codes in Discord.Javascript?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T13:57:59.695Z"
+      },
+      {
+        "id": "1553405317088288859",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "-# Just one thing i gotta say to start with",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T13:58:08.469Z"
+      },
+      {
+        "id": "1553405389456936962",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "I understand that a majority of the IT department here at NGC is **DevOps**, yes.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T13:58:25.723Z"
+      },
+      {
+        "id": "1553405486831894579",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "But I'm looking for a helpdesk technician position.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T13:58:48.939Z"
+      },
+      {
+        "id": "1553405571426816133",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "Elaborate on what you mean by that?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T13:59:09.108Z"
+      },
+      {
+        "id": "1553405624002285661",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "IT primarily has four fields.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T13:59:21.643Z"
+      },
+      {
+        "id": "1553405631980118039",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Those being:",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T13:59:23.545Z"
+      },
+      {
+        "id": "1553405641824149666",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Cybersecurity",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T13:59:25.892Z"
+      },
+      {
+        "id": "1553405649633681500",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Support",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T13:59:27.754Z"
+      },
+      {
+        "id": "1553405658894835773",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Infrastructure",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T13:59:29.962Z"
+      },
+      {
+        "id": "1553405667061014639",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "and DevOps.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T13:59:31.909Z"
+      },
+      {
+        "id": "1553405848137769132",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Though I'd imagine you can't fit Helpdesk (Tier 1) or Desktop Support (Tier 2) into this, I wouldn't mind learning to write scripts in JS.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:00:15.081Z"
+      },
+      {
+        "id": "1553405986583085170",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "I do not mean to sound harsh or rude when I say this but you are coming in here",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:00:48.089Z"
+      },
+      {
+        "id": "1553406088383307939",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "I am coming in here to see the larp.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:01:12.360Z"
+      },
+      {
+        "id": "1553406103595913421",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "and asking for a position that does not exist",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:01:15.987Z"
+      },
+      {
+        "id": "1553406109304488081",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Versus what's actually done",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:01:17.348Z"
+      },
+      {
+        "id": "1553406205958029405",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Pretty much, yeah.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:01:40.392Z"
+      },
+      {
+        "id": "1553406256851583140",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "IT Support is a name given to the members of the studio who develop, maintain and host our systems ( <@&1549192141623001288>  )",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:01:52.526Z"
       }
     ]
   }
