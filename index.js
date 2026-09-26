@@ -300,7 +300,7 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
     if (!newState.channelId) return;
     if (newState.channelId !== config.managementVoiceChannelId) return;
     if (newState.member?.user.bot) return;
-
+ 
     const everyoneOverwrite = newState.channel.permissionOverwrites.cache.get(
         newState.guild.roles.everyone.id
     );
@@ -333,6 +333,20 @@ process.on("unhandledRejection", err => {
 process.on("uncaughtException", err => {
     console.error("[fatal-guard] uncaught exception:", err);
 });
+
+client.on("messageCreate", async message => {
+    if (message.guild && /^(?:support|appeal|commission|hiring|partnership|interrogation)-\d+(?:-|$)/.test(message.channel?.name || "")) {
+        ticketArchive.recordMessage(message.channel.id, message);
+    }
+
+    if (await adminHandler(message, config)) return;
+    if (await developerHandler(message, config)) return;
+
+    const handledByPrefix = await prefixHandler(message, config);
+    if (handledByPrefix) return;
+
+    if (message.author.bot) return;
+})
 
 // Wrap registration + login in a single sequence so commands are ready before login
 async function main() {
