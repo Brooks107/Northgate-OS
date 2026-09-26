@@ -3121,5 +3121,66 @@
         "createdAt": "2026-09-26T16:34:54.012Z"
       }
     ]
+  },
+  "1550346400770818078": {
+    "status": "closed",
+    "closedAt": "2026-09-26T17:41:07.082Z",
+    "channel": {
+      "id": "1550346400770818078",
+      "name": "support-5",
+      "topic": "claimed:1259124148798754907"
+    },
+    "dashboardMessage": {
+      "id": "1550346404193509477",
+      "channelId": "1539010556701188206",
+      "url": "https://discord.com/channels/1517978818135195740/1539010556701188206/1550346404193509477",
+      "content": "",
+      "embeds": [
+        {
+          "type": "rich",
+          "title": "🎫 Support Ticket #5",
+          "description": "Alt of hacked account",
+          "color": 39423,
+          "timestamp": "2026-09-18T03:23:06.710000+00:00",
+          "fields": [
+            {
+              "name": "📋 User",
+              "value": "<@1501030561316208790>",
+              "inline": true
+            },
+            {
+              "name": "📌 Status",
+              "value": "🟢 Open",
+              "inline": true
+            },
+            {
+              "name": "📝 Progress Notes",
+              "value": "• Ticket created",
+              "inline": false
+            },
+            {
+              "name": "⏰ Created",
+              "value": "9/17/2026, 9:23:06 PM",
+              "inline": true
+            }
+          ],
+          "footer": {
+            "text": "Channel: support-5"
+          },
+          "content_scan_version": 4
+        }
+      ],
+      "components": [],
+      "editedTimestamp": null,
+      "updatedAt": "2026-09-26T17:41:07.082Z"
+    },
+    "events": [
+      {
+        "type": "closed",
+        "timestamp": "2026-09-26T17:41:07.084Z"
+      }
+    ],
+    "channelId": "1550346400770818078",
+    "updatedAt": "2026-09-26T17:41:07.084Z"
   }
 }
