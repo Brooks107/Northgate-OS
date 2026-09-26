@@ -1861,7 +1861,7 @@
       "updatedAt": "2026-09-26T14:09:08.247Z"
     },
     "channelId": "1553403608777756755",
-    "updatedAt": "2026-09-26T14:12:00.007Z",
+    "updatedAt": "2026-09-26T14:17:18.380Z",
     "messages": [
       {
         "id": "1553403762414981141",
@@ -2358,6 +2358,60 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-26T14:11:59.909Z"
+      },
+      {
+        "id": "1553409382622961736",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "I am sorry but I simply dont think we need any more IT Support members yet, especially if they cannot code yet. Now ima be honest, most of the stuff inside the NCOS bot is assisted using Visual Studio copilot, but I understand what its doing if I read it over, I just wouldnt remember how to do it. So the answer is,  yes we use AI on our bots but at a least we understand what the AI is doing when looking at the code",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:14:17.768Z"
+      },
+      {
+        "id": "1553409645287309364",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Are there any other opportunities I can explore in this ticket?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:15:20.392Z"
+      },
+      {
+        "id": "1553409754448265319",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "in terms of departments you can join?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:15:46.418Z"
+      },
+      {
+        "id": "1553409794675712045",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Yes.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:15:56.009Z"
+      },
+      {
+        "id": "1553409971805360179",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "Yes there is few departments \n\nHuman Rescources \nPublic Relations \nCommunity Outreach",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:16:38.240Z"
+      },
+      {
+        "id": "1553410139870990357",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Alr, based on our conversation today, what do ***you*** think I would be best suited for?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:17:18.310Z"
       }
     ]
   }
