@@ -544,10 +544,7 @@ client.on("messageCreate", async message => {
 // Wrap registration + login in a single sequence so commands are ready before login
 async function main() {
     try {
-        const targetGuildId = process.env.GUILD_ID || (config && config.guildId) || process.env.guildId;
-        
-        // Pass as an object or raw argument depending on what command-registry.js expects:
-        const result = await commandRegistry.registerGuildCommands({ guildId: targetGuildId });
+        const result = await commandRegistry.registerGuildCommands(config);
 
         client.commands = new Map(
             [...result.loaded].map(([name, entry]) => [name, entry.command])
