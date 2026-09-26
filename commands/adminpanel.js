@@ -32,11 +32,21 @@ function registerAdminPanelRefresh(client, config, panel) {
     startAdminPanelRefresh(client, config);
 
     const refreshMessage = async () => {
-        const channel = await client.channels.fetch(panel.channelId);
-        const message = await channel.messages.fetch(panel.messageId);
-        await message.edit({
-            embeds: [buildAdminPanelEmbed(client, config, client.guilds.cache.get(panel.guildId))]
-        });
+        try {
+            const channel = await client.channels.fetch(panel.channelId);
+            const message = await channel.messages.fetch(panel.messageId);
+            await message.edit({
+                embeds: [buildAdminPanelEmbed(client, config, client.guilds.cache.get(panel.guildId))]
+            });
+        } catch (error) {
+            if (error.code !== 10008 && error.code !== 10003) throw error;
+
+            client.adminPanelRefreshers.delete(refreshMessage);
+            if (state.load().adminPanel?.messageId === panel.messageId) {
+                state.save({ adminPanel: null });
+            }
+            console.warn("[adminpanel] panel message no longer exists; stopped refreshing it. Run /adminpanel to post a new one.");
+        }
     };
 
     client.adminPanelRefreshers.add(refreshMessage);
