@@ -1866,7 +1866,7 @@
       "updatedAt": "2026-09-26T14:27:04.508Z"
     },
     "channelId": "1553403608777756755",
-    "updatedAt": "2026-09-26T14:49:07.932Z",
+    "updatedAt": "2026-09-26T14:54:04.049Z",
     "messages": [
       {
         "id": "1553403762414981141",
@@ -2615,6 +2615,51 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-26T14:49:07.866Z"
+      },
+      {
+        "id": "1553418199406608406",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Human Resources.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:49:19.853Z"
+      },
+      {
+        "id": "1553418397583286283",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Right so your Applying for  Human Resources and Staff Operations.... Can I ask and see if you what this Department does?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:50:07.102Z"
+      },
+      {
+        "id": "1553418581910364252",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "-# know*",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:50:51.049Z"
+      },
+      {
+        "id": "1553418748642463867",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "I'm going to assume the base 3.\n- Employee relations\n- Talent Management, Development, and Acquisition\n- Diversity, equity, and inclusion",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:51:30.801Z"
+      },
+      {
+        "id": "1553419391184535624",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Pretty Much",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:54:03.995Z"
       }
     ]
   }
