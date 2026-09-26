@@ -1866,7 +1866,7 @@
       "updatedAt": "2026-09-26T14:27:04.508Z"
     },
     "channelId": "1553403608777756755",
-    "updatedAt": "2026-09-26T14:27:50.958Z",
+    "updatedAt": "2026-09-26T14:33:22.432Z",
     "messages": [
       {
         "id": "1553403762414981141",
@@ -2489,6 +2489,60 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-26T14:27:50.900Z"
+      },
+      {
+        "id": "1553413978594738238",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Hmmmm.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:32:33.533Z"
+      },
+      {
+        "id": "1553414019304656897",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "<@895312798211534888> <@1259124148798754907>",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:32:43.239Z"
+      },
+      {
+        "id": "1553414048488358119",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "*spawns*",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:32:50.197Z"
+      },
+      {
+        "id": "1553414067035705345",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Whats up?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:32:54.619Z"
+      },
+      {
+        "id": "1553414102095765525",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Give me the details",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:33:02.978Z"
+      },
+      {
+        "id": "1553414183494619167",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "came in for IT, I said no, told him other departments he could join, and now he needs a HR to reply",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-26T14:33:22.385Z"
       }
     ]
   }
