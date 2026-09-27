@@ -100,7 +100,7 @@ function buildAdminPanelEmbed(client, config, guild) {
             emergency
                 ? "A force lockdown is active. Treat the server as restricted until cleared."
                 : guild
-                    ? `Current server snapshot for **${guild.name}** • Uptime: **${Math.floor((client.uptime || 0) / 60000)}m** • Last Live: **${new Date(client.launchDate).toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}**`
+                    ? `Current server snapshot for **${guild.name}** • Uptime: **${Math.floor((client.uptime || 0) / 60000)}m** • Last Live: **${new Date(client.launchDate).toISOString()}**`
                     : "Current server snapshot"
         )
         .setColor(
