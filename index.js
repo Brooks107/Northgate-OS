@@ -136,6 +136,46 @@ client.once(Events.ClientReady, async () => {
 
     ticketTracker.init();
     await adminPanelCommand.restore(client, config);
+
+    if (typeof client.notifyAdminPanelRefresh === "function") {
+        await client.notifyAdminPanelRefresh();
+    }
+});
+
+client.on(Events.ChannelCreate, async channel => {
+    if (!channel.guild) return;
+
+    if (TICKET_CHANNEL_PATTERN.test(channel.name)) {
+        client.refreshActiveTicketIds(channel.guild);
+        if (typeof client.notifyAdminPanelRefresh === "function") {
+            await client.notifyAdminPanelRefresh();
+        }
+    }
+});
+
+client.on(Events.ChannelDelete, async channel => {
+    if (!channel.guild) return;
+
+    if (TICKET_CHANNEL_PATTERN.test(channel.name)) {
+        client.refreshActiveTicketIds(channel.guild);
+        if (typeof client.notifyAdminPanelRefresh === "function") {
+            await client.notifyAdminPanelRefresh();
+        }
+    }
+});
+
+client.on(Events.ChannelUpdate, async (oldChannel, newChannel) => {
+    if (!newChannel.guild) return;
+
+    const oldMatches = TICKET_CHANNEL_PATTERN.test(oldChannel.name);
+    const newMatches = TICKET_CHANNEL_PATTERN.test(newChannel.name);
+
+    if (oldMatches || newMatches) {
+        client.refreshActiveTicketIds(newChannel.guild);
+        if (typeof client.notifyAdminPanelRefresh === "function") {
+            await client.notifyAdminPanelRefresh();
+        }
+    }
 });
 
 async function reportInteractionFailure(interaction, err) {
@@ -300,7 +340,7 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
     if (!newState.channelId) return;
     if (newState.channelId !== config.managementVoiceChannelId) return;
     if (newState.member?.user.bot) return;
- 
+
     const everyoneOverwrite = newState.channel.permissionOverwrites.cache.get(
         newState.guild.roles.everyone.id
     );
@@ -346,9 +386,8 @@ client.on("messageCreate", async message => {
     if (handledByPrefix) return;
 
     if (message.author.bot) return;
-})
+});
 
-// Wrap registration + login in a single sequence so commands are ready before login
 async function main() {
     try {
         const result = await commandRegistry.registerGuildCommands(config);
