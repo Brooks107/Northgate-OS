@@ -6,7 +6,7 @@ const ticketTracker = require("../ticket-tracker");
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("unclaim")
-        .setDescription("Unclaim a commission ticket and make it claimable again.")
+        .setDescription("Unclaim a ticket and make it claimable again.")
         .addIntegerOption(option =>
             option.setName("id")
                 .setDescription("The ticket ID to unclaim")
@@ -31,7 +31,7 @@ module.exports = {
         if (!isAuthorized) {
             return interaction.reply({
                 content: "❌ You are not authorized to use `/unclaim`.",
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             });
         }
 
@@ -39,20 +39,19 @@ module.exports = {
 
         const id = interaction.options.getInteger("id");
 
-        const ticketChannel = interaction.guild.channels.cache.find(ch =>
-            ch.name.startsWith(`commission-${id}`) ||
-            ch.name.startsWith(`support-${id}`) ||
-            ch.name.startsWith(`appeal-${id}`) ||
-            ch.name.startsWith(`hiring-${id}`) ||
-            ch.name.startsWith(`partnership-${id}`) ||
-            ch.name.startsWith(`interrogation-${id}`)
-        );
+        // -------------------------------------------------
+        // FETCH & FIND TICKET CHANNEL PRECISELY
+        // -------------------------------------------------
+        const channels = await interaction.guild.channels.fetch().catch(() => interaction.guild.channels.cache);
+        const ticketPattern = new RegExp(`^(?:commission|support|appeal|hiring|partnership|interrogation)-${id}(?:-|$)`, "i");
+
+        const ticketChannel = channels.find(ch => ch && ticketPattern.test(ch.name));
 
         if (!ticketChannel) {
             return interaction.editReply(`❌ Ticket #${id} does not exist.`);
         }
 
-        const { claimedBy } = ticketTopic.parse(ticketChannel.topic);
+        const { claimedBy } = ticketTopic.parse(ticketChannel.topic || "");
         if (!claimedBy) {
             return interaction.editReply(`❌ Ticket #${id} is not currently claimed.`);
         }
@@ -62,25 +61,20 @@ module.exports = {
         }
 
         // -------------------------------------------------
-        // FIND ORIGINAL EMBED MESSAGE (bulletproof)
+        // FIND ORIGINAL EMBED MESSAGE (start-of-channel fetch)
         // -------------------------------------------------
+        const initialMessages = await ticketChannel.messages.fetch({ after: ticketChannel.id, limit: 10 });
 
-        const messages = await ticketChannel.messages.fetch({ limit: 100 });
-
-        const ticketMessage = messages.find(m =>
-            m.embeds.length > 0 &&
-            m.embeds[0].title &&
-            m.embeds[0].title.includes(`#${id}`)
-        );
+        const ticketMessage = initialMessages.find(m => m.author.id === client.user.id && m.components.length > 0)
+            || initialMessages.find(m => m.author.id === client.user.id);
 
         if (!ticketMessage) {
-            return interaction.editReply("❌ Could not find the ticket message.");
+            return interaction.editReply(`❌ Could not find the original ticket control message in ${ticketChannel}.`);
         }
 
         // -------------------------------------------------
-        // REBUILD BUTTONS — KEEP EMBED EXACTLY AS IS
+        // REBUILD BUTTONS — RESTORE CLAIM & CLOSE BUTTONS
         // -------------------------------------------------
-
         const isSupportTicket =
             ticketChannel.name.startsWith("support-") ||
             ticketChannel.name.startsWith("appeal-");
@@ -121,22 +115,19 @@ module.exports = {
         );
 
         await ticketMessage.edit({
-            embeds: ticketMessage.embeds, // keep original embed
             components: [row]
         });
 
         // -------------------------------------------------
         // CLEAR THE CLAIM FROM THE CHANNEL TOPIC
         // -------------------------------------------------
-        // Without this the topic keeps saying claimed:<id>, so /claim refuses the
-        // ticket forever -- the buttons come back but the command never works.
-        const { ownerId } = ticketTopic.parse(ticketChannel.topic);
+        const { ownerId } = ticketTopic.parse(ticketChannel.topic || "");
         await ticketChannel.setTopic(ticketTopic.build({ ownerId }));
         await ticketTracker.syncTicket(ticketChannel, {
             type: "unclaimed",
             status: "🟢 Open"
         });
 
-        return interaction.editReply(`✅ Ticket #${id} has been unclaimed.`);
+        return interaction.editReply(`✅ Ticket #${id} (${ticketChannel}) has been unclaimed.`);
     }
 };

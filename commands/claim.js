@@ -67,10 +67,11 @@ module.exports = {
             const claimerId = topicData.claimedBy || ticketChannel.topic.split("claimed:")[1]?.trim();
             return interaction.editReply(`❌ Ticket #${id} is already claimed by <@${claimerId}>.`);
         }
+
         // -------------------------------------------------
         // FETCH TICKET CONTROL MESSAGE FROM CHANNEL START
         // -------------------------------------------------
-        // Fetches the first 10 messages ever sent in the channel
+        // Fetches the first 10 messages ever sent in the channel starting from creation
         const initialMessages = await ticketChannel.messages.fetch({ after: ticketChannel.id, limit: 10 });
 
         // Find the bot's initial control message
@@ -82,10 +83,16 @@ module.exports = {
         }
 
         // -------------------------------------------------
-        // UPDATE BUTTONS (remove claim button)
+        // UPDATE BUTTONS (grey out claim button & retain close button)
         // -------------------------------------------------
         const isInterrogationTicket = ticketChannel.name.startsWith("interrogation-");
+
         const row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setCustomId("ticket_claimed_disabled")
+                .setLabel(`🙋‍♂️ Claimed by ${interaction.user.displayName || interaction.user.username}`)
+                .setStyle(ButtonStyle.Secondary)
+                .setDisabled(true),
             new ButtonBuilder()
                 .setCustomId(isInterrogationTicket ? "intero_close" : "ticket_close")
                 .setLabel("🔒 Close Ticket")
