@@ -95,12 +95,12 @@ function buildAdminPanelEmbed(client, config, guild) {
     const emergency = Boolean(config.forceLocked);
 
     return new EmbedBuilder()
-        .setTitle(emergency ? "🚨 EMERGENCY LOCKDOWN" : "🛠️ NorthGate OS Executive Panel")
+        .setTitle(emergency ? "🚨 EMERGENCY LOCKDOWN" : "🛠️ NorthCore OS Executive Panel")
         .setDescription(
             emergency
                 ? "A force lockdown is active. Treat the server as restricted until cleared."
                 : guild
-                    ? `Current server snapshot for **${guild.name}** • Uptime: **${Math.floor((client.uptime || 0) / 60000)}m**`
+                    ? `Current server snapshot for **${guild.name}** • Uptime: **${Math.floor((client.uptime || 0) / 60000)}m** • Last Live: **${new Date(client.launchDate).toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}**`
                     : "Current server snapshot"
         )
         .setColor(
