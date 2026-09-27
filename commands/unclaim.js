@@ -38,14 +38,17 @@ module.exports = {
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         const id = interaction.options.getInteger("id");
-
-        // -------------------------------------------------
-        // FETCH & FIND TICKET CHANNEL PRECISELY
-        // -------------------------------------------------
-        const channels = await interaction.guild.channels.fetch().catch(() => interaction.guild.channels.cache);
         const ticketPattern = new RegExp(`^(?:commission|support|appeal|hiring|partnership|interrogation)-${id}(?:-|$)`, "i");
 
-        const ticketChannel = channels.find(ch => ch && ticketPattern.test(ch.name));
+        // -------------------------------------------------
+        // FAST CHANNEL LOOKUP (Cache First, Network Fallback)
+        // -------------------------------------------------
+        let ticketChannel = interaction.guild.channels.cache.find(ch => ch && ticketPattern.test(ch.name));
+
+        if (!ticketChannel) {
+            const channels = await interaction.guild.channels.fetch().catch(() => null);
+            ticketChannel = channels?.find(ch => ch && ticketPattern.test(ch.name));
+        }
 
         if (!ticketChannel) {
             return interaction.editReply(`❌ Ticket #${id} does not exist.`);
@@ -61,12 +64,12 @@ module.exports = {
         }
 
         // -------------------------------------------------
-        // FIND ORIGINAL EMBED MESSAGE (start-of-channel fetch)
+        // FIND ORIGINAL CONTROL MESSAGE (Start-of-channel fetch)
         // -------------------------------------------------
-        const initialMessages = await ticketChannel.messages.fetch({ after: ticketChannel.id, limit: 10 });
+        const initialMessages = await ticketChannel.messages.fetch({ after: ticketChannel.id, limit: 10 }).catch(() => null);
 
-        const ticketMessage = initialMessages.find(m => m.author.id === client.user.id && m.components.length > 0)
-            || initialMessages.find(m => m.author.id === client.user.id);
+        const ticketMessage = initialMessages?.find(m => m.author.id === client.user.id && m.components.length > 0)
+            || initialMessages?.find(m => m.author.id === client.user.id);
 
         if (!ticketMessage) {
             return interaction.editReply(`❌ Could not find the original ticket control message in ${ticketChannel}.`);
@@ -114,20 +117,27 @@ module.exports = {
                 .setStyle(ButtonStyle.Danger)
         );
 
-        await ticketMessage.edit({
-            components: [row]
-        });
+        await ticketMessage.edit({ components: [row] });
 
         // -------------------------------------------------
-        // CLEAR THE CLAIM FROM THE CHANNEL TOPIC
+        // CONFIRM TO STAFF IMMEDIATELY (Prevents 3-minute timeout)
+        // -------------------------------------------------
+        await interaction.editReply(`✅ Ticket #${id} (${ticketChannel}) has been unclaimed.`);
+
+        // -------------------------------------------------
+        // BACKGROUND TASKS (Clear Topic Claim & Tracker Sync)
         // -------------------------------------------------
         const { ownerId } = ticketTopic.parse(ticketChannel.topic || "");
-        await ticketChannel.setTopic(ticketTopic.build({ ownerId }));
-        await ticketTracker.syncTicket(ticketChannel, {
-            type: "unclaimed",
-            status: "🟢 Open"
+
+        ticketChannel.setTopic(ticketTopic.build({ ownerId })).catch(err => {
+            console.error(`[unclaim] Topic update error in #${ticketChannel.name}:`, err.message);
         });
 
-        return interaction.editReply(`✅ Ticket #${id} (${ticketChannel}) has been unclaimed.`);
+        ticketTracker.syncTicket(ticketChannel, {
+            type: "unclaimed",
+            status: "🟢 Open"
+        }).catch(err => {
+            console.error(`[unclaim] Tracker sync error in #${ticketChannel.name}:`, err.message);
+        });
     }
 };
