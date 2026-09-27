@@ -1800,7 +1800,7 @@
   },
   "1553403608777756755": {
     "ticketId": 7,
-    "status": "🟡 Claimed by brooksy246",
+    "status": "🟢 Open",
     "openedAt": "9/26/2026, 7:51:22 AM",
     "ticket": {
       "id": 7,
@@ -1872,6 +1872,22 @@
         "status": "🟡 Claimed by brooksy246",
         "userId": "1259124148798754907",
         "timestamp": "2026-09-27T13:34:06.072Z"
+      },
+      {
+        "type": "unclaimed",
+        "status": "🟢 Open",
+        "timestamp": "2026-09-27T13:39:07.227Z"
+      },
+      {
+        "type": "claimed",
+        "status": "🟡 Claimed by brooksy246",
+        "userId": "1259124148798754907",
+        "timestamp": "2026-09-27T13:39:19.041Z"
+      },
+      {
+        "type": "unclaimed",
+        "status": "🟢 Open",
+        "timestamp": "2026-09-27T13:39:35.585Z"
       }
     ],
     "dashboardChannel": {
@@ -1880,7 +1896,7 @@
     },
     "dashboardMessage": null,
     "channelId": "1553403608777756755",
-    "updatedAt": "2026-09-27T13:34:06.076Z",
+    "updatedAt": "2026-09-27T13:39:35.587Z",
     "messages": [
       {
         "id": "1553403762414981141",
@@ -4866,6 +4882,42 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-27T13:33:51.789Z"
+      },
+      {
+        "id": "1553762856531525772",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T13:38:52.515Z"
+      },
+      {
+        "id": "1553762913800421519",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T13:39:06.169Z"
+      },
+      {
+        "id": "1553762964547567686",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T13:39:18.268Z"
+      },
+      {
+        "id": "1553763033828823205",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T13:39:34.786Z"
       }
     ]
   },
