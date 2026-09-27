@@ -100,7 +100,7 @@ function buildAdminPanelEmbed(client, config, guild) {
             emergency
                 ? "A force lockdown is active. Treat the server as restricted until cleared."
                 : guild
-                    ? `Current server snapshot for **${guild.name}** • Uptime: **${Math.floor((client.uptime || 0) / 60000)}m** (Restarted <t:${Math.floor((Date.now() - (client.uptime || 0)) / 1000)}:R>)`
+                    ? `Current server snapshot for **${guild.name}** • Uptime: **${Math.floor((client.uptime || 0) / 60000)}m** • Last Booted <t:${Math.floor((Date.now() - (client.uptime || 0)) / 1000)}:R>)`
                     : "Current server snapshot"
         )
         .setColor(
@@ -154,7 +154,7 @@ function buildAdminPanelEmbed(client, config, guild) {
             text: emergency ? "NorthGate OS • Emergency lockdown mode" : "NorthGate OS • One-glance server status"
         })
         .setTimestamp();
-    }
+}
 
 module.exports = {
     data: new SlashCommandBuilder()
