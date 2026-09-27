@@ -96,25 +96,33 @@ startHeartbeat(client);
 
 client.activeTicketIds = new Set();
 
-const TICKET_CHANNEL_PATTERN = /^(?:support|appeal|commission|hiring|partnership|interrogation)-(\d+)(?:-|$)/;
+// Channel pattern matching support-1, hiring-4, partnership-2, etc.
+const TICKET_CHANNEL_PATTERN = /(?:support|appeal|commission|hiring|partnership|interrogation)[^\d]*(\d+)/i;
 
-client.refreshActiveTicketIds = async function (guild) {
-    if (!guild) return;
+client.refreshActiveTicketIds = async function () {
+    const seen = new Set();
 
-    try {
-        const channels = await guild.channels.fetch();
-        const seen = new Set();
+    for (const guild of client.guilds.cache.values()) {
+        try {
+            const channels = await guild.channels.fetch();
+            for (const channel of channels.values()) {
+                if (!channel || !channel.name) continue;
 
-        for (const channel of channels.values()) {
-            if (!channel || !channel.name) continue;
-            const match = channel.name.match(TICKET_CHANNEL_PATTERN);
-            if (match) seen.add(Number(match[1]));
+                const match = channel.name.match(TICKET_CHANNEL_PATTERN);
+                if (match) {
+                    const ticketId = Number(match[1]);
+                    seen.add(ticketId);
+                    console.log(`[tickets] Found active ticket: #${channel.name} (ID: ${ticketId}) in ${guild.name}`);
+                }
+            }
+        } catch (error) {
+            console.error(`[tickets] Failed to fetch channels for guild ${guild.name}:`, error);
         }
-
-        client.activeTicketIds = seen;
-    } catch (error) {
-        console.error("[tickets] failed to fetch guild channels:", error);
     }
+
+    client.activeTicketIds = seen;
+    const sorted = [...seen].sort((a, b) => a - b);
+    console.log(`[tickets] Active ticket IDs synced: ${sorted.join(", ") || "None"}`);
 };
 
 client.getNextTicketId = function () {
@@ -131,15 +139,8 @@ client.once(Events.ClientReady, async () => {
     });
     console.log(`[presence] bot is ${config.maintenanceMode ? "invisible" : "online"}.`);
 
-    for (const guild of client.guilds.cache.values()) {
-        await client.refreshActiveTicketIds(guild);
-    }
-
-    const restored = [...client.activeTicketIds].sort((a, b) => a - b);
-    console.log(
-        `[tickets] restored ${restored.length} active ticket id(s)` +
-        (restored.length ? `: ${restored.join(", ")}` : "")
-    );
+    // Fetch and aggregate active ticket IDs across all guilds
+    await client.refreshActiveTicketIds();
 
     ticketTracker.init();
     await adminPanelCommand.restore(client, config);
@@ -153,7 +154,7 @@ client.on(Events.ChannelCreate, async channel => {
     if (!channel.guild) return;
 
     if (TICKET_CHANNEL_PATTERN.test(channel.name)) {
-        await client.refreshActiveTicketIds(channel.guild);
+        await client.refreshActiveTicketIds();
         if (typeof client.notifyAdminPanelRefresh === "function") {
             await client.notifyAdminPanelRefresh();
         }
@@ -164,7 +165,7 @@ client.on(Events.ChannelDelete, async channel => {
     if (!channel.guild) return;
 
     if (TICKET_CHANNEL_PATTERN.test(channel.name)) {
-        await client.refreshActiveTicketIds(channel.guild);
+        await client.refreshActiveTicketIds();
         if (typeof client.notifyAdminPanelRefresh === "function") {
             await client.notifyAdminPanelRefresh();
         }
@@ -178,7 +179,7 @@ client.on(Events.ChannelUpdate, async (oldChannel, newChannel) => {
     const newMatches = TICKET_CHANNEL_PATTERN.test(newChannel.name);
 
     if (oldMatches || newMatches) {
-        await client.refreshActiveTicketIds(newChannel.guild);
+        await client.refreshActiveTicketIds();
         if (typeof client.notifyAdminPanelRefresh === "function") {
             await client.notifyAdminPanelRefresh();
         }
