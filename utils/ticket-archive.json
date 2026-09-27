@@ -1875,7 +1875,7 @@
       "updatedAt": "2026-09-26T14:27:04.508Z"
     },
     "channelId": "1553403608777756755",
-    "updatedAt": "2026-09-27T02:11:02.861Z",
+    "updatedAt": "2026-09-27T02:16:21.722Z",
     "messages": [
       {
         "id": "1553403762414981141",
@@ -3677,6 +3677,78 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-27T02:11:02.801Z"
+      },
+      {
+        "id": "1553589874559291474",
+        "authorId": "1172089323223519235",
+        "authorTag": "sircosmix",
+        "content": "However you most likely will be assessed by <@1259124148798754907> or <@1410407078643765340>",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:11:30.399Z"
+      },
+      {
+        "id": "1553590184996503586",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "alr",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:12:44.413Z"
+      },
+      {
+        "id": "1553590238306246779",
+        "authorId": "1410407078643765340",
+        "authorTag": "coolbeanz02778",
+        "content": "Hm.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:12:57.123Z"
+      },
+      {
+        "id": "1553590694696849459",
+        "authorId": "1410407078643765340",
+        "authorTag": "coolbeanz02778",
+        "content": "Most systems are back online, though there is some bugs with ticket data storage everything should be up.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:14:45.935Z"
+      },
+      {
+        "id": "1553590924171419840",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "What kind of hardware do you guys host the bots on?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:15:40.646Z"
+      },
+      {
+        "id": "1553590989237784677",
+        "authorId": "1410407078643765340",
+        "authorTag": "coolbeanz02778",
+        "content": "2 raspberry pi’s.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:15:56.159Z"
+      },
+      {
+        "id": "1553591066404458627",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Specs?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:16:14.557Z"
+      },
+      {
+        "id": "1553591096217440278",
+        "authorId": "1410407078643765340",
+        "authorTag": "coolbeanz02778",
+        "content": "uhhh let me grab",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:16:21.665Z"
       }
     ]
   },
