@@ -1800,7 +1800,7 @@
   },
   "1553403608777756755": {
     "ticketId": 7,
-    "status": "🟢 Open",
+    "status": "🟡 Claimed by brooksy246",
     "openedAt": "9/26/2026, 7:51:22 AM",
     "ticket": {
       "id": 7,
@@ -1812,7 +1812,7 @@
     "channel": {
       "id": "1553403608777756755",
       "name": "hiring-7",
-      "topic": "owner:1419379683455271034"
+      "topic": "owner:1419379683455271034 claimed:1259124148798754907"
     },
     "notes": [
       "• Ticket created"
@@ -1832,59 +1832,21 @@
         "type": "unclaimed",
         "status": "🟢 Open",
         "timestamp": "2026-09-26T14:27:04.508Z"
+      },
+      {
+        "type": "claimed",
+        "status": "🟡 Claimed by brooksy246",
+        "userId": "1259124148798754907",
+        "timestamp": "2026-09-27T13:20:07.665Z"
       }
     ],
     "dashboardChannel": {
       "id": "1539010556701188206",
       "name": "ticket-dashboard"
     },
-    "dashboardMessage": {
-      "id": "1553403613613785170",
-      "channelId": "1539010556701188206",
-      "url": "https://discord.com/channels/1517978818135195740/1539010556701188206/1553403613613785170",
-      "content": "",
-      "embeds": [
-        {
-          "type": "rich",
-          "title": "🎫 Hiring Application #7",
-          "timestamp": "2026-09-26T13:51:22.082000+00:00",
-          "id": "1553412598270132345",
-          "footer": {
-            "text": "Channel: hiring-7"
-          },
-          "fields": [
-            {
-              "value": "<@1419379683455271034>",
-              "name": "📋 User",
-              "inline": true
-            },
-            {
-              "value": "🟢 Open",
-              "name": "📌 Status",
-              "inline": true
-            },
-            {
-              "value": "• Ticket created",
-              "name": "📝 Progress Notes",
-              "inline": false
-            },
-            {
-              "value": "9/26/2026, 7:51:22 AM",
-              "name": "⏰ Created",
-              "inline": true
-            }
-          ],
-          "description": "Role: IT Helpdesk Technician, Experience: I do this for a good portion of my life.",
-          "content_scan_version": 0,
-          "color": 39423
-        }
-      ],
-      "components": [],
-      "editedTimestamp": 1790432824443,
-      "updatedAt": "2026-09-26T14:27:04.508Z"
-    },
+    "dashboardMessage": null,
     "channelId": "1553403608777756755",
-    "updatedAt": "2026-09-27T13:14:26.407Z",
+    "updatedAt": "2026-09-27T13:20:45.301Z",
     "messages": [
       {
         "id": "1553403762414981141",
@@ -4771,6 +4733,33 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-27T13:14:26.253Z"
+      },
+      {
+        "id": "1553758133346902087",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T13:20:06.420Z"
+      },
+      {
+        "id": "1553758262854295552",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T13:20:37.297Z"
+      },
+      {
+        "id": "1553758295515467898",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T13:20:45.084Z"
       }
     ]
   },
