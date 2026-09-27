@@ -1875,7 +1875,7 @@
       "updatedAt": "2026-09-26T14:27:04.508Z"
     },
     "channelId": "1553403608777756755",
-    "updatedAt": "2026-09-27T07:56:48.717Z",
+    "updatedAt": "2026-09-27T08:53:47.694Z",
     "messages": [
       {
         "id": "1553403762414981141",
@@ -4658,6 +4658,15 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-27T07:56:48.561Z"
+      },
+      {
+        "id": "1553691113171456104",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "### All Northsheild flags have been revoked from this session",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T08:53:47.565Z"
       }
     ]
   },
