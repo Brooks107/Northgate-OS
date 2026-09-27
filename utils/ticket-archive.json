@@ -1875,7 +1875,7 @@
       "updatedAt": "2026-09-26T14:27:04.508Z"
     },
     "channelId": "1553403608777756755",
-    "updatedAt": "2026-09-27T02:38:11.759Z",
+    "updatedAt": "2026-09-27T02:42:12.601Z",
     "messages": [
       {
         "id": "1553403762414981141",
@@ -4249,6 +4249,114 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-27T02:38:11.709Z"
+      },
+      {
+        "id": "1553596717528653876",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Or are you going IT?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:38:41.890Z"
+      },
+      {
+        "id": "1553596815654387795",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "If IT doesn’t work out, I’ll go into HR.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:39:05.285Z"
+      },
+      {
+        "id": "1553596879437307935",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Want to begin the procees just in case I get denied,",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:39:20.492Z"
+      },
+      {
+        "id": "1553596960101896255",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Well, Brooks is the Lead IT Manager for IT",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:39:39.724Z"
+      },
+      {
+        "id": "1553597036367188050",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Go right ahead, as I personally believe you'll get denied",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:39:57.907Z"
+      },
+      {
+        "id": "1553597055841214546",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "You guys certainly have a unique naming scheme for roles.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:40:02.550Z"
+      },
+      {
+        "id": "1553597122069135473",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Yeah I think we all do pal.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:40:18.340Z"
+      },
+      {
+        "id": "1553597178063360001",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Same questions as last time?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:40:31.690Z"
+      },
+      {
+        "id": "1553597204999053384",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Yes, Sir",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:40:38.112Z"
+      },
+      {
+        "id": "1553597256530264137",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Try to not send a wall of Text",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:40:50.398Z"
+      },
+      {
+        "id": "1553597304768831589",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Otherwise you'll kick off Wick",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:41:01.899Z"
+      },
+      {
+        "id": "1553597601012781088",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "It’s alright, I’ll only send you the Decloration of Independance, the Chinese dictionary, and a leasing agreement to use a rental car.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:42:12.529Z"
       }
     ]
   },
