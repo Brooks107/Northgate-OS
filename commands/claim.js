@@ -1,6 +1,5 @@
 const {
     SlashCommandBuilder,
-    PermissionFlagsBits,
     ActionRowBuilder,
     ButtonBuilder,
     ButtonStyle,
@@ -46,14 +45,17 @@ module.exports = {
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         const id = interaction.options.getInteger("id");
-
-        // -------------------------------------------------
-        // FETCH & FIND TICKET CHANNEL PRECISELY
-        // -------------------------------------------------
-        const channels = await interaction.guild.channels.fetch().catch(() => interaction.guild.channels.cache);
         const ticketPattern = new RegExp(`^(?:commission|support|appeal|hiring|partnership|interrogation)-${id}(?:-|$)`, "i");
 
-        const ticketChannel = channels.find(ch => ch && ticketPattern.test(ch.name));
+        // -------------------------------------------------
+        // FAST CHANNEL LOOKUP (Cache First, Network Fallback)
+        // -------------------------------------------------
+        let ticketChannel = interaction.guild.channels.cache.find(ch => ch && ticketPattern.test(ch.name));
+
+        if (!ticketChannel) {
+            const channels = await interaction.guild.channels.fetch().catch(() => null);
+            ticketChannel = channels?.find(ch => ch && ticketPattern.test(ch.name));
+        }
 
         if (!ticketChannel) {
             return interaction.editReply(`❌ Ticket #${id} does not exist.`);
@@ -69,14 +71,12 @@ module.exports = {
         }
 
         // -------------------------------------------------
-        // FETCH TICKET CONTROL MESSAGE FROM CHANNEL START
+        // FETCH CONTROL MESSAGE (Start of Channel)
         // -------------------------------------------------
-        // Fetches the first 10 messages ever sent in the channel starting from creation
-        const initialMessages = await ticketChannel.messages.fetch({ after: ticketChannel.id, limit: 10 });
+        const initialMessages = await ticketChannel.messages.fetch({ after: ticketChannel.id, limit: 10 }).catch(() => null);
 
-        // Find the bot's initial control message
-        const ticketMessage = initialMessages.find(m => m.author.id === client.user.id && m.components.length > 0)
-            || initialMessages.find(m => m.author.id === client.user.id);
+        const ticketMessage = initialMessages?.find(m => m.author.id === client.user.id && m.components.length > 0)
+            || initialMessages?.find(m => m.author.id === client.user.id);
 
         if (!ticketMessage) {
             return interaction.editReply(`❌ Could not find the original ticket embed in ${ticketChannel}.`);
@@ -102,21 +102,28 @@ module.exports = {
         await ticketMessage.edit({ components: [row] });
 
         // -------------------------------------------------
-        // STORE CLAIMER IN CHANNEL TOPIC
+        // CONFIRM TO STAFF IMMEDIATELY (Prevents 3-minute timeout)
         // -------------------------------------------------
-        const parsedTopic = ticketTopic.parse(ticketChannel.topic);
+        await interaction.editReply(`📝 You have claimed ticket #${id} (${ticketChannel}).`);
+
+        // -------------------------------------------------
+        // BACKGROUND TASKS (Topic Update & Tracker Sync)
+        // -------------------------------------------------
+        const parsedTopic = ticketTopic.parse(ticketChannel.topic || "");
         const ownerId = parsedTopic.ownerId;
-        await ticketChannel.setTopic(ticketTopic.build({ ownerId, claimedBy: interaction.user.id }));
-        
-        await ticketTracker.syncTicket(ticketChannel, {
+        const newTopic = ticketTopic.build({ ownerId, claimedBy: interaction.user.id });
+
+        // Unawaited: runs in the background so Discord rate limits on channel topic edits do not block the bot
+        ticketChannel.setTopic(newTopic).catch(err => {
+            console.error(`[claim] Topic update error in #${ticketChannel.name}:`, err.message);
+        });
+
+        ticketTracker.syncTicket(ticketChannel, {
             type: "claimed",
             status: `🟡 Claimed by ${interaction.user.tag}`,
             userId: interaction.user.id
+        }).catch(err => {
+            console.error(`[claim] Tracker sync error in #${ticketChannel.name}:`, err.message);
         });
-
-        // -------------------------------------------------
-        // CONFIRM TO STAFF
-        // -------------------------------------------------
-        await interaction.editReply(`📝 You have claimed ticket #${id} (${ticketChannel}).`);
     }
 };
