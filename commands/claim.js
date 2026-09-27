@@ -67,15 +67,15 @@ module.exports = {
             const claimerId = topicData.claimedBy || ticketChannel.topic.split("claimed:")[1]?.trim();
             return interaction.editReply(`❌ Ticket #${id} is already claimed by <@${claimerId}>.`);
         }
+        // -------------------------------------------------
+        // FETCH TICKET CONTROL MESSAGE FROM CHANNEL START
+        // -------------------------------------------------
+        // Fetches the first 10 messages ever sent in the channel
+        const initialMessages = await ticketChannel.messages.fetch({ after: ticketChannel.id, limit: 10 });
 
-        // -------------------------------------------------
-        // FETCH TICKET CONTROL MESSAGE (up to 100 messages)
-        // -------------------------------------------------
-        const messages = await ticketChannel.messages.fetch({ limit: 100 });
-        
-        // Find the bot's original control message containing action buttons
-        const ticketMessage = messages.find(m => m.author.id === client.user.id && m.components.length > 0)
-            || messages.find(m => m.author.id === client.user.id);
+        // Find the bot's initial control message
+        const ticketMessage = initialMessages.find(m => m.author.id === client.user.id && m.components.length > 0)
+            || initialMessages.find(m => m.author.id === client.user.id);
 
         if (!ticketMessage) {
             return interaction.editReply(`❌ Could not find the original ticket embed in ${ticketChannel}.`);
