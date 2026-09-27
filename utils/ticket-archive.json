@@ -1875,7 +1875,7 @@
       "updatedAt": "2026-09-26T14:27:04.508Z"
     },
     "channelId": "1553403608777756755",
-    "updatedAt": "2026-09-27T03:02:05.824Z",
+    "updatedAt": "2026-09-27T03:52:00.423Z",
     "messages": [
       {
         "id": "1553403762414981141",
@@ -4582,6 +4582,37 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-27T03:02:05.760Z"
+      },
+      {
+        "id": "1553615165960753162",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "https://docs.google.com/document/d/1uoMDXJ-1ZNM7MaklhY9dQ99b7CedL9Z12uVTjFXIzq0/edit?usp=sharing",
+        "attachments": [],
+        "embeds": [
+          {
+            "url": "https://docs.google.com/document/d/1uoMDXJ-1ZNM7MaklhY9dQ99b7CedL9Z12uVTjFXIzq0/edit?usp=sharing",
+            "type": "link",
+            "title": "NGC - HR&O Application Answers",
+            "thumbnail": {
+              "width": 1200,
+              "url": "https://lh7-us.googleusercontent.com/docs/AHkbwyJ959SLjxwc0meEq7rsL1upavOVXEm2kcOclgZbooCmB92dHScUJ8cdOmEWm6xG9-p2CzEitQiJoZ68Z4szI74rKphsn6kxlHZ5MyCLiehXuaTMlOs=w1200-h630-p",
+              "proxy_url": "https://images-ext-1.discordapp.net/external/siSsVGgLZ-XCkwjreL_AqUDT4yMOjmWd4fPluSk_Rpg/https/lh7-us.googleusercontent.com/docs/AHkbwyJ959SLjxwc0meEq7rsL1upavOVXEm2kcOclgZbooCmB92dHScUJ8cdOmEWm6xG9-p2CzEitQiJoZ68Z4szI74rKphsn6kxlHZ5MyCLiehXuaTMlOs%3Dw1200-h630-p",
+              "placeholder_version": 1,
+              "placeholder": "LggGBID2t5l6h4eIh3gAAAAAAA==",
+              "height": 630,
+              "flags": 0,
+              "content_type": "image/png"
+            },
+            "provider": {
+              "name": "Google Docs"
+            },
+            "id": "1553615165960753163",
+            "description": "NGC has a procedure that repeatedly causes confusion among staff. As an HR&SO member, what would you do to improve it?    In the scenario the staff member was in the right In the event that I get wind of a NGC procedure or policy commonly causing confusion amongst staff members on numerous o...",
+            "content_scan_version": 4
+          }
+        ],
+        "createdAt": "2026-09-27T03:52:00.339Z"
       }
     ]
   },
