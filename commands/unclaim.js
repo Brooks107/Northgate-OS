@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, PermissionFlagsBits, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } = require("discord.js");
+const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } = require("discord.js");
 
 const ticketTopic = require("../ticket-topic");
 const ticketTracker = require("../ticket-tracker");
@@ -15,6 +15,7 @@ module.exports = {
 
     async execute(interaction, client, config) {
 
+        // 🔒 GLOBAL LOCK CHECK
         if (config.locked) {
             return interaction.reply({
                 content: '🚫 NorthGate OS is currently **locked**. Command `/unclaim` cannot be used.',
@@ -54,17 +55,8 @@ module.exports = {
             return interaction.editReply(`❌ Ticket #${id} does not exist.`);
         }
 
-        const { claimedBy } = ticketTopic.parse(ticketChannel.topic || "");
-        if (!claimedBy) {
-            return interaction.editReply(`❌ Ticket #${id} is not currently claimed.`);
-        }
-
-        if (claimedBy !== interaction.user.id) {
-            return interaction.editReply("❌ Only the person who claimed this ticket can unclaim it.");
-        }
-
         // -------------------------------------------------
-        // FIND ORIGINAL CONTROL MESSAGE (Start-of-channel fetch)
+        // FETCH CONTROL MESSAGE (Start of Channel)
         // -------------------------------------------------
         const initialMessages = await ticketChannel.messages.fetch({ after: ticketChannel.id, limit: 10 }).catch(() => null);
 
@@ -76,34 +68,42 @@ module.exports = {
         }
 
         // -------------------------------------------------
+        // READ CLAIM STATUS (Checks Topic + Button Custom ID)
+        // -------------------------------------------------
+        const topicData = ticketTopic.parse(ticketChannel.topic || "");
+        const claimButton = ticketMessage.components[0]?.components?.find(c => c.customId?.startsWith("ticket_claimed_"));
+
+        const claimedBy = topicData.claimedBy || (claimButton ? claimButton.customId.replace("ticket_claimed_", "") : null);
+
+        if (!claimedBy) {
+            return interaction.editReply(`❌ Ticket #${id} is not currently claimed.`);
+        }
+
+        // Check if the executor is either the original claimer or an Administrator
+        const isAdmin = interaction.member.permissions.has("Administrator");
+        if (claimedBy !== interaction.user.id && !isAdmin) {
+            return interaction.editReply("❌ Only the person who claimed this ticket (or an Administrator) can unclaim it.");
+        }
+
+        // -------------------------------------------------
         // REBUILD BUTTONS — RESTORE CLAIM & CLOSE BUTTONS
         // -------------------------------------------------
-        const isSupportTicket =
-            ticketChannel.name.startsWith("support-") ||
-            ticketChannel.name.startsWith("appeal-");
+        const isSupportTicket = ticketChannel.name.startsWith("support-") || ticketChannel.name.startsWith("appeal-");
         const isHiringTicket = ticketChannel.name.startsWith("hiring-");
         const isPartnershipTicket = ticketChannel.name.startsWith("partnership-");
         const isInterrogationTicket = ticketChannel.name.startsWith("interrogation-");
 
-        const claimCustomId = isPartnershipTicket
-            ? "partnership_claim"
-            : isHiringTicket
-                ? "hiring_claim"
-                : isSupportTicket
-                    ? "support_claim"
-                    : isInterrogationTicket
-                        ? "intero_claim"
-                        : "commission_claim";
+        const claimCustomId = isPartnershipTicket ? "partnership_claim"
+            : isHiringTicket ? "hiring_claim"
+            : isSupportTicket ? "support_claim"
+            : isInterrogationTicket ? "intero_claim"
+            : "commission_claim";
 
-        const closeCustomId = isPartnershipTicket
-            ? "partnership_close"
-            : isHiringTicket
-                ? "hiring_close"
-                : isSupportTicket
-                    ? "support_close"
-                    : isInterrogationTicket
-                        ? "intero_close"
-                        : "ticket_close";
+        const closeCustomId = isPartnershipTicket ? "partnership_close"
+            : isHiringTicket ? "hiring_close"
+            : isSupportTicket ? "support_close"
+            : isInterrogationTicket ? "intero_close"
+            : "ticket_close";
 
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
@@ -120,7 +120,7 @@ module.exports = {
         await ticketMessage.edit({ components: [row] });
 
         // -------------------------------------------------
-        // CONFIRM TO STAFF IMMEDIATELY (Prevents 3-minute timeout)
+        // CONFIRM TO STAFF IMMEDIATELY
         // -------------------------------------------------
         await interaction.editReply(`✅ Ticket #${id} (${ticketChannel}) has been unclaimed.`);
 

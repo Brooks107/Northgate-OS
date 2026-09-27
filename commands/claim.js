@@ -62,15 +62,6 @@ module.exports = {
         }
 
         // -------------------------------------------------
-        // CHECK IF ALREADY CLAIMED
-        // -------------------------------------------------
-        if (ticketChannel.topic && ticketChannel.topic.includes("claimed:")) {
-            const topicData = ticketTopic.parse(ticketChannel.topic);
-            const claimerId = topicData.claimedBy || ticketChannel.topic.split("claimed:")[1]?.trim();
-            return interaction.editReply(`❌ Ticket #${id} is already claimed by <@${claimerId}>.`);
-        }
-
-        // -------------------------------------------------
         // FETCH CONTROL MESSAGE (Start of Channel)
         // -------------------------------------------------
         const initialMessages = await ticketChannel.messages.fetch({ after: ticketChannel.id, limit: 10 }).catch(() => null);
@@ -83,13 +74,25 @@ module.exports = {
         }
 
         // -------------------------------------------------
-        // UPDATE BUTTONS (grey out claim button & retain close button)
+        // CHECK IF ALREADY CLAIMED (Checks Topic + Button Custom ID)
+        // -------------------------------------------------
+        const topicData = ticketTopic.parse(ticketChannel.topic || "");
+        const claimButton = ticketMessage.components[0]?.components?.find(c => c.customId?.startsWith("ticket_claimed_"));
+
+        const claimerId = topicData.claimedBy || (claimButton ? claimButton.customId.replace("ticket_claimed_", "") : null);
+
+        if (claimerId) {
+            return interaction.editReply(`❌ Ticket #${id} is already claimed by <@${claimerId}>.`);
+        }
+
+        // -------------------------------------------------
+        // UPDATE BUTTONS (Store User ID in Custom ID)
         // -------------------------------------------------
         const isInterrogationTicket = ticketChannel.name.startsWith("interrogation-");
 
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
-                .setCustomId("ticket_claimed_disabled")
+                .setCustomId(`ticket_claimed_${interaction.user.id}`)
                 .setLabel(`🙋‍♂️ Claimed by ${interaction.user.displayName || interaction.user.username}`)
                 .setStyle(ButtonStyle.Secondary)
                 .setDisabled(true),
@@ -102,7 +105,7 @@ module.exports = {
         await ticketMessage.edit({ components: [row] });
 
         // -------------------------------------------------
-        // CONFIRM TO STAFF IMMEDIATELY (Prevents 3-minute timeout)
+        // CONFIRM TO STAFF IMMEDIATELY
         // -------------------------------------------------
         await interaction.editReply(`📝 You have claimed ticket #${id} (${ticketChannel}).`);
 
@@ -113,7 +116,6 @@ module.exports = {
         const ownerId = parsedTopic.ownerId;
         const newTopic = ticketTopic.build({ ownerId, claimedBy: interaction.user.id });
 
-        // Unawaited: runs in the background so Discord rate limits on channel topic edits do not block the bot
         ticketChannel.setTopic(newTopic).catch(err => {
             console.error(`[claim] Topic update error in #${ticketChannel.name}:`, err.message);
         });
