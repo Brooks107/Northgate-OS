@@ -1866,7 +1866,7 @@
       "updatedAt": "2026-09-26T14:27:04.508Z"
     },
     "channelId": "1553403608777756755",
-    "updatedAt": "2026-09-26T16:34:55.157Z",
+    "updatedAt": "2026-09-27T00:46:16.545Z",
     "messages": [
       {
         "id": "1553403762414981141",
@@ -3119,6 +3119,24 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-26T16:34:54.012Z"
+      },
+      {
+        "id": "1553568412725157929",
+        "authorId": "1172089323223519235",
+        "authorTag": "sircosmix",
+        "content": "G'day <@1419379683455271034> ,\nI've been briefed on your application and the discussion that followed. At this point, there is no need to complete the remaining questions, as i will be personally declining your application. \n\nRegarding your request for \"compensation\". you chose to open this ticket and participate in the application process. NorthGate Studios has no obligation to compensate applicants for their time, and that expectation is frankly inappropriate in this context. \n\nBased on both the application and your conduct throughout this process, i do not believe you would be a suitable fit for our team at NorthGate. This decision is final.\n\nThank you for your interest in NorthGate Studios.\n\nBest,\nSirCosmix\nStudio lead",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T00:46:13.499Z"
+      },
+      {
+        "id": "1553568425253535765",
+        "authorId": "1172089323223519235",
+        "authorTag": "sircosmix",
+        "content": "Before we close the ticket is there anything you would like to add, state, or inquire about?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T00:46:16.486Z"
       }
     ]
   },
