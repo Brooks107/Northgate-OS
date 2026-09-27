@@ -96,16 +96,25 @@ startHeartbeat(client);
 
 client.activeTicketIds = new Set();
 
-client.refreshActiveTicketIds = function (guild) {
+const TICKET_CHANNEL_PATTERN = /^(?:support|appeal|commission|hiring|partnership|interrogation)-(\d+)(?:-|$)/;
+
+client.refreshActiveTicketIds = async function (guild) {
     if (!guild) return;
 
-    const seen = new Set();
-    for (const channel of guild.channels.cache.values()) {
-        const match = channel.name.match(TICKET_CHANNEL_PATTERN);
-        if (match) seen.add(Number(match[1]));
-    }
+    try {
+        const channels = await guild.channels.fetch();
+        const seen = new Set();
 
-    client.activeTicketIds = seen;
+        for (const channel of channels.values()) {
+            if (!channel || !channel.name) continue;
+            const match = channel.name.match(TICKET_CHANNEL_PATTERN);
+            if (match) seen.add(Number(match[1]));
+        }
+
+        client.activeTicketIds = seen;
+    } catch (error) {
+        console.error("[tickets] failed to fetch guild channels:", error);
+    }
 };
 
 client.getNextTicketId = function () {
@@ -115,8 +124,6 @@ client.getNextTicketId = function () {
     return null;
 };
 
-const TICKET_CHANNEL_PATTERN = /^(?:support|appeal|commission|hiring|partnership|interrogation)-(\d+)(?:-|$)/;
-
 client.once(Events.ClientReady, async () => {
     client.user.setPresence({
         status: config.maintenanceMode ? "invisible" : "online",
@@ -125,7 +132,7 @@ client.once(Events.ClientReady, async () => {
     console.log(`[presence] bot is ${config.maintenanceMode ? "invisible" : "online"}.`);
 
     for (const guild of client.guilds.cache.values()) {
-        client.refreshActiveTicketIds(guild);
+        await client.refreshActiveTicketIds(guild);
     }
 
     const restored = [...client.activeTicketIds].sort((a, b) => a - b);
@@ -146,7 +153,7 @@ client.on(Events.ChannelCreate, async channel => {
     if (!channel.guild) return;
 
     if (TICKET_CHANNEL_PATTERN.test(channel.name)) {
-        client.refreshActiveTicketIds(channel.guild);
+        await client.refreshActiveTicketIds(channel.guild);
         if (typeof client.notifyAdminPanelRefresh === "function") {
             await client.notifyAdminPanelRefresh();
         }
@@ -157,7 +164,7 @@ client.on(Events.ChannelDelete, async channel => {
     if (!channel.guild) return;
 
     if (TICKET_CHANNEL_PATTERN.test(channel.name)) {
-        client.refreshActiveTicketIds(channel.guild);
+        await client.refreshActiveTicketIds(channel.guild);
         if (typeof client.notifyAdminPanelRefresh === "function") {
             await client.notifyAdminPanelRefresh();
         }
@@ -171,7 +178,7 @@ client.on(Events.ChannelUpdate, async (oldChannel, newChannel) => {
     const newMatches = TICKET_CHANNEL_PATTERN.test(newChannel.name);
 
     if (oldMatches || newMatches) {
-        client.refreshActiveTicketIds(newChannel.guild);
+        await client.refreshActiveTicketIds(newChannel.guild);
         if (typeof client.notifyAdminPanelRefresh === "function") {
             await client.notifyAdminPanelRefresh();
         }
