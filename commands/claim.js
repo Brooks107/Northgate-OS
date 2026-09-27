@@ -13,10 +13,10 @@ const ticketTopic = require("../ticket-topic");
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("claim")
-        .setDescription("Claim a commission ticket by ID.")
+        .setDescription("Claim a ticket by ID.")
         .addIntegerOption(option =>
             option.setName("id")
-                .setDescription("The commission ticket ID to claim")
+                .setDescription("The ticket ID to claim")
                 .setRequired(true)
         ),
 
@@ -26,7 +26,7 @@ module.exports = {
         if (config.locked) {
             return interaction.reply({
                 content: "🚫 NorthGate OS is currently **locked**. Command `/claim` cannot be used.",
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             });
         }
 
@@ -39,46 +39,46 @@ module.exports = {
         if (!isAuthorized) {
             return interaction.reply({
                 content: "❌ You are not authorized to use `/claim`.",
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             });
         }
 
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         const id = interaction.options.getInteger("id");
 
         // -------------------------------------------------
-        // FIND COMMISSION TICKET ONLY
+        // FETCH & FIND TICKET CHANNEL PRECISELY
         // -------------------------------------------------
-        const ticketChannel = interaction.guild.channels.cache.find(
-            ch => ch.name.startsWith(`commission-${id}`) ||
-                   ch.name.startsWith(`support-${id}`) ||
-                   ch.name.startsWith(`appeal-${id}`) ||
-                   ch.name.startsWith(`hiring-${id}`) ||
-                   ch.name.startsWith(`partnership-${id}`) ||
-                   ch.name.startsWith(`interrogation-${id}`)
-        );
+        const channels = await interaction.guild.channels.fetch().catch(() => interaction.guild.channels.cache);
+        const ticketPattern = new RegExp(`^(?:commission|support|appeal|hiring|partnership|interrogation)-${id}(?:-|$)`, "i");
+
+        const ticketChannel = channels.find(ch => ch && ticketPattern.test(ch.name));
 
         if (!ticketChannel) {
-            return interaction.editReply(`❌  ticket #${id} does not exist.`);
+            return interaction.editReply(`❌ Ticket #${id} does not exist.`);
         }
 
         // -------------------------------------------------
         // CHECK IF ALREADY CLAIMED
         // -------------------------------------------------
-        if (ticketChannel.topic && ticketChannel.topic.startsWith("claimed:")) {
-            const claimerId = ticketChannel.topic.split(":")[1];
+        if (ticketChannel.topic && ticketChannel.topic.includes("claimed:")) {
+            const topicData = ticketTopic.parse(ticketChannel.topic);
+            const claimerId = topicData.claimedBy || ticketChannel.topic.split("claimed:")[1]?.trim();
             return interaction.editReply(`❌ Ticket #${id} is already claimed by <@${claimerId}>.`);
         }
 
         // -------------------------------------------------
-        // FETCH TICKET MESSAGE
+        // FETCH TICKET CONTROL MESSAGE (up to 100 messages)
         // -------------------------------------------------
-        const messages = await ticketChannel.messages.fetch({ limit: 10 });
-        const ticketMessage = messages.find(m => m.author.id === client.user.id);
+        const messages = await ticketChannel.messages.fetch({ limit: 100 });
+        
+        // Find the bot's original control message containing action buttons
+        const ticketMessage = messages.find(m => m.author.id === client.user.id && m.components.length > 0)
+            || messages.find(m => m.author.id === client.user.id);
 
         if (!ticketMessage) {
-            return interaction.editReply("❌ Could not find the ticket message.");
+            return interaction.editReply(`❌ Could not find the original ticket embed in ${ticketChannel}.`);
         }
 
         // -------------------------------------------------
@@ -87,7 +87,7 @@ module.exports = {
         const isInterrogationTicket = ticketChannel.name.startsWith("interrogation-");
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
-            .setCustomId(isInterrogationTicket ? "intero_close" : "ticket_close")
+                .setCustomId(isInterrogationTicket ? "intero_close" : "ticket_close")
                 .setLabel("🔒 Close Ticket")
                 .setStyle(ButtonStyle.Danger)
         );
@@ -97,8 +97,10 @@ module.exports = {
         // -------------------------------------------------
         // STORE CLAIMER IN CHANNEL TOPIC
         // -------------------------------------------------
-        const { ownerId } = ticketTopic.parse(ticketChannel.topic);
+        const parsedTopic = ticketTopic.parse(ticketChannel.topic);
+        const ownerId = parsedTopic.ownerId;
         await ticketChannel.setTopic(ticketTopic.build({ ownerId, claimedBy: interaction.user.id }));
+        
         await ticketTracker.syncTicket(ticketChannel, {
             type: "claimed",
             status: `🟡 Claimed by ${interaction.user.tag}`,
@@ -108,10 +110,6 @@ module.exports = {
         // -------------------------------------------------
         // CONFIRM TO STAFF
         // -------------------------------------------------
-        await interaction.editReply(`📝 You have claimed commission ticket #${id}.`);
-
-        // -------------------------------------------------
-        // KEEP ACTIVE ID (ticket still open)
-        // -------------------------------------------------
+        await interaction.editReply(`📝 You have claimed ticket #${id} (${ticketChannel}).`);
     }
 };
