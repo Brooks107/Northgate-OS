@@ -1875,7 +1875,7 @@
       "updatedAt": "2026-09-26T14:27:04.508Z"
     },
     "channelId": "1553403608777756755",
-    "updatedAt": "2026-09-27T02:06:00.907Z",
+    "updatedAt": "2026-09-27T02:11:02.861Z",
     "messages": [
       {
         "id": "1553403762414981141",
@@ -3551,6 +3551,132 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-27T02:06:00.859Z"
+      },
+      {
+        "id": "1553588535322476575",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "I’m an experienced helpdesk technician in a production environment of 1-2k users all week (M-F).",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:06:11.100Z"
+      },
+      {
+        "id": "1553588602221629541",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "I also help out with infrastructure maintenance.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:06:27.050Z"
+      },
+      {
+        "id": "1553588644759998585",
+        "authorId": "1172089323223519235",
+        "authorTag": "sircosmix",
+        "content": "May i ask whats your current age?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:06:37.192Z"
+      },
+      {
+        "id": "1553588667178819607",
+        "authorId": "1172089323223519235",
+        "authorTag": "sircosmix",
+        "content": "theres a requirement",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:06:42.537Z"
+      },
+      {
+        "id": "1553588714817716277",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "16.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:06:53.895Z"
+      },
+      {
+        "id": "1553588770371281017",
+        "authorId": "1172089323223519235",
+        "authorTag": "sircosmix",
+        "content": "Awesome, talented at 16 mate. Keep it up.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:07:07.140Z"
+      },
+      {
+        "id": "1553588808639840307",
+        "authorId": "1172089323223519235",
+        "authorTag": "sircosmix",
+        "content": "Well spoken also.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:07:16.264Z"
+      },
+      {
+        "id": "1553588921760350379",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Recently we had downtime where I & another tech went around replacing UPS units & batteries all around campus.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:07:43.234Z"
+      },
+      {
+        "id": "1553589019370324063",
+        "authorId": "1172089323223519235",
+        "authorTag": "sircosmix",
+        "content": "Mentally noted.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:08:06.506Z"
+      },
+      {
+        "id": "1553589141520916541",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "I’ll ask we keep questions to short answer until I get to my laptop.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:08:35.629Z"
+      },
+      {
+        "id": "1553589217865502772",
+        "authorId": "1172089323223519235",
+        "authorTag": "sircosmix",
+        "content": "Tickets can remain open aslong as you ask for.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:08:53.831Z"
+      },
+      {
+        "id": "1553589449374441494",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Will you be the one asking further questions, or will you bring in someone else?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:09:49.027Z"
+      },
+      {
+        "id": "1553589738236022876",
+        "authorId": "1172089323223519235",
+        "authorTag": "sircosmix",
+        "content": "I may partake here and there and may do a final interview with you",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:10:57.897Z"
+      },
+      {
+        "id": "1553589758805147702",
+        "authorId": "1172089323223519235",
+        "authorTag": "sircosmix",
+        "content": "Why are you asking?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T02:11:02.801Z"
       }
     ]
   },
