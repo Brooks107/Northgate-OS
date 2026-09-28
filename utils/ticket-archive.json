@@ -5112,7 +5112,7 @@
   },
   "1554192225590714368": {
     "ticketId": 3,
-    "status": "open",
+    "status": "🟡 Claimed by coffeetopss",
     "openedAt": "9/28/2026, 12:05:03 PM",
     "ticket": {
       "id": 3,
@@ -5124,7 +5124,7 @@
     "channel": {
       "id": "1554192225590714368",
       "name": "hiring-3",
-      "topic": "owner:1523039072044581112"
+      "topic": "owner:1523039072044581112 claimed:1267321190821789780"
     },
     "notes": [
       "• Ticket created"
@@ -5133,6 +5133,12 @@
       {
         "type": "created",
         "timestamp": "2026-09-28T18:05:03.097Z"
+      },
+      {
+        "type": "claimed",
+        "status": "🟡 Claimed by coffeetopss",
+        "userId": "1267321190821789780",
+        "timestamp": "2026-09-28T18:05:18.639Z"
       }
     ],
     "dashboardChannel": {
@@ -5149,7 +5155,7 @@
           "type": "rich",
           "title": "🎫 Hiring Application #3",
           "timestamp": "2026-09-28T18:05:03.098000+00:00",
-          "id": "1554192230846173214",
+          "id": "1554192294444531836",
           "footer": {
             "text": "Channel: hiring-3"
           },
@@ -5160,7 +5166,7 @@
               "inline": true
             },
             {
-              "value": "🟢 Open",
+              "value": "🟡 Claimed by coffeetopss",
               "name": "📌 Status",
               "inline": true
             },
@@ -5181,10 +5187,147 @@
         }
       ],
       "components": [],
-      "editedTimestamp": null,
-      "updatedAt": "2026-09-28T18:05:03.495Z"
+      "editedTimestamp": 1790618718554,
+      "updatedAt": "2026-09-28T18:05:18.639Z"
     },
     "channelId": "1554192225590714368",
-    "updatedAt": "2026-09-28T18:05:03.496Z"
+    "updatedAt": "2026-09-28T18:10:16.431Z",
+    "messages": [
+      {
+        "id": "1554192291785080914",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:05:17.858Z"
+      },
+      {
+        "id": "1554192367668695153",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Hello <@1523039072044581112>",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:05:35.950Z"
+      },
+      {
+        "id": "1554192391148413112",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "Hello",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:05:41.548Z"
+      },
+      {
+        "id": "1554192476334592001",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "I am the Human Resources Executive Director, You may call me Coffee",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:06:01.858Z"
+      },
+      {
+        "id": "1554192518533615638",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "It's Ma'am actually",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:06:11.919Z"
+      },
+      {
+        "id": "1554192594471489557",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "Good Afternoon, ma'am Coffee",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:06:30.024Z"
+      },
+      {
+        "id": "1554192607620370473",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Anyways",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:06:33.159Z"
+      },
+      {
+        "id": "1554192653036425287",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "You said your applying for IT?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:06:43.987Z"
+      },
+      {
+        "id": "1554192680064393280",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "Yes",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:06:50.431Z"
+      },
+      {
+        "id": "1554192703078662235",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Do you have any Experiences?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:06:55.918Z"
+      },
+      {
+        "id": "1554192729293201560",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "If so Please list them",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:07:02.168Z"
+      },
+      {
+        "id": "1554193050635345973",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "I am a fresher, who create Discord Bots. For now i only work for my site name Site-05 \"DeepDown\" on the position of Head of Discord Moderation Team",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:08:18.782Z"
+      },
+      {
+        "id": "1554193190800850967",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "I mean IT Experience. Although it is nice to see you have management Experience.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:08:52.200Z"
+      },
+      {
+        "id": "1554193454903459872",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "As a IT Sector member i know the following Language which are listed Below\n- HTML\n- JAVA\n- C++\n- CSS\n- Python\n- C+",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:09:55.167Z"
+      },
+      {
+        "id": "1554193543411663022",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "And for how long have you been doing this?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:10:16.269Z"
+      }
+    ]
   }
 }
