@@ -5112,7 +5112,7 @@
   },
   "1554192225590714368": {
     "ticketId": 3,
-    "status": "🟡 Claimed by coffeetopss",
+    "status": "🟡 Claimed by brooksy246",
     "openedAt": "9/28/2026, 12:05:03 PM",
     "ticket": {
       "id": 3,
@@ -5124,7 +5124,7 @@
     "channel": {
       "id": "1554192225590714368",
       "name": "hiring-3",
-      "topic": "owner:1523039072044581112 claimed:1267321190821789780"
+      "topic": "owner:1523039072044581112"
     },
     "notes": [
       "• Ticket created"
@@ -5139,6 +5139,17 @@
         "status": "🟡 Claimed by coffeetopss",
         "userId": "1267321190821789780",
         "timestamp": "2026-09-28T18:05:18.639Z"
+      },
+      {
+        "type": "unclaimed",
+        "status": "🟢 Open",
+        "timestamp": "2026-09-28T18:22:47.759Z"
+      },
+      {
+        "type": "claimed",
+        "status": "🟡 Claimed by brooksy246",
+        "userId": "1259124148798754907",
+        "timestamp": "2026-09-28T18:22:56.326Z"
       }
     ],
     "dashboardChannel": {
@@ -5155,7 +5166,7 @@
           "type": "rich",
           "title": "🎫 Hiring Application #3",
           "timestamp": "2026-09-28T18:05:03.098000+00:00",
-          "id": "1554192294444531836",
+          "id": "1554196730759872676",
           "footer": {
             "text": "Channel: hiring-3"
           },
@@ -5166,7 +5177,7 @@
               "inline": true
             },
             {
-              "value": "🟡 Claimed by coffeetopss",
+              "value": "🟡 Claimed by brooksy246",
               "name": "📌 Status",
               "inline": true
             },
@@ -5187,11 +5198,11 @@
         }
       ],
       "components": [],
-      "editedTimestamp": 1790618718554,
-      "updatedAt": "2026-09-28T18:05:18.639Z"
+      "editedTimestamp": 1790619776244,
+      "updatedAt": "2026-09-28T18:22:56.326Z"
     },
     "channelId": "1554192225590714368",
-    "updatedAt": "2026-09-28T18:18:35.422Z",
+    "updatedAt": "2026-09-28T18:25:58.487Z",
     "messages": [
       {
         "id": "1554192291785080914",
@@ -5443,6 +5454,133 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-28T18:18:35.343Z"
+      },
+      {
+        "id": "1554196316614303846",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "If this is the case then I personally doubt it will take you long to learn - considering the amount of languages you already know and the fact you already know Javascript anyway.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:21:17.452Z"
+      },
+      {
+        "id": "1554196570574946335",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "d!forceclaim 3",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:22:18.001Z"
+      },
+      {
+        "id": "1554196586459041824",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "📝 You have force claimed ticket #3.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:22:21.788Z"
+      },
+      {
+        "id": "1554196607929417799",
+        "authorId": "1410407078643765340",
+        "authorTag": "coolbeanz02778",
+        "content": "Larp",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:22:26.907Z"
+      },
+      {
+        "id": "1554196690360344716",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:22:46.560Z"
+      },
+      {
+        "id": "1554196723776225371",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:22:54.527Z"
+      },
+      {
+        "id": "1554196983848108032",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "",
+        "attachments": [
+          {
+            "name": "IMG_20260928_235331.jpg",
+            "url": "https://cdn.discordapp.com/attachments/1554192225590714368/1554196983240073236/IMG_20260928_235331.jpg?ex=6abc023c&is=6abab0bc&hm=86ba20846dc6a2977422ee10298818e7759f78df9b1fe5525c80b5f794e907c3&"
+          }
+        ],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:23:56.533Z"
+      },
+      {
+        "id": "1554197170545234003",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "Please do not close this ticket it's midnight for me",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:24:41.045Z"
+      },
+      {
+        "id": "1554197218397786173",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "For proof I can send you time also",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:24:52.454Z"
+      },
+      {
+        "id": "1554197229265354905",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "This ticket wont be closed I promise",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:24:55.045Z"
+      },
+      {
+        "id": "1554197309565436028",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "We Accommodate for Applicants. Dw your Ticket will be held Open.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:25:14.190Z"
+      },
+      {
+        "id": "1554197445313830972",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "",
+        "attachments": [
+          {
+            "name": "image0.jpg",
+            "url": "https://cdn.discordapp.com/attachments/1554192225590714368/1554197444818894898/image0.jpg?ex=6abc02aa&is=6abab12a&hm=570b0a7d69aeeafaf459f232a66620c5ce91f0dfc6e981bf55a2537dba7a92f2&"
+          }
+        ],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:25:46.555Z"
+      },
+      {
+        "id": "1554197495058530366",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "You may check the time also on top left corner",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:25:58.415Z"
       }
     ]
   }
