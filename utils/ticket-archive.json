@@ -5191,7 +5191,7 @@
       "updatedAt": "2026-09-28T18:05:18.639Z"
     },
     "channelId": "1554192225590714368",
-    "updatedAt": "2026-09-28T18:15:33.057Z",
+    "updatedAt": "2026-09-28T18:18:35.422Z",
     "messages": [
       {
         "id": "1554192291785080914",
@@ -5407,6 +5407,42 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-28T18:15:32.936Z"
+      },
+      {
+        "id": "1554195458715557979",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "Permission to show sample of my work",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:17:52.913Z"
+      },
+      {
+        "id": "1554195481561792555",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "Always",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:17:58.360Z"
+      },
+      {
+        "id": "1554195550176542864",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "Rather than discord tools",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:18:14.719Z"
+      },
+      {
+        "id": "1554195636679876670",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "So you have never coded a discord bot in discord.js?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:18:35.343Z"
       }
     ]
   }
