@@ -5109,5 +5109,82 @@
     ],
     "channelId": "1541401961637748787",
     "updatedAt": "2026-09-27T12:46:58.643Z"
+  },
+  "1554192225590714368": {
+    "ticketId": 3,
+    "status": "open",
+    "openedAt": "9/28/2026, 12:05:03 PM",
+    "ticket": {
+      "id": 3,
+      "title": "Hiring Application",
+      "userId": "1523039072044581112",
+      "description": "Role: IT Sector, Experience: Hello Everyone, My self HyperLoop. I am Good in IT work. Just like creating Discord Bots, Custom Ticket Tools Etc. I know many Language Like: HTML, Java, C++, Python, C+",
+      "createdAt": "9/28/2026, 12:05:03 PM"
+    },
+    "channel": {
+      "id": "1554192225590714368",
+      "name": "hiring-3",
+      "topic": "owner:1523039072044581112"
+    },
+    "notes": [
+      "• Ticket created"
+    ],
+    "events": [
+      {
+        "type": "created",
+        "timestamp": "2026-09-28T18:05:03.097Z"
+      }
+    ],
+    "dashboardChannel": {
+      "id": "1539010556701188206",
+      "name": "ticket-dashboard"
+    },
+    "dashboardMessage": {
+      "id": "1554192230846173215",
+      "channelId": "1539010556701188206",
+      "url": "https://discord.com/channels/1517978818135195740/1539010556701188206/1554192230846173215",
+      "content": "",
+      "embeds": [
+        {
+          "type": "rich",
+          "title": "🎫 Hiring Application #3",
+          "timestamp": "2026-09-28T18:05:03.098000+00:00",
+          "id": "1554192230846173214",
+          "footer": {
+            "text": "Channel: hiring-3"
+          },
+          "fields": [
+            {
+              "value": "<@1523039072044581112>",
+              "name": "📋 User",
+              "inline": true
+            },
+            {
+              "value": "🟢 Open",
+              "name": "📌 Status",
+              "inline": true
+            },
+            {
+              "value": "• Ticket created",
+              "name": "📝 Progress Notes",
+              "inline": false
+            },
+            {
+              "value": "9/28/2026, 12:05:03 PM",
+              "name": "⏰ Created",
+              "inline": true
+            }
+          ],
+          "description": "Role: IT Sector, Experience: Hello Everyone, My self HyperLoop. I am Good in IT work. Just like creating Discord Bots, Custom Ticket Tools Etc. I know many Language Like: HTML, Java, C++, Python, C+",
+          "content_scan_version": 0,
+          "color": 39423
+        }
+      ],
+      "components": [],
+      "editedTimestamp": null,
+      "updatedAt": "2026-09-28T18:05:03.495Z"
+    },
+    "channelId": "1554192225590714368",
+    "updatedAt": "2026-09-28T18:05:03.496Z"
   }
 }

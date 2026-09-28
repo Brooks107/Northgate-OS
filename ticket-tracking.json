@@ -1,1 +1,17 @@
-{}
+{
+  "1554192225590714368": {
+    "messageId": "1554192230846173215",
+    "channelId": "1539010556701188206",
+    "ticketId": 3,
+    "originalInfo": {
+      "id": 3,
+      "title": "Hiring Application",
+      "userId": "1523039072044581112",
+      "description": "Role: IT Sector, Experience: Hello Everyone, My self HyperLoop. I am Good in IT work. Just like creating Discord Bots, Custom Ticket Tools Etc. I know many Language Like: HTML, Java, C++, Python, C+",
+      "createdAt": "9/28/2026, 12:05:03 PM"
+    },
+    "notes": [
+      "• Ticket created"
+    ]
+  }
+}
