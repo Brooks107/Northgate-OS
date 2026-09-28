@@ -5191,7 +5191,7 @@
       "updatedAt": "2026-09-28T18:05:18.639Z"
     },
     "channelId": "1554192225590714368",
-    "updatedAt": "2026-09-28T18:10:16.431Z",
+    "updatedAt": "2026-09-28T18:15:33.057Z",
     "messages": [
       {
         "id": "1554192291785080914",
@@ -5327,6 +5327,86 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-28T18:10:16.269Z"
+      },
+      {
+        "id": "1554194031796297845",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "https://klipy.com/gifs/backflip-seiya",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:12:12.709Z"
+      },
+      {
+        "id": "1554194305504120995",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "Some of my recent creation are\n- a chat bot. basically i convert chat GPT into discord Bot for my site on which we can play games, genrate images, ask question and the bot will answer",
+        "attachments": [
+          {
+            "name": "Screenshot_2026-09-28_230638.png",
+            "url": "https://cdn.discordapp.com/attachments/1554192225590714368/1554194303406841896/Screenshot_2026-09-28_230638.png?ex=6abbffbd&is=6abaae3d&hm=561175a1903b15f7db695b53bf7c3ebd79f7738f462443bde7c31e1ee59aa1fa&"
+          },
+          {
+            "name": "image.png",
+            "url": "https://cdn.discordapp.com/attachments/1554192225590714368/1554194303880929422/image.png?ex=6abbffbd&is=6abaae3d&hm=64535df89937e3a37e9e2ddb115945b56f64218e00f6135f36c145bbbff301fc&"
+          },
+          {
+            "name": "Screenshot_2026-09-28_234131.png",
+            "url": "https://cdn.discordapp.com/attachments/1554192225590714368/1554194304254218260/Screenshot_2026-09-28_234131.png?ex=6abbffbd&is=6abaae3d&hm=f5f48899a65c7ac9fff2cc75e46af6c866a11524562e05fea002cab1dba058f1&"
+          },
+          {
+            "name": "Screenshot_2026-09-28_234205.png",
+            "url": "https://cdn.discordapp.com/attachments/1554192225590714368/1554194304925179985/Screenshot_2026-09-28_234205.png?ex=6abbffbd&is=6abaae3d&hm=4643be6d6a5c84149312e323183827ff87f7f80eee6d1a655492e70ba2ef7b40&"
+          }
+        ],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:13:17.966Z"
+      },
+      {
+        "id": "1554194409841762395",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "from 6 to 7 months",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:13:42.842Z"
+      },
+      {
+        "id": "1554194453663588433",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "Greetings Potato. Would you mind showing me evidence of a discord bot that you yourself have actually coded?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:13:53.290Z"
+      },
+      {
+        "id": "1554194629211979860",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "<@1523039072044581112> \n\nThis is <@1259124148798754907> he is the Leading IT Technician Manager for the IT Department, He will now ask you Technical Questions that HR Cannot ask",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:14:35.144Z"
+      },
+      {
+        "id": "1554194710271103107",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "You know how i created, but if you want i can get you a coded one too using Python",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:14:54.470Z"
+      },
+      {
+        "id": "1554194871609458720",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "Our systems are in discord.js so if you can obtain one in that language that would be preferable.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:15:32.936Z"
       }
     ]
   }
