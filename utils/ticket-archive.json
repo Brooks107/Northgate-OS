@@ -5112,7 +5112,7 @@
   },
   "1554192225590714368": {
     "ticketId": 3,
-    "status": "🟡 Claimed by brooksy246",
+    "status": "open",
     "openedAt": "9/28/2026, 12:05:03 PM",
     "ticket": {
       "id": 3,
@@ -5124,10 +5124,11 @@
     "channel": {
       "id": "1554192225590714368",
       "name": "hiring-3",
-      "topic": "owner:1523039072044581112"
+      "topic": "owner:1523039072044581112 claimed:1259124148798754907"
     },
     "notes": [
-      "• Ticket created"
+      "• Ticket created",
+      "• Applicee heading offline - will provide proof of work in javascript tomorrow"
     ],
     "events": [
       {
@@ -5150,6 +5151,11 @@
         "status": "🟡 Claimed by brooksy246",
         "userId": "1259124148798754907",
         "timestamp": "2026-09-28T18:22:56.326Z"
+      },
+      {
+        "type": "note",
+        "info": "Applicee heading offline - will provide proof of work in javascript tomorrow",
+        "timestamp": "2026-09-28T18:41:30.163Z"
       }
     ],
     "dashboardChannel": {
@@ -5165,8 +5171,8 @@
         {
           "type": "rich",
           "title": "🎫 Hiring Application #3",
-          "timestamp": "2026-09-28T18:05:03.098000+00:00",
-          "id": "1554196730759872676",
+          "timestamp": "2026-09-28T18:41:29.786000+00:00",
+          "id": "1554201402312622211",
           "footer": {
             "text": "Channel: hiring-3"
           },
@@ -5177,18 +5183,23 @@
               "inline": true
             },
             {
-              "value": "🟡 Claimed by brooksy246",
+              "value": "🟢 Open",
               "name": "📌 Status",
               "inline": true
             },
             {
-              "value": "• Ticket created",
+              "value": "• Ticket created\n• Applicee heading offline - will provide proof of work in javascript tomorrow",
               "name": "📝 Progress Notes",
               "inline": false
             },
             {
               "value": "9/28/2026, 12:05:03 PM",
               "name": "⏰ Created",
+              "inline": true
+            },
+            {
+              "value": "9/28/2026, 12:41:29 PM",
+              "name": "🔄 Last Updated",
               "inline": true
             }
           ],
@@ -5198,11 +5209,11 @@
         }
       ],
       "components": [],
-      "editedTimestamp": 1790619776244,
-      "updatedAt": "2026-09-28T18:22:56.326Z"
+      "editedTimestamp": 1790620890055,
+      "updatedAt": "2026-09-28T18:41:30.160Z"
     },
     "channelId": "1554192225590714368",
-    "updatedAt": "2026-09-28T18:35:36.989Z",
+    "updatedAt": "2026-09-28T18:41:30.166Z",
     "messages": [
       {
         "id": "1554192291785080914",
@@ -5859,6 +5870,96 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-28T18:35:36.821Z"
+      },
+      {
+        "id": "1554200240779825155",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "using js?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:36:53.046Z"
+      },
+      {
+        "id": "1554200265064718428",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "Perfect thats exactly what I was after",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:36:58.836Z"
+      },
+      {
+        "id": "1554200314830131230",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "<@1267321190821789780> <@1410407078643765340> <@1259124148798754907>  Thank You, Sir/Ma'am for giving me your precious time. i will return tomorrow with the discord bot project too",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:37:10.701Z"
+      },
+      {
+        "id": "1554200384145461439",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "No problem, have a good night 🙂",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:37:27.227Z"
+      },
+      {
+        "id": "1554200407901864080",
+        "authorId": "1410407078643765340",
+        "authorTag": "coolbeanz02778",
+        "content": "👍 have a good night",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:37:32.891Z"
+      },
+      {
+        "id": "1554200463061159989",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "you want in js i will provide you my work in js",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:37:46.042Z"
+      },
+      {
+        "id": "1554200606543978600",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "good night, sir/ma'am. have a wonderfull day😊",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:38:20.251Z"
+      },
+      {
+        "id": "1554200700723142827",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "I mean hey if you're willing to learn and commit just to work here then I sincerely admire the effort",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:38:42.705Z"
+      },
+      {
+        "id": "1554200713523896433",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "anyway have a good night",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:38:45.757Z"
+      },
+      {
+        "id": "1554201400005886053",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "n!inject 3 Applicee heading offline - will provide proof of work in javascript tomorrow",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:41:29.427Z"
       }
     ]
   }
