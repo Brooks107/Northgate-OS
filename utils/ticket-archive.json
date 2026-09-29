@@ -5112,7 +5112,7 @@
   },
   "1554192225590714368": {
     "ticketId": 3,
-    "status": "open",
+    "status": "🟢 Open",
     "openedAt": "9/28/2026, 12:05:03 PM",
     "ticket": {
       "id": 3,
@@ -5124,7 +5124,7 @@
     "channel": {
       "id": "1554192225590714368",
       "name": "hiring-3",
-      "topic": "owner:1523039072044581112 claimed:1259124148798754907"
+      "topic": "owner:1523039072044581112"
     },
     "notes": [
       "• Ticket created",
@@ -5156,6 +5156,11 @@
         "type": "note",
         "info": "Applicee heading offline - will provide proof of work in javascript tomorrow",
         "timestamp": "2026-09-28T18:41:30.163Z"
+      },
+      {
+        "type": "unclaimed",
+        "status": "🟢 Open",
+        "timestamp": "2026-09-29T06:30:34.316Z"
       }
     ],
     "dashboardChannel": {
@@ -5172,7 +5177,7 @@
           "type": "rich",
           "title": "🎫 Hiring Application #3",
           "timestamp": "2026-09-28T18:41:29.786000+00:00",
-          "id": "1554201402312622211",
+          "id": "1554379845587177554",
           "footer": {
             "text": "Channel: hiring-3"
           },
@@ -5209,11 +5214,11 @@
         }
       ],
       "components": [],
-      "editedTimestamp": 1790620890055,
-      "updatedAt": "2026-09-28T18:41:30.160Z"
+      "editedTimestamp": 1790663434185,
+      "updatedAt": "2026-09-29T06:30:34.316Z"
     },
     "channelId": "1554192225590714368",
-    "updatedAt": "2026-09-29T06:23:53.901Z",
+    "updatedAt": "2026-09-29T06:30:34.319Z",
     "messages": [
       {
         "id": "1554192291785080914",
@@ -6352,6 +6357,24 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-29T06:23:53.803Z"
+      },
+      {
+        "id": "1554379746257674310",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:30:10.487Z"
+      },
+      {
+        "id": "1554379841539674242",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:30:33.204Z"
       }
     ]
   }
