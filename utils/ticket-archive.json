@@ -5213,7 +5213,7 @@
       "updatedAt": "2026-09-28T18:41:30.160Z"
     },
     "channelId": "1554192225590714368",
-    "updatedAt": "2026-09-29T06:05:01.703Z",
+    "updatedAt": "2026-09-29T06:10:25.423Z",
     "messages": [
       {
         "id": "1554192291785080914",
@@ -6158,6 +6158,101 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-29T06:05:01.621Z"
+      },
+      {
+        "id": "1554373564331855923",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "Yes, Sir.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:05:36.601Z"
+      },
+      {
+        "id": "1554373610439974945",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "Very good, I’m impressed.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:05:47.594Z"
+      },
+      {
+        "id": "1554373744598978592",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "thank you, sir.  i state my reason also why i need this job",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:06:19.580Z"
+      },
+      {
+        "id": "1554373884990464054",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "No I will tell you something, there is no way of denying that me and Coolbeanz use AI to assist us while we’re coding. But the main factor is that we understand what the AI is doing by looking at the code, although we couldn’t write it, we’re learning as we do so, rather than letting it work and then just leaving it",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:06:53.052Z"
+      },
+      {
+        "id": "1554374125793968189",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "Are you familiar with Github repos, a gitsync system and the Push pull system of Visual Studio?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:07:50.464Z"
+      },
+      {
+        "id": "1554374342652076072",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "I think you got your answer",
+        "attachments": [
+          {
+            "name": "image.png",
+            "url": "https://cdn.discordapp.com/attachments/1554192225590714368/1554374341532319814/image.png?backend=b2&ex=6abca769&is=6abb55e9&hm=786bd7c05dcad900215163174fe6fb028d97e56e4283ad9ee311e3b0552792d1&"
+          }
+        ],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:08:42.167Z"
+      },
+      {
+        "id": "1554374531236368415",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "I also love the dotenv and gitignore",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:09:27.129Z"
+      },
+      {
+        "id": "1554374712153473085",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "Anyway, are you familiar with the visual studio code Liveshare plugin?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:10:10.263Z"
+      },
+      {
+        "id": "1554374728347684936",
+        "authorId": "1114234318382968843",
+        "authorTag": "itsvalve",
+        "content": "Just quickly wanted to say, I am very much impressed.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:10:14.124Z"
+      },
+      {
+        "id": "1554374775361638492",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "As you should be",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:10:25.333Z"
       }
     ]
   }
