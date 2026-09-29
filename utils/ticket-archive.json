@@ -5224,7 +5224,7 @@
       "updatedAt": "2026-09-29T06:31:46.493Z"
     },
     "channelId": "1554192225590714368",
-    "updatedAt": "2026-09-29T10:16:34.047Z",
+    "updatedAt": "2026-09-29T10:21:32.623Z",
     "messages": [
       {
         "id": "1554192291785080914",
@@ -6579,6 +6579,87 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-29T10:16:33.986Z"
+      },
+      {
+        "id": "1554437057428856853",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "so in working days 2 to 3 hours daily and in weekends 3 to 5 hours",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:17:54.535Z"
+      },
+      {
+        "id": "1554437191222956043",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "- Do you have any Other Commitments that may Interfere with your Ability to do your job?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:18:26.434Z"
+      },
+      {
+        "id": "1554437427060277260",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "This could be Other Discord Work, Or anything Going on IRL",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:19:22.662Z"
+      },
+      {
+        "id": "1554437473352945757",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "Negative, ma'am.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:19:33.699Z"
+      },
+      {
+        "id": "1554437506299068460",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Oh that's Fantastic",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:19:41.554Z"
+      },
+      {
+        "id": "1554437721991286785",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "I can work in every type of Scenarios i just need my laptop and the work will begain.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:20:32.979Z"
+      },
+      {
+        "id": "1554437787401588848",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "What Position did your Manager say you would be?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:20:48.574Z"
+      },
+      {
+        "id": "1554437937012154462",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "I dont know, ma'am.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:21:24.244Z"
+      },
+      {
+        "id": "1554437971724214305",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "I see..",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:21:32.520Z"
       }
     ]
   }
