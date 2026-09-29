@@ -5224,7 +5224,7 @@
       "updatedAt": "2026-09-29T06:31:46.493Z"
     },
     "channelId": "1554192225590714368",
-    "updatedAt": "2026-09-29T06:39:12.578Z",
+    "updatedAt": "2026-09-29T06:43:51.943Z",
     "messages": [
       {
         "id": "1554192291785080914",
@@ -6471,6 +6471,24 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-29T06:39:12.503Z"
+      },
+      {
+        "id": "1554382873413558273",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "No problem. When you get hired I’ll add you the to config.developer on the main bot so you can test some stuff yourself and see what it does. We’ll go over cans and can’ts when we get there",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:42:36.059Z"
+      },
+      {
+        "id": "1554383191161446478",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "if god wish i will soon join IT team",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:43:51.816Z"
       }
     ]
   }
