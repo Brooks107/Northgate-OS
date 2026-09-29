@@ -5213,7 +5213,7 @@
       "updatedAt": "2026-09-28T18:41:30.160Z"
     },
     "channelId": "1554192225590714368",
-    "updatedAt": "2026-09-29T04:15:43.076Z",
+    "updatedAt": "2026-09-29T04:16:50.460Z",
     "messages": [
       {
         "id": "1554192291785080914",
@@ -6014,6 +6014,24 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-29T04:15:43.000Z"
+      },
+      {
+        "id": "1554345989660344361",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "This is the fact.. please mind my terms",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T04:16:02.287Z"
+      },
+      {
+        "id": "1554346191448313908",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "I created this to just showcase you that i know how to work in java script, but the truth is scripter culture got over in 2022. we are living in 2026 where automation can be done in second the bot i created just took me 10 to 15 min. the work which you do took you guys 2 to 3 hours roughly the same work i can do in 15 to 20 min. every company, organization, studios or any sort of work place want smart people who can build and set-up the bots in less period of time rather then takin 1 to 2 days.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T04:16:50.397Z"
       }
     ]
   }
