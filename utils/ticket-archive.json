@@ -5112,7 +5112,7 @@
   },
   "1554192225590714368": {
     "ticketId": 3,
-    "status": "🟢 Open",
+    "status": "open",
     "openedAt": "9/28/2026, 12:05:03 PM",
     "ticket": {
       "id": 3,
@@ -5128,7 +5128,8 @@
     },
     "notes": [
       "• Ticket created",
-      "• Applicee heading offline - will provide proof of work in javascript tomorrow"
+      "• Applicee heading offline - will provide proof of work in javascript tomorrow",
+      "• Applicant being pushed to HR"
     ],
     "events": [
       {
@@ -5161,6 +5162,11 @@
         "type": "unclaimed",
         "status": "🟢 Open",
         "timestamp": "2026-09-29T06:30:34.316Z"
+      },
+      {
+        "type": "note",
+        "info": "Applicant being pushed to HR",
+        "timestamp": "2026-09-29T06:31:46.497Z"
       }
     ],
     "dashboardChannel": {
@@ -5176,8 +5182,8 @@
         {
           "type": "rich",
           "title": "🎫 Hiring Application #3",
-          "timestamp": "2026-09-28T18:41:29.786000+00:00",
-          "id": "1554379845587177554",
+          "timestamp": "2026-09-29T06:31:46.174000+00:00",
+          "id": "1554380148156006424",
           "footer": {
             "text": "Channel: hiring-3"
           },
@@ -5193,7 +5199,7 @@
               "inline": true
             },
             {
-              "value": "• Ticket created\n• Applicee heading offline - will provide proof of work in javascript tomorrow",
+              "value": "• Ticket created\n• Applicee heading offline - will provide proof of work in javascript tomorrow\n• Applicant being pushed to HR",
               "name": "📝 Progress Notes",
               "inline": false
             },
@@ -5203,7 +5209,7 @@
               "inline": true
             },
             {
-              "value": "9/28/2026, 12:41:29 PM",
+              "value": "9/29/2026, 12:31:46 AM",
               "name": "🔄 Last Updated",
               "inline": true
             }
@@ -5214,11 +5220,11 @@
         }
       ],
       "components": [],
-      "editedTimestamp": 1790663434185,
-      "updatedAt": "2026-09-29T06:30:34.316Z"
+      "editedTimestamp": 1790663506401,
+      "updatedAt": "2026-09-29T06:31:46.493Z"
     },
     "channelId": "1554192225590714368",
-    "updatedAt": "2026-09-29T06:30:34.319Z",
+    "updatedAt": "2026-09-29T06:36:39.829Z",
     "messages": [
       {
         "id": "1554192291785080914",
@@ -6375,6 +6381,60 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-29T06:30:33.204Z"
+      },
+      {
+        "id": "1554380145715060797",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "n!inject 3 Applicant being pushed to HR",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:31:45.725Z"
+      },
+      {
+        "id": "1554380399696937073",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "sorry for Late reply i went to take shower",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:32:46.279Z"
+      },
+      {
+        "id": "1554380571243847694",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "No worries at all",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:33:27.179Z"
+      },
+      {
+        "id": "1554380645977956363",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "Thank you sir.....",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:33:44.997Z"
+      },
+      {
+        "id": "1554381110782205984",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "anytime, have a great day",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:35:35.815Z"
+      },
+      {
+        "id": "1554381378999816234",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "dont mind if i ask how much IT sector get paided",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:36:39.763Z"
       }
     ]
   }
