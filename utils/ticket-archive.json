@@ -5224,7 +5224,7 @@
       "updatedAt": "2026-09-29T06:31:46.493Z"
     },
     "channelId": "1554192225590714368",
-    "updatedAt": "2026-09-29T10:21:32.623Z",
+    "updatedAt": "2026-09-29T10:26:38.950Z",
     "messages": [
       {
         "id": "1554192291785080914",
@@ -6660,6 +6660,160 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-29T10:21:32.520Z"
+      },
+      {
+        "id": "1554438228420071487",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "my manager mr.brook ask some question then appriciate my work and transfer it to HR",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:22:33.721Z"
+      },
+      {
+        "id": "1554438277707206657",
+        "authorId": "1542904139443343370",
+        "authorTag": "NorthOperations OS#5962",
+        "content": "<@1523039072044581112>",
+        "attachments": [],
+        "embeds": [
+          {
+            "type": "rich",
+            "title": "Welcome to the team, Hyperloop!",
+            "timestamp": "2026-09-29T10:22:45.350000+00:00",
+            "thumbnail": {
+              "width": 0,
+              "url": "https://cdn.discordapp.com/avatars/1523039072044581112/e97966fb922d3c62add3631970a10554.webp",
+              "proxy_url": "https://images-ext-1.discordapp.net/external/yn0UdGtrDySgZYGQruY-QyBz151q35oSS7mKpo7ItLQ/https/cdn.discordapp.com/avatars/1523039072044581112/e97966fb922d3c62add3631970a10554.webp",
+              "height": 0,
+              "flags": 0,
+              "content_type": ""
+            },
+            "id": "1554438277707206656",
+            "footer": {
+              "text": "NorthGate Studios Staff Team"
+            },
+            "fields": [
+              {
+                "value": "Development",
+                "name": "Department",
+                "inline": true
+              },
+              {
+                "value": "IT Support Technician",
+                "name": "Role",
+                "inline": true
+              },
+              {
+                "value": "<@1267321190821789780>",
+                "name": "Hired by",
+                "inline": true
+              }
+            ],
+            "description": "Hey <@1523039072044581112>, welcome to the **NorthGate Studios** staff team!\n\nYou are joining **Development** as **IT Support Technician**. Before you get started, please read through the [staff handbook](https://docs.google.com/document/d/1vZx8tigurY7glO708EA4MByUBj-mORu_FrLJ_tTajAY/edit?usp=drivesdk). It covers how we work and what we expect from everyone on the team.\n\nWe are really glad to have you here, and we hope you make great contributions to our team.",
+            "color": 3066993
+          }
+        ],
+        "createdAt": "2026-09-29T10:22:45.472Z"
+      },
+      {
+        "id": "1554438425569132660",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "<@1523039072044581112>  Please read the Employee Handbook Linked above",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:23:20.725Z"
+      },
+      {
+        "id": "1554438493755940898",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "I don't want to see you in my Office anytime soon 💖",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:23:36.982Z"
+      },
+      {
+        "id": "1554438577356800022",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "What is my rank",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:23:56.914Z"
+      },
+      {
+        "id": "1554438646638321696",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "IT Support Technician",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:24:13.432Z"
+      },
+      {
+        "id": "1554438758948933633",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "Thank you, ma'am for hiring me..",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:24:40.209Z"
+      },
+      {
+        "id": "1554438802150396016",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "i will be a pleasure to work with you all.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:24:50.509Z"
+      },
+      {
+        "id": "1554439058372034571",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "I'll be making sure your Supervisor, and your Manager Ensures you have read the Employee Handbook",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:25:51.597Z"
+      },
+      {
+        "id": "1554439108086988951",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "I hope you do Well.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:26:03.450Z"
+      },
+      {
+        "id": "1554439172448718899",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Any Questions before I close this Ticket?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:26:18.795Z"
+      },
+      {
+        "id": "1554439217617047584",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "I was reading that only, currently on section 1",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:26:29.564Z"
+      },
+      {
+        "id": "1554439256649240627",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "Negative, ma'am.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:26:38.870Z"
       }
     ]
   }
