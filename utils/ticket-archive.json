@@ -5213,7 +5213,7 @@
       "updatedAt": "2026-09-28T18:41:30.160Z"
     },
     "channelId": "1554192225590714368",
-    "updatedAt": "2026-09-29T04:49:28.105Z",
+    "updatedAt": "2026-09-29T06:05:01.703Z",
     "messages": [
       {
         "id": "1554192291785080914",
@@ -6149,6 +6149,15 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-29T04:49:28.041Z"
+      },
+      {
+        "id": "1554373417615237133",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "and just to check, you understand what is happening at each section of the code?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:05:01.621Z"
       }
     ]
   }
