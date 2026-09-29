@@ -79,12 +79,15 @@ module.exports = {
 			return interaction.editReply("❌ You cannot transfer a ticket to yourself.");
 		}
 
-		const messages = await ticketChannel.messages.fetch({ limit: 100 });
-		const ticketMessage = messages.find(m =>
-			m.embeds.length > 0 &&
-			m.embeds[0].title &&
-			m.embeds[0].title.includes(`#${id}`)
-		);
+        const initialMessages = await ticketChannel.messages.fetch({ after: ticketChannel.id, limit: 10 }).catch(() => null);
+
+        const ticketMessage = initialMessages?.find(m => m.author.id === client.user.id && m.components.length > 0)
+            || initialMessages?.find(m => m.author.id === client.user.id);
+
+        if (!ticketMessage) {
+            return interaction.editReply(`❌ Could not find the original ticket control message in ${ticketChannel}.`);
+        }
+
 
 		if (!ticketMessage) {
 			return interaction.editReply("❌ Could not find the ticket message.");
