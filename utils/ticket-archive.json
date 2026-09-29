@@ -5213,7 +5213,7 @@
       "updatedAt": "2026-09-28T18:41:30.160Z"
     },
     "channelId": "1554192225590714368",
-    "updatedAt": "2026-09-29T03:43:53.513Z",
+    "updatedAt": "2026-09-29T03:47:19.851Z",
     "messages": [
       {
         "id": "1554192291785080914",
@@ -5969,6 +5969,42 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-29T03:43:53.438Z"
+      },
+      {
+        "id": "1554338006339428373",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "require('dotenv').config();\nconst { Client, IntentsBitField } = require('discord.js');\n\nconst client = new Client({\n  intents: [\n    IntentsBitField.Flags.Guilds,\n    IntentsBitField.Flags.GuildMembers,\n    IntentsBitField.Flags.GuildMessages,\n    IntentsBitField.Flags.MessageContent,\n  ],\n});\n\nclient.on('ready', (c) => {\n  console.log(`✅ ${c.user.tag} is online.`);\n});\n\nclient.on('messageCreate', (message) => {\n  if (message.author.bot) {\n    return;\n  }\n\n  if (message.content === 'hello') {\n    message.reply('hello');\n  }\n});\n\nclient.login(process.env.TOKEN);",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T03:44:18.915Z"
+      },
+      {
+        "id": "1554338536256315476",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "i am very much willing to work and learn new stuff from you and other members",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T03:46:25.257Z"
+      },
+      {
+        "id": "1554338716997259265",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "let me be truthfull, i am a fresher in making discord bots",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T03:47:08.349Z"
+      },
+      {
+        "id": "1554338765001068576",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "i am still learning new concepts",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T03:47:19.794Z"
       }
     ]
   }
