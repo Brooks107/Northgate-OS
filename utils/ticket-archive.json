@@ -357,7 +357,7 @@
     "closedAt": "2026-09-19T06:51:04.584Z"
   },
   "1550260920427618374": {
-    "status": "open",
+    "status": "🟡 Transferred to sircosmix",
     "channel": {
       "id": "1550260920427618374",
       "name": "hiring-4",
@@ -369,65 +369,22 @@
       "• SirCosmix has force claimed ticket - Ticket moving nicely as of 17/9/26 23:05 BST",
       "• client passed questions phase - moving to interview"
     ],
-    "dashboardMessage": {
-      "id": "1550260924378775573",
-      "channelId": "1539010556701188206",
-      "url": "https://discord.com/channels/1517978818135195740/1539010556701188206/1550260924378775573",
-      "content": "",
-      "embeds": [
-        {
-          "type": "rich",
-          "title": "🎫 Hiring Application #4",
-          "timestamp": "2026-09-19T09:55:47.873000+00:00",
-          "id": "1550807615360081920",
-          "footer": {
-            "text": "Channel: hiring-4"
-          },
-          "fields": [
-            {
-              "value": "<@1281445753923047475>",
-              "name": "📋 User",
-              "inline": true
-            },
-            {
-              "value": "🟢 Open",
-              "name": "📌 Status",
-              "inline": true
-            },
-            {
-              "value": "• Ticket created\n• Client is applying for development ( game ), Checking whether it is open or not.\n• SirCosmix has force claimed ticket - Ticket moving nicely as of 17/9/26 23:05 BST\n• client passed questions phase - moving to interview",
-              "name": "📝 Progress Notes",
-              "inline": false
-            },
-            {
-              "value": "9/17/2026, 3:43:26 PM",
-              "name": "⏰ Created",
-              "inline": true
-            },
-            {
-              "value": "9/19/2026, 3:55:47 AM",
-              "name": "🔄 Last Updated",
-              "inline": true
-            }
-          ],
-          "description": "Role: Dev, Experience: I been building for 4 years. Ive worked with big creators such as norakulus and JD.",
-          "content_scan_version": 0,
-          "color": 39423
-        }
-      ],
-      "components": [],
-      "editedTimestamp": 1789811748124,
-      "updatedAt": "2026-09-19T09:55:48.209Z"
-    },
+    "dashboardMessage": null,
     "events": [
       {
         "type": "note",
         "info": "client passed questions phase - moving to interview",
         "timestamp": "2026-09-19T09:55:48.209Z"
+      },
+      {
+        "type": "transferred",
+        "status": "🟡 Transferred to sircosmix",
+        "userId": "1172089323223519235",
+        "timestamp": "2026-09-29T17:32:13.963Z"
       }
     ],
     "channelId": "1550260920427618374",
-    "updatedAt": "2026-09-29T17:26:37.275Z",
+    "updatedAt": "2026-09-29T17:32:40.731Z",
     "messages": [
       {
         "id": "1550985810243756113",
@@ -608,6 +565,51 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-29T17:26:37.110Z"
+      },
+      {
+        "id": "1554546245425430672",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "d!forceclaim 4",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T17:31:46.982Z"
+      },
+      {
+        "id": "1554546252228862075",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "📝 You have force claimed ticket #4.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T17:31:48.604Z"
+      },
+      {
+        "id": "1554546356369096825",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T17:32:13.433Z"
+      },
+      {
+        "id": "1554546463068131329",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "n!purge 6",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T17:32:38.872Z"
+      },
+      {
+        "id": "1554546470487588875",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "🧹 Deleted **6** messages.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T17:32:40.641Z"
       }
     ]
   },
