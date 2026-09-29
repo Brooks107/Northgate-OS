@@ -727,7 +727,7 @@
       "updatedAt": "2026-09-23T20:56:30.273Z"
     },
     "channelId": "1552336992413548584",
-    "updatedAt": "2026-09-25T03:21:39.849Z",
+    "updatedAt": "2026-09-27T20:11:08.316Z",
     "messages": [
       {
         "id": "1552337063511068734",
@@ -1340,6 +1340,24 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-25T03:21:39.755Z"
+      },
+      {
+        "id": "1553859813988114504",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "How are we getting on? I appreciate there is somewhat high ticket loads at the moment",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T20:04:08.974Z"
+      },
+      {
+        "id": "1553861572529623091",
+        "authorId": "1410407078643765340",
+        "authorTag": "coolbeanz02778",
+        "content": "astral said he",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-27T20:11:08.243Z"
       }
     ]
   },
@@ -5091,5 +5109,1779 @@
     ],
     "channelId": "1541401961637748787",
     "updatedAt": "2026-09-27T12:46:58.643Z"
+  },
+  "1554192225590714368": {
+    "ticketId": 3,
+    "status": "closed",
+    "openedAt": "9/28/2026, 12:05:03 PM",
+    "ticket": {
+      "id": 3,
+      "title": "Hiring Application",
+      "userId": "1523039072044581112",
+      "description": "Role: IT Sector, Experience: Hello Everyone, My self HyperLoop. I am Good in IT work. Just like creating Discord Bots, Custom Ticket Tools Etc. I know many Language Like: HTML, Java, C++, Python, C+",
+      "createdAt": "9/28/2026, 12:05:03 PM"
+    },
+    "channel": {
+      "id": "1554192225590714368",
+      "name": "hiring-3",
+      "topic": "owner:1523039072044581112"
+    },
+    "notes": [
+      "• Ticket created",
+      "• Applicee heading offline - will provide proof of work in javascript tomorrow",
+      "• Applicant being pushed to HR"
+    ],
+    "events": [
+      {
+        "type": "created",
+        "timestamp": "2026-09-28T18:05:03.097Z"
+      },
+      {
+        "type": "claimed",
+        "status": "🟡 Claimed by coffeetopss",
+        "userId": "1267321190821789780",
+        "timestamp": "2026-09-28T18:05:18.639Z"
+      },
+      {
+        "type": "unclaimed",
+        "status": "🟢 Open",
+        "timestamp": "2026-09-28T18:22:47.759Z"
+      },
+      {
+        "type": "claimed",
+        "status": "🟡 Claimed by brooksy246",
+        "userId": "1259124148798754907",
+        "timestamp": "2026-09-28T18:22:56.326Z"
+      },
+      {
+        "type": "note",
+        "info": "Applicee heading offline - will provide proof of work in javascript tomorrow",
+        "timestamp": "2026-09-28T18:41:30.163Z"
+      },
+      {
+        "type": "unclaimed",
+        "status": "🟢 Open",
+        "timestamp": "2026-09-29T06:30:34.316Z"
+      },
+      {
+        "type": "note",
+        "info": "Applicant being pushed to HR",
+        "timestamp": "2026-09-29T06:31:46.497Z"
+      },
+      {
+        "type": "closed",
+        "timestamp": "2026-09-29T10:29:04.279Z"
+      }
+    ],
+    "dashboardChannel": {
+      "id": "1539010556701188206",
+      "name": "ticket-dashboard"
+    },
+    "dashboardMessage": {
+      "id": "1554192230846173215",
+      "channelId": "1539010556701188206",
+      "url": "https://discord.com/channels/1517978818135195740/1539010556701188206/1554192230846173215",
+      "content": "",
+      "embeds": [
+        {
+          "type": "rich",
+          "title": "🎫 Hiring Application #3",
+          "timestamp": "2026-09-29T06:31:46.174000+00:00",
+          "id": "1554380148156006424",
+          "footer": {
+            "text": "Channel: hiring-3"
+          },
+          "fields": [
+            {
+              "value": "<@1523039072044581112>",
+              "name": "📋 User",
+              "inline": true
+            },
+            {
+              "value": "🟢 Open",
+              "name": "📌 Status",
+              "inline": true
+            },
+            {
+              "value": "• Ticket created\n• Applicee heading offline - will provide proof of work in javascript tomorrow\n• Applicant being pushed to HR",
+              "name": "📝 Progress Notes",
+              "inline": false
+            },
+            {
+              "value": "9/28/2026, 12:05:03 PM",
+              "name": "⏰ Created",
+              "inline": true
+            },
+            {
+              "value": "9/29/2026, 12:31:46 AM",
+              "name": "🔄 Last Updated",
+              "inline": true
+            }
+          ],
+          "description": "Role: IT Sector, Experience: Hello Everyone, My self HyperLoop. I am Good in IT work. Just like creating Discord Bots, Custom Ticket Tools Etc. I know many Language Like: HTML, Java, C++, Python, C+",
+          "content_scan_version": 0,
+          "color": 39423
+        }
+      ],
+      "components": [],
+      "editedTimestamp": 1790663506401,
+      "updatedAt": "2026-09-29T10:29:04.277Z"
+    },
+    "channelId": "1554192225590714368",
+    "updatedAt": "2026-09-29T10:29:04.282Z",
+    "messages": [
+      {
+        "id": "1554192291785080914",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:05:17.858Z"
+      },
+      {
+        "id": "1554192367668695153",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Hello <@1523039072044581112>",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:05:35.950Z"
+      },
+      {
+        "id": "1554192391148413112",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "Hello",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:05:41.548Z"
+      },
+      {
+        "id": "1554192476334592001",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "I am the Human Resources Executive Director, You may call me Coffee",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:06:01.858Z"
+      },
+      {
+        "id": "1554192518533615638",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "It's Ma'am actually",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:06:11.919Z"
+      },
+      {
+        "id": "1554192594471489557",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "Good Afternoon, ma'am Coffee",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:06:30.024Z"
+      },
+      {
+        "id": "1554192607620370473",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Anyways",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:06:33.159Z"
+      },
+      {
+        "id": "1554192653036425287",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "You said your applying for IT?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:06:43.987Z"
+      },
+      {
+        "id": "1554192680064393280",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "Yes",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:06:50.431Z"
+      },
+      {
+        "id": "1554192703078662235",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Do you have any Experiences?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:06:55.918Z"
+      },
+      {
+        "id": "1554192729293201560",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "If so Please list them",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:07:02.168Z"
+      },
+      {
+        "id": "1554193050635345973",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "I am a fresher, who create Discord Bots. For now i only work for my site name Site-05 \"DeepDown\" on the position of Head of Discord Moderation Team",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:08:18.782Z"
+      },
+      {
+        "id": "1554193190800850967",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "I mean IT Experience. Although it is nice to see you have management Experience.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:08:52.200Z"
+      },
+      {
+        "id": "1554193454903459872",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "As a IT Sector member i know the following Language which are listed Below\n- HTML\n- JAVA\n- C++\n- CSS\n- Python\n- C+",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:09:55.167Z"
+      },
+      {
+        "id": "1554193543411663022",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "And for how long have you been doing this?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:10:16.269Z"
+      },
+      {
+        "id": "1554194031796297845",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "https://klipy.com/gifs/backflip-seiya",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:12:12.709Z"
+      },
+      {
+        "id": "1554194305504120995",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "Some of my recent creation are\n- a chat bot. basically i convert chat GPT into discord Bot for my site on which we can play games, genrate images, ask question and the bot will answer",
+        "attachments": [
+          {
+            "name": "Screenshot_2026-09-28_230638.png",
+            "url": "https://cdn.discordapp.com/attachments/1554192225590714368/1554194303406841896/Screenshot_2026-09-28_230638.png?ex=6abbffbd&is=6abaae3d&hm=561175a1903b15f7db695b53bf7c3ebd79f7738f462443bde7c31e1ee59aa1fa&"
+          },
+          {
+            "name": "image.png",
+            "url": "https://cdn.discordapp.com/attachments/1554192225590714368/1554194303880929422/image.png?ex=6abbffbd&is=6abaae3d&hm=64535df89937e3a37e9e2ddb115945b56f64218e00f6135f36c145bbbff301fc&"
+          },
+          {
+            "name": "Screenshot_2026-09-28_234131.png",
+            "url": "https://cdn.discordapp.com/attachments/1554192225590714368/1554194304254218260/Screenshot_2026-09-28_234131.png?ex=6abbffbd&is=6abaae3d&hm=f5f48899a65c7ac9fff2cc75e46af6c866a11524562e05fea002cab1dba058f1&"
+          },
+          {
+            "name": "Screenshot_2026-09-28_234205.png",
+            "url": "https://cdn.discordapp.com/attachments/1554192225590714368/1554194304925179985/Screenshot_2026-09-28_234205.png?ex=6abbffbd&is=6abaae3d&hm=4643be6d6a5c84149312e323183827ff87f7f80eee6d1a655492e70ba2ef7b40&"
+          }
+        ],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:13:17.966Z"
+      },
+      {
+        "id": "1554194409841762395",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "from 6 to 7 months",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:13:42.842Z"
+      },
+      {
+        "id": "1554194453663588433",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "Greetings Potato. Would you mind showing me evidence of a discord bot that you yourself have actually coded?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:13:53.290Z"
+      },
+      {
+        "id": "1554194629211979860",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "<@1523039072044581112> \n\nThis is <@1259124148798754907> he is the Leading IT Technician Manager for the IT Department, He will now ask you Technical Questions that HR Cannot ask",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:14:35.144Z"
+      },
+      {
+        "id": "1554194710271103107",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "You know how i created, but if you want i can get you a coded one too using Python",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:14:54.470Z"
+      },
+      {
+        "id": "1554194871609458720",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "Our systems are in discord.js so if you can obtain one in that language that would be preferable.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:15:32.936Z"
+      },
+      {
+        "id": "1554195458715557979",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "Permission to show sample of my work",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:17:52.913Z"
+      },
+      {
+        "id": "1554195481561792555",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "Always",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:17:58.360Z"
+      },
+      {
+        "id": "1554195550176542864",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "Rather than discord tools",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:18:14.719Z"
+      },
+      {
+        "id": "1554195636679876670",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "So you have never coded a discord bot in discord.js?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:18:35.343Z"
+      },
+      {
+        "id": "1554196316614303846",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "If this is the case then I personally doubt it will take you long to learn - considering the amount of languages you already know and the fact you already know Javascript anyway.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:21:17.452Z"
+      },
+      {
+        "id": "1554196570574946335",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "d!forceclaim 3",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:22:18.001Z"
+      },
+      {
+        "id": "1554196586459041824",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "📝 You have force claimed ticket #3.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:22:21.788Z"
+      },
+      {
+        "id": "1554196607929417799",
+        "authorId": "1410407078643765340",
+        "authorTag": "coolbeanz02778",
+        "content": "Larp",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:22:26.907Z"
+      },
+      {
+        "id": "1554196690360344716",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:22:46.560Z"
+      },
+      {
+        "id": "1554196723776225371",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:22:54.527Z"
+      },
+      {
+        "id": "1554196983848108032",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "",
+        "attachments": [
+          {
+            "name": "IMG_20260928_235331.jpg",
+            "url": "https://cdn.discordapp.com/attachments/1554192225590714368/1554196983240073236/IMG_20260928_235331.jpg?ex=6abc023c&is=6abab0bc&hm=86ba20846dc6a2977422ee10298818e7759f78df9b1fe5525c80b5f794e907c3&"
+          }
+        ],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:23:56.533Z"
+      },
+      {
+        "id": "1554197170545234003",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "Please do not close this ticket it's midnight for me",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:24:41.045Z"
+      },
+      {
+        "id": "1554197218397786173",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "For proof I can send you time also",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:24:52.454Z"
+      },
+      {
+        "id": "1554197229265354905",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "This ticket wont be closed I promise",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:24:55.045Z"
+      },
+      {
+        "id": "1554197309565436028",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "We Accommodate for Applicants. Dw your Ticket will be held Open.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:25:14.190Z"
+      },
+      {
+        "id": "1554197445313830972",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "",
+        "attachments": [
+          {
+            "name": "image0.jpg",
+            "url": "https://cdn.discordapp.com/attachments/1554192225590714368/1554197444818894898/image0.jpg?ex=6abc02aa&is=6abab12a&hm=570b0a7d69aeeafaf459f232a66620c5ce91f0dfc6e981bf55a2537dba7a92f2&"
+          }
+        ],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:25:46.555Z"
+      },
+      {
+        "id": "1554197495058530366",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "You may check the time also on top left corner",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:25:58.415Z"
+      },
+      {
+        "id": "1554197626172342333",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "You use a 24 Hour Clock?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:26:29.675Z"
+      },
+      {
+        "id": "1554197654055952567",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "you dont?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:26:36.323Z"
+      },
+      {
+        "id": "1554197700365385859",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "No... I use a 12",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:26:47.364Z"
+      },
+      {
+        "id": "1554197735702270112",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "https://klipy.com/gifs/fanum-broccoli",
+        "attachments": [],
+        "embeds": [
+          {
+            "video": {
+              "width": 534,
+              "url": "https://static.klipy.com/ii/cfb42878805dcb270f51b28683e7455a/a8/f8/oVoNgRg4i95OWUCKWL.mp4",
+              "proxy_url": "https://images-ext-1.discordapp.net/external/Oc5s9xotshHswFc8hYAMeOLDw1GNxLG6tAX7EV8lMl4/https/static.klipy.com/ii/cfb42878805dcb270f51b28683e7455a/a8/f8/oVoNgRg4i95OWUCKWL.mp4",
+              "placeholder_version": 1,
+              "placeholder": "CQgKDYAIlnhxjHd8hmeXhQlxu0CD",
+              "height": 402,
+              "flags": 0
+            },
+            "url": "https://klipy.com/gifs/fanum-broccoli",
+            "type": "gifv",
+            "title": "Fanum Broccoli",
+            "thumbnail": {
+              "width": 534,
+              "url": "https://static.klipy.com/ii/cfb42878805dcb270f51b28683e7455a/a8/f8/IXtuz6Xz2QKO.webp",
+              "proxy_url": "https://images-ext-1.discordapp.net/external/eRLHF0WXxlDbTs23o-anPJ2gadZ76KkZi5hqcUsdZaI/https/static.klipy.com/ii/cfb42878805dcb270f51b28683e7455a/a8/f8/IXtuz6Xz2QKO.webp",
+              "placeholder_version": 1,
+              "placeholder": "CQgKDYAIlnhxjHd8hmeXhQlxu0CD",
+              "height": 402,
+              "flags": 0,
+              "content_type": ""
+            },
+            "provider": {
+              "url": "https://klipy.com",
+              "name": "Klipy"
+            },
+            "id": "1554197735702270113",
+            "content_scan_version": 4
+          }
+        ],
+        "createdAt": "2026-09-28T18:26:55.789Z"
+      },
+      {
+        "id": "1554197797945737239",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "I personally Like seeing The time instead of suffering to figure it out",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:27:10.629Z"
+      },
+      {
+        "id": "1554197887179689995",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "No. - 12 = time",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:27:31.904Z"
+      },
+      {
+        "id": "1554197910533705870",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "not that hard bro",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:27:37.472Z"
+      },
+      {
+        "id": "1554197911758438431",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": ":soi",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:27:37.764Z"
+      },
+      {
+        "id": "1554198055945769102",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "https://cdn.discordapp.com/attachments/1466069410631647282/1480688316402765895/togif-2.gif",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:28:12.141Z"
+      },
+      {
+        "id": "1554199241898070036",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "my work",
+        "attachments": [
+          {
+            "name": "image.png",
+            "url": "https://cdn.discordapp.com/attachments/1554192225590714368/1554199241109274707/image.png?ex=6abc0456&is=6abab2d6&hm=05c619198fc5c692bfc8f4ba8a8ecdfd9c5fdaa6b86d1585fc872fbd4cf308a6&"
+          }
+        ],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:32:54.894Z"
+      },
+      {
+        "id": "1554199320486739998",
+        "authorId": "1410407078643765340",
+        "authorTag": "coolbeanz02778",
+        "content": "https://klipy.com/gifs/speed-ishowspeed-67",
+        "attachments": [],
+        "embeds": [
+          {
+            "video": {
+              "width": 498,
+              "url": "https://static.klipy.com/ii/4493325008d34b7bf8cd6813cd5c1619/a8/cd/qFJCg4FaEe9Z0uKr.mp4",
+              "proxy_url": "https://images-ext-1.discordapp.net/external/H6GIPL2q-BcmHbqgvup1IjDW8zE8szIcpgiahBpKb9I/https/static.klipy.com/ii/4493325008d34b7bf8cd6813cd5c1619/a8/cd/qFJCg4FaEe9Z0uKr.mp4",
+              "placeholder_version": 1,
+              "placeholder": "0jgGJ4gUmUlPp3eNioaJqHm3ZuC2Bm0L",
+              "height": 490,
+              "flags": 0
+            },
+            "url": "https://klipy.com/gifs/speed-ishowspeed-67",
+            "type": "gifv",
+            "title": "Speed Ishowspeed",
+            "thumbnail": {
+              "width": 498,
+              "url": "https://static.klipy.com/ii/4493325008d34b7bf8cd6813cd5c1619/a8/cd/kS0QRre9HFI75Q3Mif8M.webp",
+              "proxy_url": "https://images-ext-1.discordapp.net/external/xVt-P7OndQBLw-DSixBuuqRKFMcK-Y6nZvK3dAgwnFA/https/static.klipy.com/ii/4493325008d34b7bf8cd6813cd5c1619/a8/cd/kS0QRre9HFI75Q3Mif8M.webp",
+              "placeholder_version": 1,
+              "placeholder": "0jgGJ4gUmUlPp3eNioaJqHm3ZuC2Bm0L",
+              "height": 490,
+              "flags": 0,
+              "content_type": ""
+            },
+            "provider": {
+              "url": "https://klipy.com",
+              "name": "Klipy"
+            },
+            "id": "1554199320486739999",
+            "content_scan_version": 4
+          }
+        ],
+        "createdAt": "2026-09-28T18:33:13.631Z"
+      },
+      {
+        "id": "1554199372697174156",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "https://klipy.com/gifs/okay-sounds-good",
+        "attachments": [],
+        "embeds": [
+          {
+            "video": {
+              "width": 640,
+              "url": "https://static.klipy.com/ii/8ce8357c78ea940b9c2015daf05ce1a5/05/13/UQwaaZTSmuVUdC.mp4",
+              "proxy_url": "https://images-ext-1.discordapp.net/external/nRHYW-faBhQCgnVxJkojIqQ3LlooV0hvBeJOO0bNl9k/https/static.klipy.com/ii/8ce8357c78ea940b9c2015daf05ce1a5/05/13/UQwaaZTSmuVUdC.mp4",
+              "placeholder_version": 1,
+              "placeholder": "ICgKHoJmN3hginubeYdnZ4d6ho9y9gk=",
+              "height": 512,
+              "flags": 0
+            },
+            "url": "https://klipy.com/gifs/okay-sounds-good",
+            "type": "gifv",
+            "title": "Jim Halpert: Okay Sounds Good",
+            "thumbnail": {
+              "width": 498,
+              "url": "https://static.klipy.com/ii/8ce8357c78ea940b9c2015daf05ce1a5/05/13/yhEtSeZp.webp",
+              "proxy_url": "https://images-ext-1.discordapp.net/external/Ei09SHs_JG22i5y8ScWsZZtfQ39uyQ2FmOfMOkrLbiQ/https/static.klipy.com/ii/8ce8357c78ea940b9c2015daf05ce1a5/05/13/yhEtSeZp.webp",
+              "placeholder_version": 1,
+              "placeholder": "ICgKHoJmN3hginubeYdnZ4d6ho9y9gk=",
+              "height": 398,
+              "flags": 0,
+              "content_type": ""
+            },
+            "provider": {
+              "url": "https://klipy.com",
+              "name": "Klipy"
+            },
+            "id": "1554199372697174157",
+            "content_scan_version": 4
+          }
+        ],
+        "createdAt": "2026-09-28T18:33:26.079Z"
+      },
+      {
+        "id": "1554199490963963924",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "",
+        "attachments": [
+          {
+            "name": "image.png",
+            "url": "https://cdn.discordapp.com/attachments/1554192225590714368/1554199490573897850/image.png?ex=6abc0492&is=6abab312&hm=8d735010d103af107c4780d86b24d8e53441f931611c5c09663316ee10e2c232&"
+          }
+        ],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:33:54.276Z"
+      },
+      {
+        "id": "1554199501315510314",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "https://klipy.com/gifs/pocelui-17",
+        "attachments": [],
+        "embeds": [
+          {
+            "video": {
+              "width": 498,
+              "url": "https://static.klipy.com/ii/925f17378dd1893b674a723c07535afe/7c/2a/uw0UoeYA.mp4",
+              "proxy_url": "https://images-ext-1.discordapp.net/external/mXvf7pjY0aXKGJQssCxkxkbFHbSIBpdiu7tC-iXnuHI/https/static.klipy.com/ii/925f17378dd1893b674a723c07535afe/7c/2a/uw0UoeYA.mp4",
+              "placeholder_version": 1,
+              "placeholder": "pCgODwIJZVhShIeUh1loSZl1tgbhJIAC",
+              "height": 498,
+              "flags": 0
+            },
+            "url": "https://klipy.com/gifs/pocelui-17",
+            "type": "gifv",
+            "title": "Милая девочка ест попкорн",
+            "thumbnail": {
+              "width": 498,
+              "url": "https://static.klipy.com/ii/925f17378dd1893b674a723c07535afe/7c/2a/zSiOXURd.webp",
+              "proxy_url": "https://images-ext-1.discordapp.net/external/VKLeeqLiiTepgH4VHW6evFri3Q0CFno2Em-wWqqYSbk/https/static.klipy.com/ii/925f17378dd1893b674a723c07535afe/7c/2a/zSiOXURd.webp",
+              "placeholder_version": 1,
+              "placeholder": "pCgODwIJZVhShIeUh1loSZl1tgbhJIAC",
+              "height": 498,
+              "flags": 0,
+              "content_type": ""
+            },
+            "provider": {
+              "url": "https://klipy.com",
+              "name": "Klipy"
+            },
+            "id": "1554199501315510315",
+            "content_scan_version": 4
+          }
+        ],
+        "createdAt": "2026-09-28T18:33:56.744Z"
+      },
+      {
+        "id": "1554199699001573397",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "<@1259124148798754907> code sample.. btw this is what i do in my free hour when i dont create bots",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:34:43.876Z"
+      },
+      {
+        "id": "1554199921069129871",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "tomorrow you will get the sample of discord bot also. using js",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:35:36.821Z"
+      },
+      {
+        "id": "1554200240779825155",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "using js?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:36:53.046Z"
+      },
+      {
+        "id": "1554200265064718428",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "Perfect thats exactly what I was after",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:36:58.836Z"
+      },
+      {
+        "id": "1554200314830131230",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "<@1267321190821789780> <@1410407078643765340> <@1259124148798754907>  Thank You, Sir/Ma'am for giving me your precious time. i will return tomorrow with the discord bot project too",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:37:10.701Z"
+      },
+      {
+        "id": "1554200384145461439",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "No problem, have a good night 🙂",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:37:27.227Z"
+      },
+      {
+        "id": "1554200407901864080",
+        "authorId": "1410407078643765340",
+        "authorTag": "coolbeanz02778",
+        "content": "👍 have a good night",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:37:32.891Z"
+      },
+      {
+        "id": "1554200463061159989",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "you want in js i will provide you my work in js",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:37:46.042Z"
+      },
+      {
+        "id": "1554200606543978600",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "good night, sir/ma'am. have a wonderfull day😊",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:38:20.251Z"
+      },
+      {
+        "id": "1554200700723142827",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "I mean hey if you're willing to learn and commit just to work here then I sincerely admire the effort",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:38:42.705Z"
+      },
+      {
+        "id": "1554200713523896433",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "anyway have a good night",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:38:45.757Z"
+      },
+      {
+        "id": "1554201400005886053",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "n!inject 3 Applicee heading offline - will provide proof of work in javascript tomorrow",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-28T18:41:29.427Z"
+      },
+      {
+        "id": "1554337899481276457",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "hi",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T03:43:53.438Z"
+      },
+      {
+        "id": "1554338006339428373",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "require('dotenv').config();\nconst { Client, IntentsBitField } = require('discord.js');\n\nconst client = new Client({\n  intents: [\n    IntentsBitField.Flags.Guilds,\n    IntentsBitField.Flags.GuildMembers,\n    IntentsBitField.Flags.GuildMessages,\n    IntentsBitField.Flags.MessageContent,\n  ],\n});\n\nclient.on('ready', (c) => {\n  console.log(`✅ ${c.user.tag} is online.`);\n});\n\nclient.on('messageCreate', (message) => {\n  if (message.author.bot) {\n    return;\n  }\n\n  if (message.content === 'hello') {\n    message.reply('hello');\n  }\n});\n\nclient.login(process.env.TOKEN);",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T03:44:18.915Z"
+      },
+      {
+        "id": "1554338536256315476",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "i am very much willing to work and learn new stuff from you and other members",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T03:46:25.257Z"
+      },
+      {
+        "id": "1554338716997259265",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "let me be truthfull, i am a fresher in making discord bots",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T03:47:08.349Z"
+      },
+      {
+        "id": "1554338765001068576",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "i am still learning new concepts",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T03:47:19.794Z"
+      },
+      {
+        "id": "1554345908764934145",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "I created this sample to show that I understand of JavaScript. Instead of writing custom scripts by hand that take 2 to 3 hours, I now use modern automation tools where you build and setup functional bots in just 10 to 15 minutes. Teams and studios, working smart is important, and I assist in getting working setups crafted within minutes instead of taking 1 to 2 days thus providing valuable time for the team to redirect it towards development.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T04:15:43.000Z"
+      },
+      {
+        "id": "1554345989660344361",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "This is the fact.. please mind my terms",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T04:16:02.287Z"
+      },
+      {
+        "id": "1554346191448313908",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "I created this to just showcase you that i know how to work in java script, but the truth is scripter culture got over in 2022. we are living in 2026 where automation can be done in second the bot i created just took me 10 to 15 min. the work which you do took you guys 2 to 3 hours roughly the same work i can do in 15 to 20 min. every company, organization, studios or any sort of work place want smart people who can build and set-up the bots in less period of time rather then takin 1 to 2 days.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T04:16:50.397Z"
+      },
+      {
+        "id": "1554348984707977257",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "<@1259124148798754907> <@1410407078643765340> <@1267321190821789780> Please dont mind my words",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T04:27:56.362Z"
+      },
+      {
+        "id": "1554349348639215639",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Your lucky, I got no clue what I'm looking at",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T04:29:23.130Z"
+      },
+      {
+        "id": "1554349531691221033",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "i am sorry i said alot..",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T04:30:06.773Z"
+      },
+      {
+        "id": "1554349583931281449",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "i should control my words",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T04:30:19.228Z"
+      },
+      {
+        "id": "1554349917768785941",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "That's up to you",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T04:31:38.821Z"
+      },
+      {
+        "id": "1554350028456198175",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "sorry again.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T04:32:05.211Z"
+      },
+      {
+        "id": "1554350083829665885",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "It's cool dw",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T04:32:18.413Z"
+      },
+      {
+        "id": "1554352522833956897",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "i just want this job so that i can earn some roblox so that i can buy a NGC map for my site.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T04:41:59.917Z"
+      },
+      {
+        "id": "1554352634671145000",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T04:42:26.581Z"
+      },
+      {
+        "id": "1554352682867757067",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T04:42:38.072Z"
+      },
+      {
+        "id": "1554353184443596803",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "i can work whole day and night.. i didn't think to buy something for me. i just want to see my site getting success full.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T04:44:37.657Z"
+      },
+      {
+        "id": "1554353727392063491",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "i just want to make my site the most played site ever in SCP:RP",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T04:46:47.106Z"
+      },
+      {
+        "id": "1554354402402238516",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "My real name: Tanishq\nCountry: India\nAge: 18",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T04:49:28.041Z"
+      },
+      {
+        "id": "1554373417615237133",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "and just to check, you understand what is happening at each section of the code?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:05:01.621Z"
+      },
+      {
+        "id": "1554373564331855923",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "Yes, Sir.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:05:36.601Z"
+      },
+      {
+        "id": "1554373610439974945",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "Very good, I’m impressed.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:05:47.594Z"
+      },
+      {
+        "id": "1554373744598978592",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "thank you, sir.  i state my reason also why i need this job",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:06:19.580Z"
+      },
+      {
+        "id": "1554373884990464054",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "No I will tell you something, there is no way of denying that me and Coolbeanz use AI to assist us while we’re coding. But the main factor is that we understand what the AI is doing by looking at the code, although we couldn’t write it, we’re learning as we do so, rather than letting it work and then just leaving it",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:06:53.052Z"
+      },
+      {
+        "id": "1554374125793968189",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "Are you familiar with Github repos, a gitsync system and the Push pull system of Visual Studio?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:07:50.464Z"
+      },
+      {
+        "id": "1554374342652076072",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "I think you got your answer",
+        "attachments": [
+          {
+            "name": "image.png",
+            "url": "https://cdn.discordapp.com/attachments/1554192225590714368/1554374341532319814/image.png?backend=b2&ex=6abca769&is=6abb55e9&hm=786bd7c05dcad900215163174fe6fb028d97e56e4283ad9ee311e3b0552792d1&"
+          }
+        ],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:08:42.167Z"
+      },
+      {
+        "id": "1554374531236368415",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "I also love the dotenv and gitignore",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:09:27.129Z"
+      },
+      {
+        "id": "1554374712153473085",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "Anyway, are you familiar with the visual studio code Liveshare plugin?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:10:10.263Z"
+      },
+      {
+        "id": "1554374728347684936",
+        "authorId": "1114234318382968843",
+        "authorTag": "itsvalve",
+        "content": "Just quickly wanted to say, I am very much impressed.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:10:14.124Z"
+      },
+      {
+        "id": "1554374775361638492",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "As you should be",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:10:25.333Z"
+      },
+      {
+        "id": "1554374997395378229",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "Thank you, sir.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:11:18.270Z"
+      },
+      {
+        "id": "1554375298244681729",
+        "authorId": "1114234318382968843",
+        "authorTag": "itsvalve",
+        "content": "No need to thank me, your work should be appreciated. I am very much pleased by your work, and professional attire.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:12:29.998Z"
+      },
+      {
+        "id": "1554375381211947021",
+        "authorId": "1114234318382968843",
+        "authorTag": "itsvalve",
+        "content": "If this man doesn’t get hired, I’ll be fuming at whoever decided that.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:12:49.779Z"
+      },
+      {
+        "id": "1554375401264914493",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "Yes, Sir.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:12:54.560Z"
+      },
+      {
+        "id": "1554375466998042635",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "Yes Sir.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:13:10.232Z"
+      },
+      {
+        "id": "1554375725258252360",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "as i am doing coding from the age when i was 13 year",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:14:11.806Z"
+      },
+      {
+        "id": "1554375865373163521",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "Perfect,now I shouldn’t come to too much of a surprise having access to our discord bots code is a very easy and ready made way to kaboom the server. So with that, for the first couple months of your employment you will be using the LS system so we can monitor your work and assure the security of the server.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:14:45.212Z"
+      },
+      {
+        "id": "1554376160161570889",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "Sure..",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:15:55.495Z"
+      },
+      {
+        "id": "1554376588563316789",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "Now obviously it won’t stay like that forever, and if you prove yourself before the above timeframe then we can maybe discuss you having access to a repo clone, so you can work independently",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:17:37.634Z"
+      },
+      {
+        "id": "1554376785427173379",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "-# also know the above security protocols are enforced by Ownership and and Human Resources team",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:18:24.570Z"
+      },
+      {
+        "id": "1554378166330462243",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "Well Potato, to say I am impressed would be a heavy understatement, you have outstanded me with your work today, and if nobody else has any objections you will be forwarded to Human Resources for standard hiring procedures, and then if all goes well then we should see you in the team quite soon. Have a good day 🙂\n\n-# Yes purple I know I didn’t ask him the 20 questions and trust me I don’t need to",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:23:53.803Z"
+      },
+      {
+        "id": "1554379746257674310",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:30:10.487Z"
+      },
+      {
+        "id": "1554379841539674242",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:30:33.204Z"
+      },
+      {
+        "id": "1554380145715060797",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "n!inject 3 Applicant being pushed to HR",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:31:45.725Z"
+      },
+      {
+        "id": "1554380399696937073",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "sorry for Late reply i went to take shower",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:32:46.279Z"
+      },
+      {
+        "id": "1554380571243847694",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "No worries at all",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:33:27.179Z"
+      },
+      {
+        "id": "1554380645977956363",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "Thank you sir.....",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:33:44.997Z"
+      },
+      {
+        "id": "1554381110782205984",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "anytime, have a great day",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:35:35.815Z"
+      },
+      {
+        "id": "1554381378999816234",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "dont mind if i ask how much IT sector get paided",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:36:39.763Z"
+      },
+      {
+        "id": "1554381649767170130",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "Like I said in DMs, payment heavily depends on the financial situation of the studio, if ownership feels they have the money to compensate us for our work here then we shall get a share",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:37:44.319Z"
+      },
+      {
+        "id": "1554381751411806239",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "How big of a share too depends on that factor",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:38:08.553Z"
+      },
+      {
+        "id": "1554381962020528139",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "ohk....",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:38:58.766Z"
+      },
+      {
+        "id": "1554382019637805117",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "thank you for the answer...",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:39:12.503Z"
+      },
+      {
+        "id": "1554382873413558273",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "No problem. When you get hired I’ll add you the to config.developer on the main bot so you can test some stuff yourself and see what it does. We’ll go over cans and can’ts when we get there",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:42:36.059Z"
+      },
+      {
+        "id": "1554383191161446478",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "if god wish i will soon join IT team",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:43:51.816Z"
+      },
+      {
+        "id": "1554385141517000765",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "if i got accepted as IT member i will get some money which i can invest on you guys and on my site",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:51:36.817Z"
+      },
+      {
+        "id": "1554400559375712269",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "<@1267321190821789780> interview completed",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T07:52:52.721Z"
+      },
+      {
+        "id": "1554401076290256908",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "<@1298575375755907072> if i am not wrong you are O5-1 in jacoby",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T07:54:55.963Z"
+      },
+      {
+        "id": "1554401228744564747",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "name is mr Rook",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T07:55:32.311Z"
+      },
+      {
+        "id": "1554422409912909885",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "<@1523039072044581112>",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T09:19:42.295Z"
+      },
+      {
+        "id": "1554435537601961995",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "sorry for the late reply ma'am. i was taking a powernap",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:11:52.180Z"
+      },
+      {
+        "id": "1554435724814852097",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Now that Technical Questions are over I need to ask you Some Busy work Questions I need for your HR File",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:12:36.815Z"
+      },
+      {
+        "id": "1554435830888792067",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "- What's your availability?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:13:02.105Z"
+      },
+      {
+        "id": "1554436422029672489",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "As i am an Indian i have different timezone. on weekends i can be available for 3 to 5 hours and on working day i can be available for 2 to 3 hours",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:15:23.044Z"
+      },
+      {
+        "id": "1554436719581855765",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Dw Man, Every Staff Member here at NGC are all Europeans, Mainly from the Emirates, Britain, India, and Germany.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:16:33.986Z"
+      },
+      {
+        "id": "1554437057428856853",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "so in working days 2 to 3 hours daily and in weekends 3 to 5 hours",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:17:54.535Z"
+      },
+      {
+        "id": "1554437191222956043",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "- Do you have any Other Commitments that may Interfere with your Ability to do your job?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:18:26.434Z"
+      },
+      {
+        "id": "1554437427060277260",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "This could be Other Discord Work, Or anything Going on IRL",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:19:22.662Z"
+      },
+      {
+        "id": "1554437473352945757",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "Negative, ma'am.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:19:33.699Z"
+      },
+      {
+        "id": "1554437506299068460",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Oh that's Fantastic",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:19:41.554Z"
+      },
+      {
+        "id": "1554437721991286785",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "I can work in every type of Scenarios i just need my laptop and the work will begain.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:20:32.979Z"
+      },
+      {
+        "id": "1554437787401588848",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "What Position did your Manager say you would be?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:20:48.574Z"
+      },
+      {
+        "id": "1554437937012154462",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "I dont know, ma'am.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:21:24.244Z"
+      },
+      {
+        "id": "1554437971724214305",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "I see..",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:21:32.520Z"
+      },
+      {
+        "id": "1554438228420071487",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "my manager mr.brook ask some question then appriciate my work and transfer it to HR",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:22:33.721Z"
+      },
+      {
+        "id": "1554438277707206657",
+        "authorId": "1542904139443343370",
+        "authorTag": "NorthOperations OS#5962",
+        "content": "<@1523039072044581112>",
+        "attachments": [],
+        "embeds": [
+          {
+            "type": "rich",
+            "title": "Welcome to the team, Hyperloop!",
+            "timestamp": "2026-09-29T10:22:45.350000+00:00",
+            "thumbnail": {
+              "width": 0,
+              "url": "https://cdn.discordapp.com/avatars/1523039072044581112/e97966fb922d3c62add3631970a10554.webp",
+              "proxy_url": "https://images-ext-1.discordapp.net/external/yn0UdGtrDySgZYGQruY-QyBz151q35oSS7mKpo7ItLQ/https/cdn.discordapp.com/avatars/1523039072044581112/e97966fb922d3c62add3631970a10554.webp",
+              "height": 0,
+              "flags": 0,
+              "content_type": ""
+            },
+            "id": "1554438277707206656",
+            "footer": {
+              "text": "NorthGate Studios Staff Team"
+            },
+            "fields": [
+              {
+                "value": "Development",
+                "name": "Department",
+                "inline": true
+              },
+              {
+                "value": "IT Support Technician",
+                "name": "Role",
+                "inline": true
+              },
+              {
+                "value": "<@1267321190821789780>",
+                "name": "Hired by",
+                "inline": true
+              }
+            ],
+            "description": "Hey <@1523039072044581112>, welcome to the **NorthGate Studios** staff team!\n\nYou are joining **Development** as **IT Support Technician**. Before you get started, please read through the [staff handbook](https://docs.google.com/document/d/1vZx8tigurY7glO708EA4MByUBj-mORu_FrLJ_tTajAY/edit?usp=drivesdk). It covers how we work and what we expect from everyone on the team.\n\nWe are really glad to have you here, and we hope you make great contributions to our team.",
+            "color": 3066993
+          }
+        ],
+        "createdAt": "2026-09-29T10:22:45.472Z"
+      },
+      {
+        "id": "1554438425569132660",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "<@1523039072044581112>  Please read the Employee Handbook Linked above",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:23:20.725Z"
+      },
+      {
+        "id": "1554438493755940898",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "I don't want to see you in my Office anytime soon 💖",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:23:36.982Z"
+      },
+      {
+        "id": "1554438577356800022",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "What is my rank",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:23:56.914Z"
+      },
+      {
+        "id": "1554438646638321696",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "IT Support Technician",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:24:13.432Z"
+      },
+      {
+        "id": "1554438758948933633",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "Thank you, ma'am for hiring me..",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:24:40.209Z"
+      },
+      {
+        "id": "1554438802150396016",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "i will be a pleasure to work with you all.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:24:50.509Z"
+      },
+      {
+        "id": "1554439058372034571",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "I'll be making sure your Supervisor, and your Manager Ensures you have read the Employee Handbook",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:25:51.597Z"
+      },
+      {
+        "id": "1554439108086988951",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "I hope you do Well.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:26:03.450Z"
+      },
+      {
+        "id": "1554439172448718899",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Any Questions before I close this Ticket?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:26:18.795Z"
+      },
+      {
+        "id": "1554439217617047584",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "I was reading that only, currently on section 1",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:26:29.564Z"
+      },
+      {
+        "id": "1554439256649240627",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "Negative, ma'am.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:26:38.870Z"
+      },
+      {
+        "id": "1554439571305930783",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Well Remember if you EVER need help always Ask your Manager, If their Unavailable HR&SO is Always Online to answer questions, We have a Open Door Policy here at NGC",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:27:53.890Z"
+      },
+      {
+        "id": "1554439710376599553",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "This is the only reason i joined you guys.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:28:27.047Z"
+      },
+      {
+        "id": "1554439761928650864",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "the working enviroment is lovely",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:28:39.338Z"
+      },
+      {
+        "id": "1554439805520060447",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "<:doro:1533058418192158720> <a:dorovibe:1533058371446509590>",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:28:49.731Z"
+      },
+      {
+        "id": "1554439859475709993",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "🔒 Ticket closed. Saving transcript...",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:29:02.595Z"
+      }
+    ],
+    "closedAt": "2026-09-29T10:29:04.277Z"
+  },
+  "1545893101548081323": {
+    "status": "closed",
+    "closedAt": "2026-09-29T15:13:48.607Z",
+    "channel": {
+      "id": "1545893101548081323",
+      "name": "support-1",
+      "topic": "owner:1523830991603499081 claimed:1259124148798754907"
+    },
+    "events": [
+      {
+        "type": "closed",
+        "timestamp": "2026-09-29T15:13:48.610Z"
+      }
+    ],
+    "channelId": "1545893101548081323",
+    "updatedAt": "2026-09-29T15:13:48.613Z"
   }
 }
