@@ -5112,7 +5112,7 @@
   },
   "1554192225590714368": {
     "ticketId": 3,
-    "status": "open",
+    "status": "closed",
     "openedAt": "9/28/2026, 12:05:03 PM",
     "ticket": {
       "id": 3,
@@ -5167,6 +5167,10 @@
         "type": "note",
         "info": "Applicant being pushed to HR",
         "timestamp": "2026-09-29T06:31:46.497Z"
+      },
+      {
+        "type": "closed",
+        "timestamp": "2026-09-29T10:29:04.279Z"
       }
     ],
     "dashboardChannel": {
@@ -5221,10 +5225,10 @@
       ],
       "components": [],
       "editedTimestamp": 1790663506401,
-      "updatedAt": "2026-09-29T06:31:46.493Z"
+      "updatedAt": "2026-09-29T10:29:04.277Z"
     },
     "channelId": "1554192225590714368",
-    "updatedAt": "2026-09-29T10:26:38.950Z",
+    "updatedAt": "2026-09-29T10:29:04.282Z",
     "messages": [
       {
         "id": "1554192291785080914",
@@ -6814,7 +6818,53 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-29T10:26:38.870Z"
+      },
+      {
+        "id": "1554439571305930783",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Well Remember if you EVER need help always Ask your Manager, If their Unavailable HR&SO is Always Online to answer questions, We have a Open Door Policy here at NGC",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:27:53.890Z"
+      },
+      {
+        "id": "1554439710376599553",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "This is the only reason i joined you guys.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:28:27.047Z"
+      },
+      {
+        "id": "1554439761928650864",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "the working enviroment is lovely",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:28:39.338Z"
+      },
+      {
+        "id": "1554439805520060447",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "<:doro:1533058418192158720> <a:dorovibe:1533058371446509590>",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:28:49.731Z"
+      },
+      {
+        "id": "1554439859475709993",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "🔒 Ticket closed. Saving transcript...",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:29:02.595Z"
       }
-    ]
+    ],
+    "closedAt": "2026-09-29T10:29:04.277Z"
   }
 }
