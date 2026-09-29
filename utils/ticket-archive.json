@@ -5224,7 +5224,7 @@
       "updatedAt": "2026-09-29T06:31:46.493Z"
     },
     "channelId": "1554192225590714368",
-    "updatedAt": "2026-09-29T10:11:52.235Z",
+    "updatedAt": "2026-09-29T10:16:34.047Z",
     "messages": [
       {
         "id": "1554192291785080914",
@@ -6543,6 +6543,42 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-29T10:11:52.180Z"
+      },
+      {
+        "id": "1554435724814852097",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Now that Technical Questions are over I need to ask you Some Busy work Questions I need for your HR File",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:12:36.815Z"
+      },
+      {
+        "id": "1554435830888792067",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "- What's your availability?",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:13:02.105Z"
+      },
+      {
+        "id": "1554436422029672489",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "As i am an Indian i have different timezone. on weekends i can be available for 3 to 5 hours and on working day i can be available for 2 to 3 hours",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:15:23.044Z"
+      },
+      {
+        "id": "1554436719581855765",
+        "authorId": "1267321190821789780",
+        "authorTag": "coffeetopss",
+        "content": "Dw Man, Every Staff Member here at NGC are all Europeans, Mainly from the Emirates, Britain, India, and Germany.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T10:16:33.986Z"
       }
     ]
   }
