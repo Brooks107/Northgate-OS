@@ -5224,7 +5224,7 @@
       "updatedAt": "2026-09-29T06:31:46.493Z"
     },
     "channelId": "1554192225590714368",
-    "updatedAt": "2026-09-29T06:36:39.829Z",
+    "updatedAt": "2026-09-29T06:39:12.578Z",
     "messages": [
       {
         "id": "1554192291785080914",
@@ -6435,6 +6435,42 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-29T06:36:39.763Z"
+      },
+      {
+        "id": "1554381649767170130",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "Like I said in DMs, payment heavily depends on the financial situation of the studio, if ownership feels they have the money to compensate us for our work here then we shall get a share",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:37:44.319Z"
+      },
+      {
+        "id": "1554381751411806239",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "How big of a share too depends on that factor",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:38:08.553Z"
+      },
+      {
+        "id": "1554381962020528139",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "ohk....",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:38:58.766Z"
+      },
+      {
+        "id": "1554382019637805117",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "thank you for the answer...",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:39:12.503Z"
       }
     ]
   }
