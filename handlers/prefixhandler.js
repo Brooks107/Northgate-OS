@@ -94,17 +94,25 @@ module.exports = async function handlePrefixCommand(message, config) {
 				return message.reply(`❌ Ticket #${id} does not exist.`);
 			}
 
-			const messages = await ticketChannel.messages.fetch({ limit: 100 });
-			const ticketMessage = messages.find(ticket =>
-				ticket.author.id === message.client.user.id &&
-				ticket.embeds.some(embed => embed.title?.includes(`#${id}`))
-			);
+			const initialMessages = await ticketChannel.messages.fetch({ after: ticketChannel.id, limit: 10 }).catch(() => null);
+
+			const ticketMessage = initialMessages?.find(m => m.author.id === client.user.id && m.components.length > 0)
+				|| initialMessages?.find(m => m.author.id === client.user.id);
+
+			if (!ticketMessage) {
+				return interaction.editReply(`❌ Could not find the original ticket control message in ${ticketChannel}.`);
+			}
+
 			if (!ticketMessage) {
 				return message.reply("❌ Could not find the ticket message.");
 			}
 
-			const isInterrogationTicket = ticketChannel.name.startsWith("interrogation-");
 			const row = new ActionRowBuilder().addComponents(
+				new ButtonBuilder()
+					.setCustomId(`ticket_claimed_${interaction.user.id}`)
+					.setLabel(`🙋‍♂️ Claimed by ${interaction.user.displayName || interaction.user.username}`)
+					.setStyle(ButtonStyle.Secondary)
+					.setDisabled(true),
 				new ButtonBuilder()
 					.setCustomId(isInterrogationTicket ? "intero_close" : "ticket_close")
 					.setLabel("🔒 Close Ticket")
