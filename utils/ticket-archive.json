@@ -5213,7 +5213,7 @@
       "updatedAt": "2026-09-28T18:41:30.160Z"
     },
     "channelId": "1554192225590714368",
-    "updatedAt": "2026-09-29T06:14:45.277Z",
+    "updatedAt": "2026-09-29T06:18:24.708Z",
     "messages": [
       {
         "id": "1554192291785080914",
@@ -6316,6 +6316,33 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-29T06:14:45.212Z"
+      },
+      {
+        "id": "1554376160161570889",
+        "authorId": "1523039072044581112",
+        "authorTag": "hyperloop212008.",
+        "content": "Sure..",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:15:55.495Z"
+      },
+      {
+        "id": "1554376588563316789",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "Now obviously it won’t stay like that forever, and if you prove yourself before the above timeframe then we can maybe discuss you having access to a repo clone, so you can work independently",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:17:37.634Z"
+      },
+      {
+        "id": "1554376785427173379",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "-# also know the above security protocols are enforced by Ownership and and Human Resources team",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-29T06:18:24.570Z"
       }
     ]
   }
