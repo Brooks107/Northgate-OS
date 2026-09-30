@@ -324,7 +324,70 @@ module.exports = async function handlePrefixCommand(message, config) {
 
         return;
     }
-
+    if (command === "ticketrules") {
+        if (!message.member?.permissions.has(PermissionFlagsBits.Administrator)) {
+            return message.reply("❌ Only Administrators can use this command")
+        }
+        const ticketChannelID = (
+            config.channels?.ticketchannelid
+        );
+        if (!ticketChannelID || !/^[0-9]+$/.test(String(rulesChannelID))) {
+            console.warn("[tickets] no valid ticket channel configured")
+            return message.reply("❌ the ticket channel is not configured yet")
+        }
+        
+        const embed = {
+            title: "Northgate Studios Ticket Regulations",
+            description: [
+                "**NOTICE**",
+                "",
+                "By opening a NGC ticket using the <@1536279872127762492> ticket system, you consent to the storage of your data in our tracking channels and the retention of that data in our ticket archive stored in our systems - This information stored will only be accessible to all staff throughout the time your ticket is open. After closure only <@1259124148798754907> and <@1410407078643765340> may go back and look at the full archive. Please DM them to request any erasures.",
+                "",
+                `Northgate Studios reserves the right to close, deny or otherwise turn down service towards any ticket opener at NGC with, or without notice. Including but not limited to: "Partnerships", "Commissions" "Hiring" and "Appeals"`,
+                "",
+            ].join("\n"),
+            image: {
+                url: "https://media.discordapp.net/attachments/1292046260261621851/1365439251545591888/NGC_poster-1.gif?width=400&height=225&ex=6abe27a6&is=6abcd626&hm=0b40ae378e158dfb4cc9f0fa3ea1b944f1dcb8294f64477aa56434696ee1c078&",
+            },
+            footer: {
+                text: "Official ticket regulations | Created by Brooks | Powered by Vortigern Industries"
+            },
+            fields: [
+                {
+                    name: "Informational Technology Team",
+                    value: "Throughout the course of your ticket you **may** see IT members interacting with your ticket and running commands, please know this is not affecting the outcome of whatever ticket type you have open and we're just ensuring the integrity of our systems. IT Members may also decide to handle very small scale incidents to take some of the weight of the shoulders of the Upper Management and Support Team.",
+                },
+                {
+                    name: "No ticket spamming",
+                    value: "If you come to the unfortunate conclusion your ticket has been closed and you haven't gained the result you were looking for, please do not immediately re-open a new ticket trying again.",
+                },
+                {
+                    name: "Inactivity",
+                    value: "If a ticket goes inactive for longer than 24 hours, a warning will be posted inside the chat by a support member - If 24 hours passes and this still hasn't been replied to then the ticket will be closed.",
+                },
+                {
+                    name: "General Etiquette",
+                    value: "Please have common sense when opening a ticket. Support Staff cannot be active 24/7 and may have some delays between replies, therefore please do not repeatedly tag and harass members of staff to reply to your ticket. Please keep all conversions within the ticket to a respectful manner, we at NGC want the best for our community and ask you polite and respectful."
+                },
+                {
+                    name: "Confidentiality",
+                    value: "Any conversions that happen within a ticket are confidential and restricted to you and the members of staff who have access - Please ask permission before sending external entities screenshots or forwarding messages. This is for the privacy and safety of our staff and any users who may be involved in any ongoing situation.",
+                },
+                {
+                    name: "Enforcement",
+                    value: "The above policies will be enforced at all times, regardless of whether you have read them or not. Not reading rules is not an excuse for misconduct and will be met equally as harshly as someone who has read the rules."
+                    
+                }
+            ]
+        };
+        
+        try {
+            await rulesChannel.send({ embeds: [embed] });
+        } catch (err) {
+            console.error("[rules] failed to send rules embed:", err);
+            return message.reply("❌ I cannot send the rules embed in that channel. Check channel permissions.");
+        }
+    }
     if (command === "rules") {
         if (!message.member?.permissions.has(PermissionFlagsBits.Administrator)) {
             return message.reply("❌ Only administrators can use this command.");
