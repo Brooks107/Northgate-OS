@@ -384,7 +384,7 @@
       }
     ],
     "channelId": "1550260920427618374",
-    "updatedAt": "2026-09-29T18:39:57.815Z",
+    "updatedAt": "2026-09-30T19:45:33.136Z",
     "messages": [
       {
         "id": "1550985810243756113",
@@ -637,6 +637,24 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-29T18:39:57.761Z"
+      },
+      {
+        "id": "1554942280895438892",
+        "authorId": "895312798211534888",
+        "authorTag": "this.is.a.cool.username",
+        "content": "If nobody higher up handles this either me or coffee will because we cant be leaving people apps like this",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-30T19:45:29.196Z"
+      },
+      {
+        "id": "1554942296921997335",
+        "authorId": "895312798211534888",
+        "authorTag": "this.is.a.cool.username",
+        "content": "it looks really bad",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-30T19:45:33.017Z"
       }
     ]
   },
