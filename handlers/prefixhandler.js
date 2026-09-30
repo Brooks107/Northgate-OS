@@ -360,7 +360,7 @@ module.exports = async function handlePrefixCommand(message, config) {
                 },
                 {
                     name: "General Etiquette",
-                    value: "Please have common sense when opening a ticket. Support Staff cannot be active 24/7 and may have some delays between replies, therefore please do not repeatedly tag and harass members of staff to reply to your ticket. Please keep all conversions within the ticket to a respectful manner, we at NGC want the best for our community and ask you to be polite and respectful."
+                    value: "Please have common sense when opening a ticket. Support Staff cannot be active 24/7 and may have some delays between replies, therefore please do not repeatedly tag and harass members of staff to reply to your ticket. Please keep all conversations within the ticket to a respectful manner, we at NGC want the best for our community and ask you to be polite and respectful."
                 },
                 {
                     name: "Confidentiality",
