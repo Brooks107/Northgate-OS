@@ -1988,7 +1988,7 @@
     },
     "dashboardMessage": null,
     "channelId": "1553403608777756755",
-    "updatedAt": "2026-09-30T19:08:31.490Z",
+    "updatedAt": "2026-09-30T19:13:18.321Z",
     "messages": [
       {
         "id": "1553403762414981141",
@@ -5096,6 +5096,87 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-30T19:08:31.389Z"
+      },
+      {
+        "id": "1554933158062067783",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Also I’m having trouble understanding why Coolbeanz is even reading my application.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-30T19:09:14.143Z"
+      },
+      {
+        "id": "1554933161266389115",
+        "authorId": "1274236550250762273",
+        "authorTag": "shock12344",
+        "content": "Not content a sexual content creator.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-30T19:09:14.907Z"
+      },
+      {
+        "id": "1554933294783533219",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "I really don’t want to have this debate right now. I’ll refrain in the future from mentioning said content.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-30T19:09:46.740Z"
+      },
+      {
+        "id": "1554933312311660675",
+        "authorId": "1274236550250762273",
+        "authorTag": "shock12344",
+        "content": "He shouldn’t be",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-30T19:09:50.919Z"
+      },
+      {
+        "id": "1554933376476119135",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Hm.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-30T19:10:06.217Z"
+      },
+      {
+        "id": "1554933688175820962",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "IT Members are infact allowed to read information provided within tickets. It is acting on it in which they cannot do. For example if beanz has punished your for said action himself, he'd be in violation.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-30T19:11:20.532Z"
+      },
+      {
+        "id": "1554933865808797840",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "I fail to see why IT staff are reading information & documentation for an applicant in their hiring ticket.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-30T19:12:02.883Z"
+      },
+      {
+        "id": "1554934096075948053",
+        "authorId": "1259124148798754907",
+        "authorTag": "brooksy246",
+        "content": "I also fail to see why that is an issue.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-30T19:12:57.783Z"
+      },
+      {
+        "id": "1554934181925228625",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "CIA triad.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-30T19:13:18.251Z"
       }
     ]
   },
