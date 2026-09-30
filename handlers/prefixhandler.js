@@ -348,7 +348,7 @@ module.exports = async function handlePrefixCommand(message, config) {
             fields: [
                 {
                     name: "Informational Technology Team",
-                    value: "Throughout the course of your ticket you **may** see IT members interacting with your ticket and running commands, please know this is not affecting the outcome of whatever ticket type you have open and we're just ensuring the integrity of our systems. IT Members may also decide to handle very small scale incidents to take some of the weight of the shoulders of the Upper Management and Support Team.",
+                    value: "Throughout the course of your ticket you **may** see IT members interacting with your ticket and running commands, please know this is not affecting the outcome of whatever ticket type you have open and we're just ensuring the integrity of our systems. IT Members may also decide to handle very small scale incidents to take some of the weight off the shoulders of the Upper Management and Support Team.",
                 },
                 {
                     name: "No ticket spamming",
@@ -360,7 +360,7 @@ module.exports = async function handlePrefixCommand(message, config) {
                 },
                 {
                     name: "General Etiquette",
-                    value: "Please have common sense when opening a ticket. Support Staff cannot be active 24/7 and may have some delays between replies, therefore please do not repeatedly tag and harass members of staff to reply to your ticket. Please keep all conversions within the ticket to a respectful manner, we at NGC want the best for our community and ask you polite and respectful."
+                    value: "Please have common sense when opening a ticket. Support Staff cannot be active 24/7 and may have some delays between replies, therefore please do not repeatedly tag and harass members of staff to reply to your ticket. Please keep all conversions within the ticket to a respectful manner, we at NGC want the best for our community and ask you to be polite and respectful."
                 },
                 {
                     name: "Confidentiality",
@@ -373,6 +373,12 @@ module.exports = async function handlePrefixCommand(message, config) {
                 }
             ]
         };
+        try {
+            await message.channel.send({ embeds: [embed] });
+        } catch (err) {
+            console.error("[rules] failed to send rules embed:", err);
+            return message.reply("❌ I cannot send the rules embed in that channel. Check channel permissions.");
+        }
     
     }
     if (command === "rules") {
