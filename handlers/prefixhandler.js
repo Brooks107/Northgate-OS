@@ -328,13 +328,6 @@ module.exports = async function handlePrefixCommand(message, config) {
         if (!message.member?.permissions.has(PermissionFlagsBits.Administrator)) {
             return message.reply("❌ Only Administrators can use this command")
         }
-        const ticketChannelID = (
-            config.channels?.ticketchannelid
-        );
-        if (!ticketChannelID || !/^[0-9]+$/.test(String(rulesChannelID))) {
-            console.warn("[tickets] no valid ticket channel configured")
-            return message.reply("❌ the ticket channel is not configured yet")
-        }
         
         const embed = {
             title: "Northgate Studios Ticket Regulations",
@@ -380,13 +373,7 @@ module.exports = async function handlePrefixCommand(message, config) {
                 }
             ]
         };
-        
-        try {
-            await rulesChannel.send({ embeds: [embed] });
-        } catch (err) {
-            console.error("[rules] failed to send rules embed:", err);
-            return message.reply("❌ I cannot send the rules embed in that channel. Check channel permissions.");
-        }
+    
     }
     if (command === "rules") {
         if (!message.member?.permissions.has(PermissionFlagsBits.Administrator)) {
