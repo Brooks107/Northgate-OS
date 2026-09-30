@@ -1,199 +1,203 @@
 const state = require("../state");
 const {
-	ActionRowBuilder,
-	ButtonBuilder,
-	ButtonStyle,
-	PermissionFlagsBits
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    PermissionFlagsBits
 } = require("discord.js");
 const { logCommand } = require("../utils/command-logger");
 
 const LOCKDOWN_ROLE = "1536806576202186842";
 const LOCKED_CHANNEL_IDS = [
-	"1518976753492693225",
+    "1518976753492693225",
     "1543329472873373706",
     "1518976734433640578",
     "1530164087802167456",
     "1530164050816929933"
 ];
 const VOICE_LOCK_CHANNEL_IDS = new Set([
-	"1533079860673515550",
-	"1533079884639768717"
+    "1533079860673515550",
+    "1533079884639768717"
 ]);
 
 module.exports = async function handleAdminCommand(message, config) {
-	if (message.author.bot || !message.content.startsWith("a!")) return false;
+    if (message.author.bot || !message.content.startsWith("a!")) return false;
 
-	if (config.maintenanceMode && !config.developers?.includes(message.author.id)) {
-		await message.reply("🔴 The bot is currently offline for maintenance.");
-		return true;
-	}
+    if (config.maintenanceMode && !config.developers?.includes(message.author.id)) {
+        await message.reply("🔴 The bot is currently offline for maintenance.");
+        return true;
+    }
 
-	const args = message.content.slice(2).trim().split(/ +/);
-	const command = args.shift()?.toLowerCase();
-	if (!["forcelock", "forceunlock"].includes(command)) return false;
+    const args = message.content.slice(2).trim().split(/ +/);
+    const command = args.shift()?.toLowerCase();
+    if (!["forcelock", "forceunlock"].includes(command)) return false;
 
-	await logCommand(message, config, `a!${command}`, "Admin command", args);
+    await logCommand(message, config, `a!${command}`, "Admin command", args);
 
-	if (!message.member?.roles?.cache?.has(LOCKDOWN_ROLE)) {
-		await message.reply("❌ This command is restricted to the admin role.");
-		return true;
-	}
+    if (!message.member?.roles?.cache?.has(LOCKDOWN_ROLE)) {
+        await message.reply("❌ This command is restricted to the admin role.");
+        return true;
+    }
 
-	if (command === "forcelock") {
-		const confirmation = await message.reply({
-			content: "⚠️ Are you sure you want to activate the force lock?",
-			components: [
-				new ActionRowBuilder().addComponents(
-					new ButtonBuilder()
-						.setCustomId(`force_lock_proceed_${message.id}`)
-						.setLabel("Proceed")
-						.setStyle(ButtonStyle.Success),
-					new ButtonBuilder()
-						.setCustomId(`force_lock_abort_${message.id}`)
-						.setLabel("Abort")
-						.setStyle(ButtonStyle.Danger)
-				)
-			]
-		});
+    if (command === "forcelock") {
+        const confirmation = await message.reply({
+            content: "⚠️ Are you sure you want to activate the force lock?",
+            components: [
+                new ActionRowBuilder().addComponents(
+                    new ButtonBuilder()
+                        .setCustomId(`force_lock_proceed_${message.id}`)
+                        .setLabel("Proceed")
+                        .setStyle(ButtonStyle.Success),
+                    new ButtonBuilder()
+                        .setCustomId(`force_lock_abort_${message.id}`)
+                        .setLabel("Abort")
+                        .setStyle(ButtonStyle.Danger)
+                )
+            ]
+        });
 
-		try {
-			const choice = await confirmation.awaitMessageComponent({
-				filter: interaction => interaction.user.id === message.author.id,
-				time: 30_000
-			});
+        try {
+            const choice = await confirmation.awaitMessageComponent({
+                filter: interaction => interaction.user.id === message.author.id,
+                time: 30_000
+            });
 
-			if (choice.customId === `force_lock_abort_${message.id}`) {
-				await choice.update({
-					content: "🛑 Force lock aborted.",
-					components: []
-				});
-				return true;
-			}
+            if (choice.customId === `force_lock_abort_${message.id}`) {
+                await choice.update({
+                    content: "🛑 Force lock aborted.",
+                    components: []
+                });
+                return true;
+            }
 
-			await choice.update({
-				content: "🔒 Force lock confirmed. Applying...",
-				components: []
-			});
-		} catch {
-			await confirmation.edit({
-				content: "⌛ Force lock confirmation expired. No changes were made.",
-				components: []
-			});
-			return true;
-		}
-	}
+            await choice.update({
+                content: "🔒 Force lock confirmed. Applying...",
+                components: []
+            });
+        } catch {
+            await confirmation.edit({
+                content: "⌛ Force lock confirmation expired. No changes were made.",
+                components: []
+            });
+            return true;
+        }
+    }
 
-	const channels = await Promise.all(
-		LOCKED_CHANNEL_IDS.map(id => message.guild?.channels.fetch(id).catch(() => null))
-	);
-	const missingChannels = LOCKED_CHANNEL_IDS.filter((id, index) => !channels[index]);
-	if (missingChannels.length > 0) {
-		await message.reply(`❌ Could not find all lock channels. Missing: ${missingChannels.join(", ")}`);
-		return true;
-	}
+    const channels = await Promise.all(
+        LOCKED_CHANNEL_IDS.map(id => message.guild?.channels.fetch(id).catch(() => null))
+    );
+    const missingChannels = LOCKED_CHANNEL_IDS.filter((id, index) => !channels[index]);
+    if (missingChannels.length > 0) {
+        await message.reply(`❌ Could not find all lock channels. Missing: ${missingChannels.join(", ")}`);
+        return true;
+    }
 
-	const shouldLock = command === "forcelock";
-	const roles = [...(await message.guild.roles.fetch()).values()];
-	const startedAt = process.hrtime.bigint();
-	const savedForceLockOverwrites = state.load().forceLockOverwrites;
+    const shouldLock = command === "forcelock";
+    const roles = [...(await message.guild.roles.fetch()).values()];
+    const startedAt = process.hrtime.bigint();
+    const savedForceLockOverwrites = state.load().forceLockOverwrites;
 
-	try {
-		const statusReply = await message.reply(
-			shouldLock ? "🔒 Applying force lock..." : "🔓 Applying force unlock..."
-		);
-		let stateSaved = true;
-		const originalOverwrites = {};
+    try {
+        const statusReply = await message.reply(
+            shouldLock ? "🔒 Applying force lock..." : "🔓 Applying force unlock..."
+        );
+        let stateSaved = true;
+        const originalOverwrites = {};
 
-		for (const channel of channels) {
-			const permission = VOICE_LOCK_CHANNEL_IDS.has(channel.id)
-				? PermissionFlagsBits.Connect
-				: PermissionFlagsBits.SendMessages;
-			const overwrites = new Map(
-				channel.permissionOverwrites.cache.map(overwrite => [overwrite.id, {
-					id: overwrite.id,
-					type: overwrite.type,
-					allow: BigInt(overwrite.allow.bitfield),
-					deny: BigInt(overwrite.deny.bitfield)
-				}])
-			);
+        for (const channel of channels) {
+            // Combine ViewChannel with SendMessages or Connect
+            const permission = PermissionFlagsBits.ViewChannel | (
+                VOICE_LOCK_CHANNEL_IDS.has(channel.id)
+                    ? PermissionFlagsBits.Connect
+                    : PermissionFlagsBits.SendMessages
+            );
 
-			if (shouldLock) {
-				originalOverwrites[channel.id] = [...overwrites.values()].map(overwrite => ({
-					id: overwrite.id,
-					type: overwrite.type,
-					allow: overwrite.allow.toString(),
-					deny: overwrite.deny.toString()
-				}));
-			}
+            const overwrites = new Map(
+                channel.permissionOverwrites.cache.map(overwrite => [overwrite.id, {
+                    id: overwrite.id,
+                    type: overwrite.type,
+                    allow: BigInt(overwrite.allow.bitfield),
+                    deny: BigInt(overwrite.deny.bitfield)
+                }])
+            );
 
-			for (const role of roles) {
-				const existing = overwrites.get(role.id);
-				let allow = existing?.allow ?? 0n;
-				let deny = existing?.deny ?? 0n;
+            if (shouldLock) {
+                originalOverwrites[channel.id] = [...overwrites.values()].map(overwrite => ({
+                    id: overwrite.id,
+                    type: overwrite.type,
+                    allow: overwrite.allow.toString(),
+                    deny: overwrite.deny.toString()
+                }));
+            }
 
-				if (shouldLock) {
-					allow &= ~permission;
-					deny |= permission;
-				} else {
-					allow &= ~permission;
-					deny &= ~permission;
-				}
+            for (const role of roles) {
+                const existing = overwrites.get(role.id);
+                let allow = existing?.allow ?? 0n;
+                let deny = existing?.deny ?? 0n;
 
-				overwrites.set(role.id, { id: role.id, type: 0, allow, deny });
-			}
+                if (shouldLock) {
+                    allow &= ~permission;
+                    deny |= permission;
+                } else {
+                    allow &= ~permission;
+                    deny &= ~permission;
+                }
 
-			await channel.permissionOverwrites.set([...overwrites.values()]);
-		}
+                overwrites.set(role.id, { id: role.id, type: 0, allow, deny });
+            }
 
-		if (shouldLock) {
-			config.locked = true;
-			config.forceLocked = true;
-			stateSaved = state.save({
-				locked: true,
-				forceLocked: true,
-				forceLockOverwrites: originalOverwrites
-			});
-		} else if (savedForceLockOverwrites) {
-			for (const channel of channels) {
-				const original = savedForceLockOverwrites[channel.id];
-				if (!original) continue;
+            await channel.permissionOverwrites.set([...overwrites.values()]);
+        }
 
-				await channel.permissionOverwrites.set(original.map(overwrite => ({
-					id: overwrite.id,
-					type: overwrite.type,
-					allow: BigInt(overwrite.allow),
-					deny: BigInt(overwrite.deny)
-				})));
-			}
+        if (shouldLock) {
+            config.locked = true;
+            config.forceLocked = true;
+            stateSaved = state.save({
+                locked: true,
+                forceLocked: true,
+                forceLockOverwrites: originalOverwrites
+            });
+        } else if (savedForceLockOverwrites) {
+            for (const channel of channels) {
+                const original = savedForceLockOverwrites[channel.id];
+                if (!original) continue;
 
-			config.locked = false;
-			config.forceLocked = false;
-			stateSaved = state.save({
-				locked: false,
-				forceLocked: false,
-				forceLockOverwrites: null
-			});
-		}
+                await channel.permissionOverwrites.set(original.map(overwrite => ({
+                    id: overwrite.id,
+                    type: overwrite.type,
+                    allow: BigInt(overwrite.allow),
+                    deny: BigInt(overwrite.deny)
+                })));
+            }
 
-		if (typeof message.client.notifyAdminPanelRefresh === "function") {
-			await message.client.notifyAdminPanelRefresh();
-		}
+            config.locked = false;
+            config.forceLocked = false;
+            stateSaved = state.save({
+                locked: false,
+                forceLocked: false,
+                forceLockOverwrites: null
+            });
+        }
 
-		if (!stateSaved) {
-			await message.reply("❌ Channel permissions changed, but the lock state could not be saved.");
-			return true;
-		}
+        if (typeof message.client.notifyAdminPanelRefresh === "function") {
+            await message.client.notifyAdminPanelRefresh();
+        }
 
-		const elapsedMilliseconds = Number(process.hrtime.bigint() - startedAt) / 1e6;
-		await statusReply.edit(
-			shouldLock
-				? `🔒 Force lock completed in ${(elapsedMilliseconds / 1000).toFixed(2)} seconds.`
-				: `🔓 Force unlock completed in ${(elapsedMilliseconds / 1000).toFixed(2)} seconds.`
-		);
-	} catch (error) {
-		console.error(`[adminhandler] failed to ${command}:`, error);
-		await message.reply("❌ Failed to update the lock channel permissions.");
-	}
+        if (!stateSaved) {
+            await message.reply("❌ Channel permissions changed, but the lock state could not be saved.");
+            return true;
+        }
 
-	return true;
+        const elapsedMilliseconds = Number(process.hrtime.bigint() - startedAt) / 1e6;
+        await statusReply.edit(
+            shouldLock
+                ? `🔒 Force lock completed in ${(elapsedMilliseconds / 1000).toFixed(2)} seconds.`
+                : `🔓 Force unlock completed in ${(elapsedMilliseconds / 1000).toFixed(2)} seconds.`
+        );
+    } catch (error) {
+        console.error(`[adminhandler] failed to ${command}:`, error);
+        await message.reply("❌ Failed to update the lock channel permissions.");
+    }
+
+    return true;
 };
