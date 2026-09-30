@@ -1690,7 +1690,7 @@
   },
   "1553385156667248720": {
     "ticketId": 6,
-    "status": "open",
+    "status": "closed",
     "openedAt": "9/26/2026, 6:38:02 AM",
     "ticket": {
       "id": 6,
@@ -1711,6 +1711,10 @@
       {
         "type": "created",
         "timestamp": "2026-09-26T12:38:02.676Z"
+      },
+      {
+        "type": "closed",
+        "timestamp": "2026-09-30T19:53:12.068Z"
       }
     ],
     "dashboardChannel": {
@@ -1763,7 +1767,7 @@
       "updatedAt": "2026-09-26T12:38:02.895Z"
     },
     "channelId": "1553385156667248720",
-    "updatedAt": "2026-09-30T00:37:39.124Z",
+    "updatedAt": "2026-09-30T19:53:12.071Z",
     "messages": [
       {
         "id": "1553385260811558993",
@@ -1905,12 +1909,22 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-30T00:37:39.059Z"
+      },
+      {
+        "id": "1554944216344559687",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "🔒 Ticket closed. Saving transcript...",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-30T19:53:10.643Z"
       }
-    ]
+    ],
+    "closedAt": "2026-09-30T19:53:12.066Z"
   },
   "1553403608777756755": {
     "ticketId": 7,
-    "status": "🟢 Open",
+    "status": "closed",
     "openedAt": "9/26/2026, 7:51:22 AM",
     "ticket": {
       "id": 7,
@@ -1998,6 +2012,10 @@
         "type": "unclaimed",
         "status": "🟢 Open",
         "timestamp": "2026-09-27T13:39:35.585Z"
+      },
+      {
+        "type": "closed",
+        "timestamp": "2026-09-30T19:51:07.763Z"
       }
     ],
     "dashboardChannel": {
@@ -2006,7 +2024,7 @@
     },
     "dashboardMessage": null,
     "channelId": "1553403608777756755",
-    "updatedAt": "2026-09-30T19:49:03.766Z",
+    "updatedAt": "2026-09-30T19:51:07.766Z",
     "messages": [
       {
         "id": "1553403762414981141",
@@ -5222,8 +5240,18 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-30T19:49:03.670Z"
+      },
+      {
+        "id": "1554943684095647744",
+        "authorId": "1536279872127762492",
+        "authorTag": "NorthCore OS#8411",
+        "content": "🔒 Ticket closed. Saving transcript...",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-30T19:51:03.745Z"
       }
-    ]
+    ],
+    "closedAt": "2026-09-30T19:51:07.759Z"
   },
   "1550346400770818078": {
     "status": "closed",
