@@ -2006,7 +2006,7 @@
     },
     "dashboardMessage": null,
     "channelId": "1553403608777756755",
-    "updatedAt": "2026-09-30T19:13:18.321Z",
+    "updatedAt": "2026-09-30T19:49:03.766Z",
     "messages": [
       {
         "id": "1553403762414981141",
@@ -5195,6 +5195,33 @@
         "attachments": [],
         "embeds": [],
         "createdAt": "2026-09-30T19:13:18.251Z"
+      },
+      {
+        "id": "1554942376286490635",
+        "authorId": "1274236550250762273",
+        "authorTag": "shock12344",
+        "content": "Hello <@1419379683455271034>, we regret that we cannot accept your application for the following reasons:\n\n- Mentioning Adult content creator in application as comparison\n\n- Leaking private ticket messages\n\n- Potential intel larper",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-30T19:45:51.939Z"
+      },
+      {
+        "id": "1554942963606364332",
+        "authorId": "1274236550250762273",
+        "authorTag": "shock12344",
+        "content": "Hello <@1419379683455271034> . We regret that we cannot accept your application for the following reasons:\n\n- Mentioning Adult content creator in application as comparison\n\n- Potential intel larper",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-30T19:48:11.967Z"
+      },
+      {
+        "id": "1554943180464590999",
+        "authorId": "1419379683455271034",
+        "authorTag": "ophersus",
+        "content": "Potential? We cleared that up though.",
+        "attachments": [],
+        "embeds": [],
+        "createdAt": "2026-09-30T19:49:03.670Z"
       }
     ]
   },
