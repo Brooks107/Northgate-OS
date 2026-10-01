@@ -21,7 +21,6 @@ const state = require("./state");
 const ticketTracker = require("./ticket-tracker");
 const { startHeartbeat } = require("./heartbeat");
 const { logCommand } = require("./utils/command-logger");
-const ticketArchive = require("./utils/ticket-archive");
 const adminPanelCommand = require("./commands/adminpanel");
 
 const COMMAND_RATE_LIMIT_WINDOW_MS = 60_000;
@@ -143,6 +142,7 @@ client.once(Events.ClientReady, async () => {
     await client.refreshActiveTicketIds();
 
     ticketTracker.init();
+    await ticketTracker.reconcileActiveTickets(client, config);
     await adminPanelCommand.restore(client, config);
 
     if (typeof client.notifyAdminPanelRefresh === "function") {
@@ -165,6 +165,11 @@ client.on(Events.ChannelDelete, async channel => {
     if (!channel.guild) return;
 
     if (TICKET_CHANNEL_PATTERN.test(channel.name)) {
+        const trackedTicket = ticketTracker.getTracking(channel.id);
+        if (trackedTicket && trackedTicket.status !== "🔴 Closed") {
+            await ticketTracker.removeTracking(channel);
+        }
+
         await client.refreshActiveTicketIds();
         if (typeof client.notifyAdminPanelRefresh === "function") {
             await client.notifyAdminPanelRefresh();
@@ -383,10 +388,6 @@ process.on("uncaughtException", err => {
 });
 
 client.on("messageCreate", async message => {
-    if (message.guild && /^(?:support|appeal|commission|hiring|partnership|interrogation)-\d+(?:-|$)/.test(message.channel?.name || "")) {
-        ticketArchive.recordMessage(message.channel.id, message);
-    }
-
     if (await adminHandler(message, config)) return;
     if (await developerHandler(message, config)) return;
 

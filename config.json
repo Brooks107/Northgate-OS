@@ -73,8 +73,7 @@
         "pushIntervalSeconds": 300,
         "commitMessage": "chore(sync): runtime state",
         "dataFiles": [
-            "ticket-tracking.json",
-            "utils/ticket-archive.json"
+            "ticket-tracking.json"
         ]
     },
     "commissionLocked": false,

@@ -1,7 +1,6 @@
 const { EmbedBuilder } = require("discord.js");
 const fs = require("fs");
 const path = require("path");
-const ticketArchive = require("./utils/ticket-archive");
 
 /**
  * Ticket tracking system - creates and updates embeds in a private channel
@@ -9,14 +8,37 @@ const ticketArchive = require("./utils/ticket-archive");
  */
 
 const TRACKING_FILE = path.join(__dirname, "ticket-tracking.json");
+const TICKET_CHANNEL_PATTERN = /^(support|appeal|commission|hiring|partnership|interrogation)-(\d+)(?:-|$)/i;
 
 // In-memory map: ticketChannelId -> { messageId, embeds: [] }
 let trackedTickets = {};
 
+function getTicketStatus(status, eventType, fallback = "🟢 Open") {
+    const combined = `${eventType || ""} ${status || ""}`.toLowerCase();
+    if (combined.includes("closed") || combined.includes("close")) return "🔴 Closed";
+    if (combined.includes("unclaim") || combined.includes("open")) return "🟢 Open";
+    if (combined.includes("claim") || combined.includes("transfer")) return "🟡 Claimed";
+    return fallback;
+}
+
+function hydrateTicketRecord(record) {
+    record.status = getTicketStatus(record.status, record.lastEvent);
+    delete record.dashboardStatus;
+    return record;
+}
+
 function loadTracking() {
     try {
         if (fs.existsSync(TRACKING_FILE)) {
-            trackedTickets = JSON.parse(fs.readFileSync(TRACKING_FILE, "utf8"));
+            const savedTracking = JSON.parse(fs.readFileSync(TRACKING_FILE, "utf8"));
+            trackedTickets = {};
+            if (savedTracking && typeof savedTracking === "object" && !Array.isArray(savedTracking)) {
+                for (const [ticketChannelId, record] of Object.entries(savedTracking)) {
+                    if (record && typeof record === "object" && !Array.isArray(record)) {
+                        trackedTickets[ticketChannelId] = hydrateTicketRecord(record);
+                    }
+                }
+            }
         }
     } catch (err) {
         console.error("[ticket-tracker] Failed to load tracking:", err.message);
@@ -26,14 +48,184 @@ function loadTracking() {
 
 function saveTracking() {
     try {
-        fs.writeFileSync(TRACKING_FILE, JSON.stringify(trackedTickets, null, 2));
+        const temporaryFile = `${TRACKING_FILE}.tmp`;
+        const serializedTickets = Object.fromEntries(Object.entries(trackedTickets).map(([ticketChannelId, ticket]) => {
+            const record = { ...ticket };
+            delete record.dashboardStatus;
+            return [ticketChannelId, {
+                ...record,
+                status: ticket.status || getTicketStatus(ticket.status, ticket.lastEvent)
+            }];
+        }));
+        fs.writeFileSync(temporaryFile, JSON.stringify(serializedTickets, null, 2));
+        fs.renameSync(temporaryFile, TRACKING_FILE);
     } catch (err) {
         console.error("[ticket-tracker] Failed to save tracking:", err.message);
     }
 }
 
+function getEmbedField(embed, name) {
+    return embed.fields?.find(field => field.name === name)?.value || "";
+}
+
+function getCurrentEmbedStatus(message, fallback) {
+    return message.embeds?.[0]?.fields?.find(field => field.name === "📌 Status")?.value || fallback || "🟢 Open";
+}
+
+function setDisplayMetadata(tracked, ticketChannel) {
+    const originalInfo = tracked.originalInfo || {};
+    const metadata = {
+        ticketName: ticketChannel.name,
+        ticketTitle: originalInfo.title || tracked.ticketTitle || "Support Ticket",
+        userId: originalInfo.userId || tracked.userId || null
+    };
+    const changed = Object.entries(metadata).some(([key, value]) => tracked[key] !== value);
+    Object.assign(tracked, metadata);
+    return changed;
+}
+
+async function fetchAllMessages(channel) {
+    const messages = [];
+    let before;
+
+    while (true) {
+        const batch = await channel.messages.fetch({
+            limit: 100,
+            ...(before ? { before } : {})
+        });
+        messages.push(...batch.values());
+        if (batch.size < 100) break;
+        before = batch.last()?.id;
+        if (!before) break;
+    }
+
+    return messages;
+}
+
+async function reconcileActiveTickets(client, config) {
+    if (!config.trackerChannelId) return 0;
+
+    let trackerChannel;
+    try {
+        trackerChannel = await client.channels.fetch(config.trackerChannelId);
+    } catch (error) {
+        console.error("[ticket-tracker] Could not fetch tracker channel for reconciliation:", error.message);
+        return 0;
+    }
+
+    if (!trackerChannel?.messages?.fetch) {
+        console.error("[ticket-tracker] Tracker channel cannot be read; skipping reconciliation.");
+        return 0;
+    }
+
+    const activeChannels = [];
+    for (const guild of client.guilds.cache.values()) {
+        try {
+            const channels = await guild.channels.fetch();
+            for (const channel of channels.values()) {
+                const match = channel?.name?.match(TICKET_CHANNEL_PATTERN);
+                if (match && (typeof channel.isTextBased !== "function" || channel.isTextBased())) {
+                    activeChannels.push({ channel, ticketId: Number(match[2]) });
+                }
+            }
+        } catch (error) {
+            console.error(`[ticket-tracker] Could not scan ticket channels in ${guild.name}:`, error.message);
+        }
+    }
+
+    let messages;
+    try {
+        messages = await fetchAllMessages(trackerChannel);
+    } catch (error) {
+        console.error("[ticket-tracker] Could not read tracker messages for reconciliation:", error.message);
+        return 0;
+    }
+
+    const activeByName = new Map();
+    let metadataUpdated = false;
+    for (const active of activeChannels) {
+        const tracked = trackedTickets[active.channel.id];
+        if (tracked && setDisplayMetadata(tracked, active.channel)) metadataUpdated = true;
+
+        const matches = activeByName.get(active.channel.name) || [];
+        matches.push(active);
+        activeByName.set(active.channel.name, matches);
+    }
+
+    const candidatesByChannel = new Map();
+    for (const message of messages) {
+        if (message.author?.id !== client.user?.id) continue;
+
+        for (const embed of message.embeds || []) {
+            const footerMatch = embed.footer?.text?.match(/^Channel:\s*(.+)$/);
+            const titleMatch = embed.title?.match(/#\s*(\d+)\b/);
+            if (!footerMatch || !titleMatch) continue;
+
+            const namedChannels = activeByName.get(footerMatch[1]) || [];
+            const matchingChannels = namedChannels.filter(active => active.ticketId === Number(titleMatch[1]));
+            if (matchingChannels.length !== 1) continue;
+
+            const channelId = matchingChannels[0].channel.id;
+            const candidates = candidatesByChannel.get(channelId) || [];
+            candidates.push({ message, embed, ticketId: matchingChannels[0].ticketId });
+            candidatesByChannel.set(channelId, candidates);
+        }
+    }
+
+    const knownMessageIds = new Set(Object.values(trackedTickets).map(ticket => ticket.messageId).filter(Boolean));
+    let added = 0;
+
+    for (const [channelId, candidates] of candidatesByChannel) {
+        if (trackedTickets[channelId] || candidates.length !== 1) continue;
+
+        const { message, embed, ticketId } = candidates[0];
+        if (knownMessageIds.has(message.id)) continue;
+
+        const channel = activeChannels.find(active => active.channel.id === channelId)?.channel;
+        if (!channel) continue;
+
+        const userMatch = getEmbedField(embed, "📋 User").match(/^<@!?(\d+)>$/);
+        const notes = getEmbedField(embed, "📝 Progress Notes")
+            .split("\n")
+            .map(note => note.trim())
+            .filter(Boolean);
+
+        const recoveredStatus = getEmbedField(embed, "📌 Status") || "🟢 Open";
+        const recoveredTracking = {
+            messageId: message.id,
+            channelId: message.channelId || trackerChannel.id,
+            ticketId,
+            originalInfo: {
+                id: ticketId,
+                title: (embed.title || "Support Ticket").replace(/^🎫\s*/, "").replace(/\s+#\s*\d+\s*$/, ""),
+                userId: userMatch?.[1] || null,
+                description: embed.description || "No description",
+                createdAt: getEmbedField(embed, "⏰ Created") || message.createdAt?.toISOString()
+            },
+            notes: notes.length ? notes : ["• Ticket created"],
+            status: getTicketStatus(recoveredStatus, "reconciled"),
+            updatedAt: message.editedAt?.toISOString() || message.createdAt?.toISOString() || new Date().toISOString(),
+            lastEvent: "reconciled"
+        };
+        setDisplayMetadata(recoveredTracking, channel);
+        trackedTickets[channelId] = recoveredTracking;
+        knownMessageIds.add(message.id);
+        added++;
+    }
+
+    if (added || metadataUpdated) {
+        saveTracking();
+        console.log(`[ticket-tracker] Reconciled ${added} active ticket(s); refreshed ${metadataUpdated ? "existing" : "no"} record labels.`);
+    } else {
+        console.log("[ticket-tracker] No missing active ticket records found.");
+    }
+
+    return added;
+}
+
 module.exports = {
     init: loadTracking,
+    reconcileActiveTickets,
 
     /**
      * Create a new embed for a ticket
@@ -41,35 +233,24 @@ module.exports = {
      * @param {Object} ticketInfo - { title, user, description, category }
      */
     async createTicketEmbed(ticketChannel, ticketInfo, client, config) {
-        const archiveBase = {
-            ticketId: ticketInfo.id,
-            status: "open",
-            openedAt: ticketInfo.createdAt || new Date().toISOString(),
-            ticket: ticketInfo,
-            channel: {
-                id: ticketChannel.id,
-                name: ticketChannel.name,
-                topic: ticketChannel.topic || null
-            },
-            notes: ["• Ticket created"],
-            events: [{ type: "created", timestamp: new Date().toISOString() }]
-        };
-
         if (!config.trackerChannelId) {
-            ticketArchive.upsert(ticketChannel.id, archiveBase);
+            console.warn("[ticket-tracker] trackerChannelId is not configured; ticket was not added to the dashboard.");
             return;
         }
 
         try {
             const trackerChannel = await client.channels.fetch(config.trackerChannelId);
-            if (!trackerChannel) return;
+            if (!trackerChannel || typeof trackerChannel.send !== "function") {
+                console.error("[ticket-tracker] Configured tracker channel is unavailable or cannot receive messages.");
+                return;
+            }
 
             const embed = new EmbedBuilder()
                 .setTitle(`🎫 ${ticketInfo.title || "Support Ticket"} #${ticketInfo.id || "?"}`)
                 .setColor("#0099ff")
                 .setDescription(ticketInfo.description || "No description")
                 .addFields(
-                    { name: "📋 User", value: `<@${ticketInfo.userId}>` || "Unknown", inline: true },
+                    { name: "📋 User", value: ticketInfo.userId ? `<@${ticketInfo.userId}>` : "Unknown", inline: true },
                     { name: "📌 Status", value: "🟢 Open", inline: true },
                     { name: "📝 Progress Notes", value: "• Ticket created", inline: false },
                     { name: "⏰ Created", value: new Date().toLocaleString(), inline: true }
@@ -80,22 +261,18 @@ module.exports = {
             const message = await trackerChannel.send({ embeds: [embed] });
 
             trackedTickets[ticketChannel.id] = {
+                ticketName: ticketChannel.name,
+                ticketTitle: ticketInfo.title || "Support Ticket",
+                userId: ticketInfo.userId || null,
                 messageId: message.id,
                 channelId: message.channelId,
                 ticketId: ticketInfo.id,
                 originalInfo: ticketInfo,
-                notes: ["• Ticket created"]
+                notes: ["• Ticket created"],
+                status: "🟢 Open",
+                updatedAt: new Date().toISOString(),
+                lastEvent: "created"
             };
-
-            ticketArchive.upsert(ticketChannel.id, {
-                ...archiveBase,
-                dashboardChannel: {
-                    id: trackerChannel.id,
-                    name: trackerChannel.name
-                },
-                dashboardMessage: ticketArchive.serializeDashboardMessage(message)
-            });
-
             saveTracking();
             console.log(`[ticket-tracker] Created embed for ${ticketChannel.name}`);
         } catch (err) {
@@ -132,8 +309,8 @@ module.exports = {
                 .setColor("#0099ff")
                 .setDescription(tracked.originalInfo.description || "No description")
                 .addFields(
-                    { name: "📋 User", value: `<@${tracked.originalInfo.userId}>` || "Unknown", inline: true },
-                    { name: "📌 Status", value: "🟢 Open", inline: true },
+                    { name: "📋 User", value: tracked.originalInfo.userId ? `<@${tracked.originalInfo.userId}>` : "Unknown", inline: true },
+                    { name: "📌 Status", value: getCurrentEmbedStatus(message, tracked.status), inline: true },
                     { name: "📝 Progress Notes", value: tracked.notes.join("\n") || "No notes", inline: false },
                     { name: "⏰ Created", value: tracked.originalInfo.createdAt || new Date().toLocaleString(), inline: true },
                     { name: "🔄 Last Updated", value: new Date().toLocaleString(), inline: true }
@@ -142,22 +319,9 @@ module.exports = {
                 .setTimestamp();
 
             await message.edit({ embeds: [embed] });
+            tracked.updatedAt = new Date().toISOString();
+            tracked.lastEvent = "note_added";
             saveTracking();
-
-            ticketArchive.upsert(ticketChannel.id, {
-                status: "open",
-                channel: {
-                    id: ticketChannel.id,
-                    name: ticketChannel.name,
-                    topic: ticketChannel.topic || null
-                },
-                notes: [...tracked.notes],
-                dashboardMessage: ticketArchive.serializeDashboardMessage(message),
-                events: [
-                    ...(ticketArchive.get(ticketChannel.id)?.events || []),
-                    { type: "note", info, timestamp: new Date().toISOString() }
-                ]
-            });
 
             console.log(`[ticket-tracker] Injected info into ${ticketChannel.name}`);
             return { success: true, noteCount: tracked.notes.length };
@@ -196,8 +360,8 @@ module.exports = {
                 .setColor("#0099ff")
                 .setDescription(tracked.originalInfo.description || "No description")
                 .addFields(
-                    { name: "📋 User", value: `<@${tracked.originalInfo.userId}>` || "Unknown", inline: true },
-                    { name: "📌 Status", value: "🟢 Open", inline: true },
+                    { name: "📋 User", value: tracked.originalInfo.userId ? `<@${tracked.originalInfo.userId}>` : "Unknown", inline: true },
+                    { name: "📌 Status", value: getCurrentEmbedStatus(message, tracked.status), inline: true },
                     { name: "📝 Progress Notes", value: tracked.notes.join("\n") || "No notes", inline: false },
                     { name: "⏰ Created", value: tracked.originalInfo.createdAt || new Date().toLocaleString(), inline: true },
                     { name: "🔄 Last Updated", value: new Date().toLocaleString(), inline: true }
@@ -206,22 +370,9 @@ module.exports = {
                 .setTimestamp();
 
             await message.edit({ embeds: [embed] });
+            tracked.updatedAt = new Date().toISOString();
+            tracked.lastEvent = note ? "note_updated" : "note_deleted";
             saveTracking();
-
-            ticketArchive.upsert(ticketChannel.id, {
-                status: "open",
-                channel: {
-                    id: ticketChannel.id,
-                    name: ticketChannel.name,
-                    topic: ticketChannel.topic || null
-                },
-                notes: [...tracked.notes],
-                dashboardMessage: ticketArchive.serializeDashboardMessage(message),
-                events: [
-                    ...(ticketArchive.get(ticketChannel.id)?.events || []),
-                    { type: note ? "note_updated" : "note_deleted", noteId, note, timestamp: new Date().toISOString() }
-                ]
-            });
 
             return { success: true, noteCount: tracked.notes.length };
         } catch (err) {
@@ -237,6 +388,12 @@ module.exports = {
         const tracked = trackedTickets[ticketChannel.id];
         if (!tracked) return;
 
+        tracked.status = getTicketStatus(newStatus, "status_updated", tracked.status);
+        setDisplayMetadata(tracked, ticketChannel);
+        tracked.updatedAt = new Date().toISOString();
+        tracked.lastEvent = "status_updated";
+        saveTracking();
+
         try {
             const channel = await client.channels.fetch(tracked.channelId);
             const message = await channel.messages.fetch(tracked.messageId);
@@ -251,15 +408,6 @@ module.exports = {
                 }
                 embed.data.fields = fields;
                 await message.edit({ embeds: [embed] });
-
-                ticketArchive.upsert(ticketChannel.id, {
-                    status: newStatus,
-                    dashboardMessage: ticketArchive.serializeDashboardMessage(message),
-                    events: [
-                        ...(ticketArchive.get(ticketChannel.id)?.events || []),
-                        { type: "status", status: newStatus, timestamp: new Date().toISOString() }
-                    ]
-                });
             }
         } catch (err) {
             console.error("[ticket-tracker] Failed to update status:", err.message);
@@ -271,41 +419,33 @@ module.exports = {
      */
     async syncTicket(ticketChannel, event) {
         const tracked = trackedTickets[ticketChannel.id];
-        const archiveEntry = ticketArchive.get(ticketChannel.id);
-        if (!tracked && !archiveEntry) return;
+        if (!tracked) return;
 
-        let dashboardMessage = null;
-        if (tracked) {
-            try {
-                const dashboardChannel = await ticketChannel.guild.channels.fetch(tracked.channelId);
-                dashboardMessage = await dashboardChannel.messages.fetch(tracked.messageId);
-                const embed = dashboardMessage.embeds[0]
-                    ? EmbedBuilder.from(dashboardMessage.embeds[0])
-                    : null;
-                if (embed) {
-                    const fields = embed.data.fields || [];
-                    const statusField = fields.find(field => field.name === "📌 Status");
-                    if (statusField) statusField.value = event.status || event.label || "🟢 Open";
-                    await dashboardMessage.edit({ embeds: [embed] });
-                }
-            } catch (error) {
-                console.error(`[ticket-tracker] Failed to sync ${ticketChannel.name}:`, error.message);
+        const dashboardStatus = event.status || event.label || tracked.status || "🟢 Open";
+        tracked.status = getTicketStatus(dashboardStatus, event.type, tracked.status);
+        setDisplayMetadata(tracked, ticketChannel);
+        if (event.userId) tracked.assignedTo = event.userId;
+        if (event.type === "unclaimed") delete tracked.assignedTo;
+        tracked.updatedAt = new Date().toISOString();
+        tracked.lastEvent = event.type || "updated";
+        saveTracking();
+
+        try {
+            const dashboardChannel = await ticketChannel.guild.channels.fetch(tracked.channelId);
+            const dashboardMessage = await dashboardChannel.messages.fetch(tracked.messageId);
+            const embed = dashboardMessage.embeds[0]
+                ? EmbedBuilder.from(dashboardMessage.embeds[0])
+                : null;
+            if (embed) {
+                const fields = embed.data.fields || [];
+                const statusField = fields.find(field => field.name === "📌 Status");
+                if (statusField) statusField.value = dashboardStatus;
+                embed.data.fields = fields;
+                await dashboardMessage.edit({ embeds: [embed] });
             }
+        } catch (error) {
+            console.error(`[ticket-tracker] Failed to sync ${ticketChannel.name}:`, error.message);
         }
-
-        ticketArchive.upsert(ticketChannel.id, {
-            status: event.status || archiveEntry?.status || "open",
-            channel: {
-                id: ticketChannel.id,
-                name: ticketChannel.name,
-                topic: ticketChannel.topic || null
-            },
-            dashboardMessage: ticketArchive.serializeDashboardMessage(dashboardMessage),
-            events: [
-                ...(archiveEntry?.events || []),
-                { ...event, timestamp: new Date().toISOString() }
-            ]
-        });
     },
 
     /**
@@ -318,7 +458,9 @@ module.exports = {
         if (!tracked) {
             try {
                 const fileData = JSON.parse(fs.readFileSync(TRACKING_FILE, "utf8"));
-                tracked = fileData[ticketChannel.id];
+                tracked = fileData[ticketChannel.id]
+                    ? hydrateTicketRecord(fileData[ticketChannel.id])
+                    : null;
             } catch (err) {
                 console.warn(`[ticket-tracker] Could not load tracking from file for ${ticketChannel.name}`);
             }
@@ -326,51 +468,26 @@ module.exports = {
 
         if (!tracked) {
             console.warn(`[ticket-tracker] No tracking found for ${ticketChannel.name}`);
-            ticketArchive.upsert(ticketChannel.id, {
-                status: "closed",
-                closedAt: new Date().toISOString(),
-                channel: {
-                    id: ticketChannel.id,
-                    name: ticketChannel.name,
-                    topic: ticketChannel.topic || null
-                },
-                events: [
-                    ...(ticketArchive.get(ticketChannel.id)?.events || []),
-                    { type: "closed", timestamp: new Date().toISOString() }
-                ]
-            });
             return;
         }
 
+        trackedTickets[ticketChannel.id] = tracked;
         try {
             const dashboardChannel = await ticketChannel.guild.channels.fetch(tracked.channelId);
             const message = await dashboardChannel.messages.fetch(tracked.messageId);
-
-            ticketArchive.upsert(ticketChannel.id, {
-                status: "closed",
-                closedAt: new Date().toISOString(),
-                channel: {
-                    id: ticketChannel.id,
-                    name: ticketChannel.name,
-                    topic: ticketChannel.topic || null
-                },
-                dashboardMessage: ticketArchive.serializeDashboardMessage(message),
-                events: [
-                    ...(ticketArchive.get(ticketChannel.id)?.events || []),
-                    { type: "closed", timestamp: new Date().toISOString() }
-                ]
-            });
-            
             if (message) {
                 await message.delete();
                 console.log(`[ticket-tracker] Deleted embed for ${ticketChannel.name}`);
             }
         } catch (err) {
             console.error(`[ticket-tracker] Failed to delete embed for ${ticketChannel.name}:`, err.message);
+        } finally {
+            tracked.status = "🔴 Closed";
+            tracked.closedAt = tracked.closedAt || new Date().toISOString();
+            tracked.updatedAt = new Date().toISOString();
+            tracked.lastEvent = "closed";
+            saveTracking();
         }
-
-        delete trackedTickets[ticketChannel.id];
-        saveTracking();
     },
 
     /**
