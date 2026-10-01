@@ -132,17 +132,35 @@ module.exports = {
 			);
 		}
 
+		// Discord allows only 2 topic (or name) changes per channel every 10
+		// minutes, and every claim, unclaim, force claim and transfer is one.
+		// discord.js does not error on that limit, it silently waits for the
+		// window to reopen, which left /transfer on "is thinking..." for up to
+		// 10 minutes with no explanation. So if the topic has not saved within a
+		// few seconds, say why, then keep waiting: the interaction stays valid
+		// for 15 minutes, longer than the limit, and the final reply below
+		// replaces this one.
+		const topicSaved = ticketChannel.setTopic(ticketTopic.build({
+			ownerId,
+			claimedBy: recipient.id
+		}));
+		const slow = setTimeout(() => {
+			interaction.editReply(
+				`⏳ Discord only allows 2 topic changes per channel every 10 minutes, and ticket #${id} has used both. ` +
+				`The transfer to <@${recipient.id}> is queued and will finish by itself within 10 minutes. You do not need to run it again.`
+			).catch(() => {});
+		}, 3000);
+
 		try {
-			await ticketChannel.setTopic(ticketTopic.build({
-				ownerId,
-				claimedBy: recipient.id
-			}));
+			await topicSaved;
 		} catch (err) {
+			clearTimeout(slow);
 			console.error(`[transfer] could not set the topic of #${ticketChannel.name}:`, err);
 			return interaction.editReply(
 				`❌ Ticket #${id} was not transferred -- I could not update the channel topic: ${err.message}`
 			);
 		}
+		clearTimeout(slow);
 
 		await ticketTracker.syncTicket(ticketChannel, {
 			type: "transferred",
