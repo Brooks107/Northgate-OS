@@ -45,6 +45,27 @@
     "userId": "1281445753923047475",
     "assignedTo": "1172089323223519235"
   },
+  "1555356030844796990": {
+    "ticketName": "hiring-1",
+    "ticketTitle": "Hiring Application",
+    "userId": "1419379683455271034",
+    "messageId": "1555356036565831832",
+    "channelId": "1539010556701188206",
+    "ticketId": 1,
+    "originalInfo": {
+      "id": 1,
+      "title": "Hiring Application",
+      "userId": "1419379683455271034",
+      "description": "Role: HR&SO, Experience: Very expansive",
+      "createdAt": "10/1/2026, 5:09:36 PM"
+    },
+    "notes": [
+      "• Ticket created"
+    ],
+    "status": "🟢 Open",
+    "updatedAt": "2026-10-01T23:09:36.326Z",
+    "lastEvent": "created"
+  },
   "_scanDiagnostics": {
     "lastRunAt": "2026-10-01T19:43:00.574Z",
     "status": "completed",
