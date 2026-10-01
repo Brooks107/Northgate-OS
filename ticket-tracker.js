@@ -9,9 +9,11 @@ const path = require("path");
 
 const TRACKING_FILE = path.join(__dirname, "ticket-tracking.json");
 const TICKET_CHANNEL_PATTERN = /^(support|appeal|commission|hiring|partnership|interrogation)-(\d+)(?:-|$)/i;
+const SCAN_LOG_CHANNEL_ID = "1548387829628010703";
 
 // In-memory map: ticketChannelId -> { messageId, embeds: [] }
 let trackedTickets = {};
+let scanDiagnostics = null;
 
 function getTicketStatus(status, eventType, fallback = "🟢 Open") {
     const combined = `${eventType || ""} ${status || ""}`.toLowerCase();
@@ -32,9 +34,10 @@ function loadTracking() {
         if (fs.existsSync(TRACKING_FILE)) {
             const savedTracking = JSON.parse(fs.readFileSync(TRACKING_FILE, "utf8"));
             trackedTickets = {};
+            scanDiagnostics = savedTracking?._scanDiagnostics || null;
             if (savedTracking && typeof savedTracking === "object" && !Array.isArray(savedTracking)) {
                 for (const [ticketChannelId, record] of Object.entries(savedTracking)) {
-                    if (record && typeof record === "object" && !Array.isArray(record)) {
+                    if (ticketChannelId !== "_scanDiagnostics" && record && typeof record === "object" && !Array.isArray(record)) {
                         trackedTickets[ticketChannelId] = hydrateTicketRecord(record);
                     }
                 }
@@ -57,6 +60,7 @@ function saveTracking() {
                 status: ticket.status || getTicketStatus(ticket.status, ticket.lastEvent)
             }];
         }));
+        if (scanDiagnostics) serializedTickets._scanDiagnostics = scanDiagnostics;
         fs.writeFileSync(temporaryFile, JSON.stringify(serializedTickets, null, 2));
         fs.renameSync(temporaryFile, TRACKING_FILE);
     } catch (err) {
@@ -102,19 +106,94 @@ async function fetchAllMessages(channel) {
     return messages;
 }
 
+async function sendScanDiagnostics(client, diagnostics) {
+    try {
+        const loggingChannel = await client.channels.fetch(SCAN_LOG_CHANNEL_ID);
+        if (!loggingChannel || typeof loggingChannel.send !== "function") return;
+
+        const skippedExamples = diagnostics.skippedExamples
+            .map(example => `${example.reason}: ${example.channelName || example.footer || "no footer"} / ${example.ticketNumber || example.title || "no ticket number"}`)
+            .join("\n")
+            .slice(0, 1024);
+        const embed = new EmbedBuilder()
+            .setTitle("Ticket Tracker Scan")
+            .setColor(diagnostics.status === "completed" ? 0x2b6cb0 : 0xc0392b)
+            .setDescription(`Scan ${diagnostics.status}.`)
+            .addFields(
+                { name: "Active ticket channels", value: String(diagnostics.activeTicketChannels), inline: true },
+                { name: "Messages scanned", value: String(diagnostics.messagesScanned), inline: true },
+                { name: "Embeds scanned", value: String(diagnostics.embedsScanned), inline: true },
+                { name: "Matching active tickets", value: String(diagnostics.activeTicketsWithMatchingEmbeds), inline: true },
+                { name: "Imported", value: String(diagnostics.imported), inline: true },
+                { name: "Already tracked", value: String(diagnostics.alreadyTrackedTickets), inline: true },
+                { name: "No active match", value: String(diagnostics.embedsWithoutActiveTicketMatch), inline: true },
+                { name: "Other authors", value: String(diagnostics.messagesFromOtherAuthors), inline: true }
+            )
+            .setTimestamp(new Date(diagnostics.completedAt));
+
+        if (diagnostics.lastError) {
+            embed.addFields({ name: "Error", value: diagnostics.lastError.slice(0, 1024), inline: false });
+        }
+        if (skippedExamples) {
+            embed.addFields({ name: "Skipped examples", value: skippedExamples, inline: false });
+        }
+
+        await loggingChannel.send({ embeds: [embed] });
+    } catch (error) {
+        console.error("[ticket-tracker] Could not send scan report to logging channel:", error.message);
+    }
+}
+
 async function reconcileActiveTickets(client, config) {
-    if (!config.trackerChannelId) return 0;
+    const diagnostics = {
+        lastRunAt: new Date().toISOString(),
+        status: "running",
+        trackerChannelId: config?.trackerChannelId || null,
+        activeTicketChannels: 0,
+        messagesScanned: 0,
+        messagesWithEmbeds: 0,
+        messagesFromCurrentBot: 0,
+        messagesFromOtherAuthors: 0,
+        embedsScanned: 0,
+        embedsMissingFooterOrNumber: 0,
+        embedsWithoutActiveTicketMatch: 0,
+        ambiguousTicketMatches: 0,
+        activeTicketsWithMatchingEmbeds: 0,
+        alreadyTrackedTickets: 0,
+        duplicateEmbedsForTicket: 0,
+        imported: 0,
+        skippedExamples: []
+    };
+    scanDiagnostics = diagnostics;
+    saveTracking();
+
+    const finishScan = async status => {
+        diagnostics.status = status;
+        diagnostics.completedAt = new Date().toISOString();
+        saveTracking();
+        await sendScanDiagnostics(client, diagnostics);
+    };
+
+    if (!config?.trackerChannelId) {
+        diagnostics.lastError = "trackerChannelId is not configured";
+        await finishScan("skipped");
+        return 0;
+    }
 
     let trackerChannel;
     try {
         trackerChannel = await client.channels.fetch(config.trackerChannelId);
     } catch (error) {
         console.error("[ticket-tracker] Could not fetch tracker channel for reconciliation:", error.message);
+        diagnostics.lastError = error.message;
+        await finishScan("failed");
         return 0;
     }
 
     if (!trackerChannel?.messages?.fetch) {
         console.error("[ticket-tracker] Tracker channel cannot be read; skipping reconciliation.");
+        diagnostics.lastError = "Tracker channel cannot be read";
+        await finishScan("failed");
         return 0;
     }
 
@@ -130,16 +209,21 @@ async function reconcileActiveTickets(client, config) {
             }
         } catch (error) {
             console.error(`[ticket-tracker] Could not scan ticket channels in ${guild.name}:`, error.message);
+            diagnostics.lastError = `Could not scan ticket channels in ${guild.name}: ${error.message}`;
         }
     }
+    diagnostics.activeTicketChannels = activeChannels.length;
 
     let messages;
     try {
         messages = await fetchAllMessages(trackerChannel);
     } catch (error) {
         console.error("[ticket-tracker] Could not read tracker messages for reconciliation:", error.message);
+        diagnostics.lastError = error.message;
+        await finishScan("failed");
         return 0;
     }
+    diagnostics.messagesScanned = messages.length;
 
     const activeByName = new Map();
     let metadataUpdated = false;
@@ -154,16 +238,49 @@ async function reconcileActiveTickets(client, config) {
 
     const candidatesByChannel = new Map();
     for (const message of messages) {
-        if (message.author?.id !== client.user?.id) continue;
+        if (!message.embeds?.length) continue;
+        diagnostics.messagesWithEmbeds++;
+        if (message.author?.id === client.user?.id) {
+            diagnostics.messagesFromCurrentBot++;
+        } else {
+            diagnostics.messagesFromOtherAuthors++;
+        }
 
         for (const embed of message.embeds || []) {
+            diagnostics.embedsScanned++;
             const footerMatch = embed.footer?.text?.match(/^Channel:\s*(.+)$/);
             const titleMatch = embed.title?.match(/#\s*(\d+)\b/);
-            if (!footerMatch || !titleMatch) continue;
+            if (!footerMatch || !titleMatch) {
+                diagnostics.embedsMissingFooterOrNumber++;
+                if (diagnostics.skippedExamples.length < 10) {
+                    diagnostics.skippedExamples.push({
+                        messageId: message.id,
+                        reason: "Embed is missing the expected Channel footer or #ticket number",
+                        title: embed.title || null,
+                        footer: embed.footer?.text || null
+                    });
+                }
+                continue;
+            }
 
             const namedChannels = activeByName.get(footerMatch[1]) || [];
             const matchingChannels = namedChannels.filter(active => active.ticketId === Number(titleMatch[1]));
-            if (matchingChannels.length !== 1) continue;
+            if (matchingChannels.length !== 1) {
+                if (matchingChannels.length > 1) {
+                    diagnostics.ambiguousTicketMatches++;
+                } else {
+                    diagnostics.embedsWithoutActiveTicketMatch++;
+                }
+                if (diagnostics.skippedExamples.length < 10) {
+                    diagnostics.skippedExamples.push({
+                        messageId: message.id,
+                        reason: matchingChannels.length > 1 ? "More than one active channel matched" : "No active channel matched footer and ticket number",
+                        channelName: footerMatch[1],
+                        ticketNumber: Number(titleMatch[1])
+                    });
+                }
+                continue;
+            }
 
             const channelId = matchingChannels[0].channel.id;
             const candidates = candidatesByChannel.get(channelId) || [];
@@ -173,13 +290,24 @@ async function reconcileActiveTickets(client, config) {
     }
 
     const knownMessageIds = new Set(Object.values(trackedTickets).map(ticket => ticket.messageId).filter(Boolean));
+    diagnostics.activeTicketsWithMatchingEmbeds = candidatesByChannel.size;
     let added = 0;
 
     for (const [channelId, candidates] of candidatesByChannel) {
-        if (trackedTickets[channelId] || candidates.length !== 1) continue;
+        if (trackedTickets[channelId]) {
+            diagnostics.alreadyTrackedTickets++;
+            continue;
+        }
+        if (candidates.length !== 1) {
+            diagnostics.duplicateEmbedsForTicket++;
+            continue;
+        }
 
         const { message, embed, ticketId } = candidates[0];
-        if (knownMessageIds.has(message.id)) continue;
+        if (knownMessageIds.has(message.id)) {
+            diagnostics.alreadyTrackedTickets++;
+            continue;
+        }
 
         const channel = activeChannels.find(active => active.channel.id === channelId)?.channel;
         if (!channel) continue;
@@ -212,6 +340,8 @@ async function reconcileActiveTickets(client, config) {
         knownMessageIds.add(message.id);
         added++;
     }
+    diagnostics.imported = added;
+    await finishScan("completed");
 
     if (added || metadataUpdated) {
         saveTracking();
