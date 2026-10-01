@@ -62,10 +62,11 @@
     "notes": [
       "• Ticket created"
     ],
-    "status": "🟡 Claimed",
-    "updatedAt": "2026-10-01T23:20:00.454Z",
-    "lastEvent": "transferred",
-    "assignedTo": "1267321190821789780"
+    "status": "🔴 Closed",
+    "updatedAt": "2026-10-01T23:56:54.497Z",
+    "lastEvent": "closed",
+    "assignedTo": "1267321190821789780",
+    "closedAt": "2026-10-01T23:56:54.497Z"
   },
   "_scanDiagnostics": {
     "lastRunAt": "2026-10-01T23:25:07.269Z",
