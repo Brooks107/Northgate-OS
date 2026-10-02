@@ -144,6 +144,7 @@ client.once(Events.ClientReady, async () => {
 
     ticketTracker.init();
     await ticketTracker.reconcileActiveTickets(client, config);
+    ticketTracker.startHourlyReconciliation(client, config);
     autocloseScheduler.init(client, config);
     await adminPanelCommand.restore(client, config);
 

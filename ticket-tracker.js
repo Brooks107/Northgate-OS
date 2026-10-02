@@ -14,6 +14,9 @@ const SCAN_LOG_CHANNEL_ID = "1548387829628010703";
 // In-memory map: ticketChannelId -> { messageId, embeds: [] }
 let trackedTickets = {};
 let scanDiagnostics = null;
+let scanDiagnosticsMessageId = null;
+let reconciliationRunning = false;
+let hourlyReconciliationTimer = null;
 
 function getTicketStatus(status, eventType, fallback = "🟢 Open") {
     const combined = `${eventType || ""} ${status || ""}`.toLowerCase();
@@ -35,9 +38,10 @@ function loadTracking() {
             const savedTracking = JSON.parse(fs.readFileSync(TRACKING_FILE, "utf8"));
             trackedTickets = {};
             scanDiagnostics = savedTracking?._scanDiagnostics || null;
+            scanDiagnosticsMessageId = savedTracking?._scanDiagnosticsMessageId || null;
             if (savedTracking && typeof savedTracking === "object" && !Array.isArray(savedTracking)) {
                 for (const [ticketChannelId, record] of Object.entries(savedTracking)) {
-                    if (ticketChannelId !== "_scanDiagnostics" && record && typeof record === "object" && !Array.isArray(record)) {
+                    if (!ticketChannelId.startsWith("_") && record && typeof record === "object" && !Array.isArray(record)) {
                         trackedTickets[ticketChannelId] = hydrateTicketRecord(record);
                     }
                 }
@@ -61,6 +65,7 @@ function saveTracking() {
             }];
         }));
         if (scanDiagnostics) serializedTickets._scanDiagnostics = scanDiagnostics;
+        if (scanDiagnosticsMessageId) serializedTickets._scanDiagnosticsMessageId = scanDiagnosticsMessageId;
         fs.writeFileSync(temporaryFile, JSON.stringify(serializedTickets, null, 2));
         fs.renameSync(temporaryFile, TRACKING_FILE);
     } catch (err) {
@@ -138,13 +143,35 @@ async function sendScanDiagnostics(client, diagnostics) {
             embed.addFields({ name: "Skipped examples", value: skippedExamples, inline: false });
         }
 
-        await loggingChannel.send({ embeds: [embed] });
+        let message = scanDiagnosticsMessageId
+            ? await loggingChannel.messages.fetch(scanDiagnosticsMessageId).catch(() => null)
+            : null;
+
+        if (!message && loggingChannel.messages?.fetch) {
+            const recentMessages = await loggingChannel.messages.fetch({ limit: 100 });
+            const existingPanels = recentMessages.filter(candidate =>
+                candidate.author?.id === client.user?.id &&
+                candidate.embeds?.some(existingEmbed => existingEmbed.title === "Ticket Tracker Scan")
+            );
+            message = existingPanels.first() || null;
+            for (const duplicate of existingPanels.values()) {
+                if (duplicate.id !== message?.id) await duplicate.delete().catch(() => {});
+            }
+        }
+
+        if (message) {
+            await message.edit({ embeds: [embed] });
+        } else {
+            message = await loggingChannel.send({ embeds: [embed] });
+        }
+        scanDiagnosticsMessageId = message.id;
+        saveTracking();
     } catch (error) {
         console.error("[ticket-tracker] Could not send scan report to logging channel:", error.message);
     }
 }
 
-async function reconcileActiveTickets(client, config) {
+async function runReconciliation(client, config) {
     const diagnostics = {
         lastRunAt: new Date().toISOString(),
         status: "running",
@@ -353,9 +380,32 @@ async function reconcileActiveTickets(client, config) {
     return added;
 }
 
+async function reconcileActiveTickets(client, config) {
+    if (reconciliationRunning) return 0;
+
+    reconciliationRunning = true;
+    try {
+        return await runReconciliation(client, config);
+    } finally {
+        reconciliationRunning = false;
+    }
+}
+
+function startHourlyReconciliation(client, config) {
+    if (hourlyReconciliationTimer) clearInterval(hourlyReconciliationTimer);
+
+    hourlyReconciliationTimer = setInterval(() => {
+        reconcileActiveTickets(client, config).catch(error => {
+            console.error("[ticket-tracker] Hourly reconciliation failed:", error.message);
+        });
+    }, 60 * 60 * 1000);
+    hourlyReconciliationTimer.unref?.();
+}
+
 module.exports = {
     init: loadTracking,
     reconcileActiveTickets,
+    startHourlyReconciliation,
 
     /**
      * Create a new embed for a ticket
