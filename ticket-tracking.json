@@ -75,6 +75,30 @@
     "closedAt": "2026-10-01T23:56:54.497Z"
   },
 
+  "_comment_1555643334909755392": "---------------- Ticket #1: partnership-1 ----------------",
+
+  "1555643334909755392": {
+    "ticketName": "partnership-1",
+    "ticketTitle": "Partnership Request",
+    "userId": "1259124148798754907",
+    "messageId": "1555643338277781655",
+    "channelId": "1539010556701188206",
+    "ticketId": 1,
+    "originalInfo": {
+      "id": 1,
+      "title": "Partnership Request",
+      "userId": "1259124148798754907",
+      "description": "Company: DO NOT CLOSE, Idea: DO NOT CLOSE",
+      "createdAt": "10/2/2026, 12:11:14 PM"
+    },
+    "notes": [
+      "• Ticket created"
+    ],
+    "status": "🟢 Open",
+    "updatedAt": "2026-10-02T18:11:14.542Z",
+    "lastEvent": "created"
+  },
+
   "_scanDiagnostics": {
     "lastRunAt": "2026-10-02T17:18:27.892Z",
     "status": "completed",
