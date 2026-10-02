@@ -385,6 +385,17 @@ process.on("unhandledRejection", err => {
     console.error("[fatal-guard] unhandled promise rejection:", err);
 });
 
+// discord.js waits out a Discord rate limit silently, so a command stuck on
+// "is thinking..." looks identical to a bug. This puts the wait in the log.
+// Channel topic/name edits (claim, unclaim, force claim, transfer) are the
+// usual cause: Discord allows 2 per channel every 10 minutes.
+client.rest.on("rateLimited", info => {
+    console.warn(
+        `[rate-limit] waiting ${Math.ceil(info.timeToReset / 1000)}s on ${info.method} ${info.route}` +
+        `${info.global ? " (global)" : ""}`
+    );
+});
+
 process.on("uncaughtException", err => {
     console.error("[fatal-guard] uncaught exception:", err);
 });

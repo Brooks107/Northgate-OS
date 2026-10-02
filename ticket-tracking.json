@@ -37,11 +37,55 @@
       "• SirCosmix has force claimed ticket - Ticket moving nicely as of 17/9/26 23:05 BST",
       "• client passed questions phase - moving to interview"
     ],
-    "status": "🟢 Open",
-    "updatedAt": "2026-09-19T09:55:48.124Z",
-    "lastEvent": "reconciled",
+    "status": "🟡 Claimed",
+    "updatedAt": "2026-10-01T19:44:54.716Z",
+    "lastEvent": "transferred",
     "ticketName": "hiring-4",
     "ticketTitle": "Hiring Application",
-    "userId": "1281445753923047475"
+    "userId": "1281445753923047475",
+    "assignedTo": "1172089323223519235"
+  },
+  "1555356030844796990": {
+    "ticketName": "hiring-1",
+    "ticketTitle": "Hiring Application",
+    "userId": "1419379683455271034",
+    "messageId": "1555356036565831832",
+    "channelId": "1539010556701188206",
+    "ticketId": 1,
+    "originalInfo": {
+      "id": 1,
+      "title": "Hiring Application",
+      "userId": "1419379683455271034",
+      "description": "Role: HR&SO, Experience: Very expansive",
+      "createdAt": "10/1/2026, 5:09:36 PM"
+    },
+    "notes": [
+      "• Ticket created"
+    ],
+    "status": "🔴 Closed",
+    "updatedAt": "2026-10-01T23:56:54.497Z",
+    "lastEvent": "closed",
+    "assignedTo": "1267321190821789780",
+    "closedAt": "2026-10-01T23:56:54.497Z"
+  },
+  "_scanDiagnostics": {
+    "lastRunAt": "2026-10-02T07:12:12.780Z",
+    "status": "completed",
+    "trackerChannelId": "1539010556701188206",
+    "activeTicketChannels": 2,
+    "messagesScanned": 2,
+    "messagesWithEmbeds": 2,
+    "messagesFromCurrentBot": 2,
+    "messagesFromOtherAuthors": 0,
+    "embedsScanned": 2,
+    "embedsMissingFooterOrNumber": 0,
+    "embedsWithoutActiveTicketMatch": 0,
+    "ambiguousTicketMatches": 0,
+    "activeTicketsWithMatchingEmbeds": 2,
+    "alreadyTrackedTickets": 2,
+    "duplicateEmbedsForTicket": 0,
+    "imported": 0,
+    "skippedExamples": [],
+    "completedAt": "2026-10-02T07:12:13.640Z"
   }
 }
