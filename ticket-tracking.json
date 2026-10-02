@@ -20,6 +20,9 @@
     "ticketTitle": "Partnership Request",
     "userId": "1259124148798754907"
   },
+
+  "_comment_1550260920427618374": "---------------- Ticket #4: hiring-4 ----------------",
+
   "1550260920427618374": {
     "messageId": "1550260924378775573",
     "channelId": "1539010556701188206",
@@ -45,6 +48,9 @@
     "userId": "1281445753923047475",
     "assignedTo": "1172089323223519235"
   },
+
+  "_comment_1555356030844796990": "---------------- Ticket #1: hiring-1 ----------------",
+
   "1555356030844796990": {
     "ticketName": "hiring-1",
     "ticketTitle": "Hiring Application",
@@ -68,6 +74,7 @@
     "assignedTo": "1267321190821789780",
     "closedAt": "2026-10-01T23:56:54.497Z"
   },
+
   "_scanDiagnostics": {
     "lastRunAt": "2026-10-02T17:08:32.864Z",
     "status": "completed",

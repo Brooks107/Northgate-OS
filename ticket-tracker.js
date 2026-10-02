@@ -66,7 +66,25 @@ function saveTracking() {
         }));
         if (scanDiagnostics) serializedTickets._scanDiagnostics = scanDiagnostics;
         if (scanDiagnosticsMessageId) serializedTickets._scanDiagnosticsMessageId = scanDiagnosticsMessageId;
-        fs.writeFileSync(temporaryFile, JSON.stringify(serializedTickets, null, 2));
+        const ticketEntries = Object.entries(serializedTickets).filter(([key]) => !key.startsWith("_"));
+        const metadataEntries = Object.entries(serializedTickets).filter(([key]) => key.startsWith("_"));
+        const separatedEntries = [];
+        for (const [key, value] of ticketEntries) {
+            if (separatedEntries.length) {
+                separatedEntries.push([
+                    `_comment_${key}`,
+                    `---------------- Ticket #${value.ticketId ?? "?"}: ${value.ticketName || value.ticketTitle || "Ticket"} ----------------`
+                ]);
+            }
+            separatedEntries.push([key, value]);
+        }
+
+        const entries = [...separatedEntries, ...metadataEntries].map(([key, value]) => {
+            const formattedValue = JSON.stringify(value, null, 2).replace(/\n/g, "\n  ");
+            return `  ${JSON.stringify(key)}: ${formattedValue}`;
+        });
+        const formattedTracking = entries.length ? `{\n${entries.join(",\n\n")}\n}` : "{}";
+        fs.writeFileSync(temporaryFile, formattedTracking);
         fs.renameSync(temporaryFile, TRACKING_FILE);
     } catch (err) {
         console.error("[ticket-tracker] Failed to save tracking:", err.message);
