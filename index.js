@@ -19,6 +19,7 @@ const gitSync = require("./git-sync");
 const commandRegistry = require("./command-registry");
 const state = require("./state");
 const ticketTracker = require("./ticket-tracker");
+const autocloseScheduler = require("./autoclose-scheduler");
 const { startHeartbeat } = require("./heartbeat");
 const { logCommand } = require("./utils/command-logger");
 const adminPanelCommand = require("./commands/adminpanel");
@@ -143,6 +144,7 @@ client.once(Events.ClientReady, async () => {
 
     ticketTracker.init();
     await ticketTracker.reconcileActiveTickets(client, config);
+    autocloseScheduler.init(client, config);
     await adminPanelCommand.restore(client, config);
 
     if (typeof client.notifyAdminPanelRefresh === "function") {

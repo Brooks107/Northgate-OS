@@ -31,40 +31,43 @@ module.exports = {
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         const id = interaction.options.getInteger("id");
-
-        const ticketChannel = interaction.guild.channels.cache.find(
-            ch =>
-                ch.name.startsWith(`commission-${id}`) ||
-                ch.name.startsWith(`support-${id}`) ||
-                ch.name.startsWith(`appeal-${id}`) ||
-                ch.name.startsWith(`hiring-${id}`) ||
-                ch.name.startsWith(`partnership-${id}`) ||
-                ch.name.startsWith(`interrogation-${id}`)
-        );
+        const ticketChannel = findTicketChannel(interaction.guild, id);
 
         if (!ticketChannel) {
             return interaction.editReply(`❌ Ticket #${id} does not exist.`);
         }
 
-        if (client.activeTicketIds.has(id)) {
-            client.activeTicketIds.delete(id);
-        }
-
-        if (client && typeof client.notifyAdminPanelRefresh === "function") {
-            await client.notifyAdminPanelRefresh();
-        }
-
         await interaction.editReply(`🔒 Ticket #${id} closed. Saving transcript...`);
-        await saveTranscript(ticketChannel, interaction.user, config);
-
-        // Remove from tracker
-        await ticketTracker.removeTracking(ticketChannel);
-
-        setTimeout(() => {
-            interaction.guild.channels.delete(ticketChannel.id).catch(() => {});
-        }, 3000);
+        await closeTicket(ticketChannel, client, config, interaction.user);
     }
 };
+
+function findTicketChannel(guild, id) {
+    const ticketPattern = new RegExp(`^(?:commission|support|appeal|hiring|partnership|interrogation)-${id}(?:-|$)`, "i");
+    return guild.channels.cache.find(channel => ticketPattern.test(channel.name));
+}
+
+async function closeTicket(ticketChannel, client, config, closedBy) {
+    const ticketId = Number(ticketChannel.name.match(/-(\d+)(?:-|$)/)?.[1]);
+    if (Number.isInteger(ticketId) && client.activeTicketIds?.has(ticketId)) {
+        client.activeTicketIds.delete(ticketId);
+    }
+
+    if (client && typeof client.notifyAdminPanelRefresh === "function") {
+        await client.notifyAdminPanelRefresh();
+    }
+
+    await saveTranscript(ticketChannel, closedBy, config);
+
+    await ticketTracker.removeTracking(ticketChannel);
+
+    setTimeout(() => {
+        ticketChannel.guild.channels.delete(ticketChannel.id).catch(() => {});
+    }, 3000);
+}
+
+module.exports.findTicketChannel = findTicketChannel;
+module.exports.closeTicket = closeTicket;
 
 async function saveTranscript(channel, closedBy, config) {
     try {
@@ -85,7 +88,7 @@ async function saveTranscript(channel, closedBy, config) {
         const messages = all.reverse();
         const lines = [];
         lines.push(`Transcript for #${channel.name}`);
-        lines.push(`Closed by: ${closedBy.tag}`);
+        lines.push(`Closed by: ${closedBy.tag || "Autoclose timer"}`);
         lines.push(`Saved: ${new Date().toLocaleString()}`);
         lines.push(`Messages: ${messages.length}`);
         lines.push("=".repeat(50));
@@ -119,7 +122,7 @@ async function saveTranscript(channel, closedBy, config) {
         }
 
         await logChannel.send({
-            content: `📄 Transcript for **${channel.name}** (closed by ${closedBy.tag})`,
+            content: `📄 Transcript for **${channel.name}** (closed by ${closedBy.tag || "Autoclose timer"})`,
             files: [file],
             allowedMentions: { parse: [] }
         });
