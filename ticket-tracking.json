@@ -94,9 +94,10 @@
     "notes": [
       "• Ticket created"
     ],
-    "status": "🟢 Open",
-    "updatedAt": "2026-10-02T18:11:14.542Z",
-    "lastEvent": "created"
+    "status": "🔴 Closed",
+    "updatedAt": "2026-10-02T18:15:37.321Z",
+    "lastEvent": "closed",
+    "closedAt": "2026-10-02T18:15:37.321Z"
   },
 
   "_scanDiagnostics": {
