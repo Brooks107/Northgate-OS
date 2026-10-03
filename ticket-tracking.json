@@ -75,8 +75,33 @@
     "closedAt": "2026-10-01T23:56:54.497Z"
   },
 
+  "_comment_1555643334909755392": "---------------- Ticket #1: partnership-1 ----------------",
+
+  "1555643334909755392": {
+    "ticketName": "partnership-1",
+    "ticketTitle": "Partnership Request",
+    "userId": "1259124148798754907",
+    "messageId": "1555643338277781655",
+    "channelId": "1539010556701188206",
+    "ticketId": 1,
+    "originalInfo": {
+      "id": 1,
+      "title": "Partnership Request",
+      "userId": "1259124148798754907",
+      "description": "Company: DO NOT CLOSE, Idea: DO NOT CLOSE",
+      "createdAt": "10/2/2026, 12:11:14 PM"
+    },
+    "notes": [
+      "• Ticket created"
+    ],
+    "status": "🔴 Closed",
+    "updatedAt": "2026-10-02T18:15:37.321Z",
+    "lastEvent": "closed",
+    "closedAt": "2026-10-02T18:15:37.321Z"
+  },
+
   "_scanDiagnostics": {
-    "lastRunAt": "2026-10-02T17:13:08.813Z",
+    "lastRunAt": "2026-10-03T09:18:29.671Z",
     "status": "completed",
     "trackerChannelId": "1539010556701188206",
     "activeTicketChannels": 2,
@@ -93,7 +118,8 @@
     "duplicateEmbedsForTicket": 0,
     "imported": 0,
     "skippedExamples": [],
-    "completedAt": "2026-10-02T17:13:10.010Z"
+    "completedAt": "2026-10-03T09:18:31.005Z"
   },
+
   "_scanDiagnosticsMessageId": "1555627565710966795"
 }
