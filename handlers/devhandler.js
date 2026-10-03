@@ -34,6 +34,23 @@ function getGroupValues(config, configKey) {
     return Array.isArray(value) ? [...value] : value ? [value] : [];
 }
 
+async function resolveGroupDisplayValue(client, guild, group, value) {
+    const rawValue = String(value ?? "").trim();
+    if (!rawValue) return "(empty value)";
+
+    if (ROLE_GROUPS.has(group)) {
+        const role = guild?.roles?.cache?.get(rawValue)
+            || (guild ? await guild.roles.fetch(rawValue).catch(() => null) : null);
+
+        if (role) return `${rawValue} → @${role.name}`;
+        return `${rawValue} → (role not found in this guild)`;
+    }
+
+    const user = await client.users.fetch(rawValue).catch(() => null);
+    if (user) return `${rawValue} → ${user.tag}`;
+    return `${rawValue} → (not found / not a user)`;
+}
+
 async function confirmRoleGroupChange(message, action, group, id) {
     const warning = new EmbedBuilder()
         .setTitle("⚠️ Role group change warning")
@@ -352,9 +369,10 @@ module.exports = async function handleDeveloperCommand(message, config) {
             return true;
         }
 
+        const guild = message.guild || (config.guildId ? message.client.guilds.cache.get(config.guildId) : null);
+
         const resolved = await Promise.all(values.map(async value => {
-            const user = await message.client.users.fetch(value).catch(() => null);
-            return user ? `${value} → ${user.tag}` : `${value} → (not found / not a user)`;
+            return resolveGroupDisplayValue(message.client, guild, group, value);
         }));
 
         await message.reply([
