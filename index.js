@@ -371,8 +371,7 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
         ...toArray(config.ownershiprole)
     ].filter(Boolean);
 
-    const isDeveloper = config.developers?.includes(newState.member.id) === true;
-    const isAllowed = isDeveloper || allowedRoleIds.some(roleId => newState.member.roles.cache.has(roleId));
+    const isAllowed = allowedRoleIds.some(roleId => newState.member.roles.cache.has(roleId));
     const memberOverwrite = newState.channel.permissionOverwrites.cache.get(newState.member.id);
     const hasExplicitAccess = memberOverwrite?.allow.has("Connect");
     if (isAllowed || hasExplicitAccess) return;

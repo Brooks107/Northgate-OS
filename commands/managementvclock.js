@@ -13,8 +13,7 @@ module.exports = {
             ...toArray(config.hrmanagerrole),
             ...toArray(config.ownershiprole)
         ].filter(Boolean);
-        const isDeveloper = config.developers?.includes(interaction.user.id) === true;
-        const isAuthorized = isDeveloper || allowedRoleIds.some(roleId =>
+        const isAuthorized = allowedRoleIds.some(roleId =>
             interaction.member?.roles?.cache?.has(roleId)
         ) || interaction.member?.permissions?.has("Administrator");
 
