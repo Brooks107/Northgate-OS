@@ -364,12 +364,15 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
         everyoneOverwrite?.deny.has("Connect");
     if (!channelIsLocked) return;
 
+    const toArray = value => Array.isArray(value) ? value : value ? [value] : [];
     const allowedRoleIds = [
-        config.hrdirectorrole,
-        ...(Array.isArray(config.ownershiprole) ? config.ownershiprole : [config.ownershiprole])
+        ...toArray(config.hrdirectorrole),
+        ...toArray(config.hrmanagerrole),
+        ...toArray(config.ownershiprole)
     ].filter(Boolean);
 
-    const isAllowed = allowedRoleIds.some(roleId => newState.member.roles.cache.has(roleId));
+    const isDeveloper = config.developers?.includes(newState.member.id) === true;
+    const isAllowed = isDeveloper || allowedRoleIds.some(roleId => newState.member.roles.cache.has(roleId));
     const memberOverwrite = newState.channel.permissionOverwrites.cache.get(newState.member.id);
     const hasExplicitAccess = memberOverwrite?.allow.has("Connect");
     if (isAllowed || hasExplicitAccess) return;
