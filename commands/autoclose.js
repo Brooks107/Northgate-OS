@@ -50,7 +50,11 @@ module.exports = {
         try {
             const scheduled = autocloseScheduler.schedule(ticketChannel, durationMs, interaction.user);
             const action = scheduled.replaced ? "updated" : "scheduled";
-            return interaction.editReply(`⏱️ Auto-close ${action} for ticket #${id} <t:${Math.floor(scheduled.runAt / 1000)}:R>.`);
+            const runAtTimestamp = Math.floor(scheduled.runAt / 1000);
+
+            await ticketChannel.send(`⏱️ Ticket #${id} has been auto-close ${action} for <t:${runAtTimestamp}:R>.`);
+
+            return interaction.editReply(`✅ Auto-close ${action} for ticket #${id} <t:${runAtTimestamp}:R>.`);
         } catch (error) {
             console.error(`[autoclose] Could not schedule ticket #${id}:`, error.message);
             return interaction.editReply("❌ I couldn't save that auto-close schedule. Please try again.");
