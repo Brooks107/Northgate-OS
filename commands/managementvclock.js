@@ -15,7 +15,7 @@ module.exports = {
         ].filter(Boolean);
         const isAuthorized = allowedRoleIds.some(roleId =>
             interaction.member?.roles?.cache?.has(roleId)
-        ) || interaction.member?.permissions?.has("Administrator");
+        );
 
         if (!isAuthorized) {
             return interaction.reply({
@@ -46,6 +46,11 @@ module.exports = {
                 const role = channel.guild.roles.cache.get(roleId);
                 if (role) await channel.permissionOverwrites.edit(role, { Connect: null });
             }
+            for (const role of channel.guild.roles.cache.values()) {
+                if (role.id !== channel.guild.roles.everyone.id && !allowedRoleIds.includes(role.id)) {
+                    await channel.permissionOverwrites.edit(role, { Connect: null }).catch(() => {});
+                }
+            }
 
             config.managementVoiceChannelLocked = false;
             const saved = state.save({ managementVoiceChannelLocked: false });
@@ -64,6 +69,11 @@ module.exports = {
         for (const roleId of allowedRoleIds) {
             const role = channel.guild.roles.cache.get(roleId);
             if (role) await channel.permissionOverwrites.edit(role, { Connect: true });
+        }
+        for (const role of channel.guild.roles.cache.values()) {
+            if (role.id !== channel.guild.roles.everyone.id && !allowedRoleIds.includes(role.id)) {
+                await channel.permissionOverwrites.edit(role, { Connect: false }).catch(() => {});
+            }
         }
 
         config.managementVoiceChannelLocked = true;

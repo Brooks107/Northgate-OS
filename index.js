@@ -372,9 +372,23 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
     ].filter(Boolean);
 
     const isAllowed = allowedRoleIds.some(roleId => newState.member.roles.cache.has(roleId));
+    const hasRoleConnectOverride = newState.channel.permissionOverwrites.cache.some(override =>
+        override.type === "role" &&
+        newState.member.roles.cache.has(override.id) &&
+        override.allow.has("Connect")
+    );
     const memberOverwrite = newState.channel.permissionOverwrites.cache.get(newState.member.id);
     const hasExplicitAccess = memberOverwrite?.allow.has("Connect");
-    if (isAllowed || hasExplicitAccess) return;
+    if (isAllowed || (!hasRoleConnectOverride && !hasExplicitAccess)) return;
+    if (!isAllowed && !hasExplicitAccess) {
+        try {
+            await newState.disconnect("Management voice channel is locked");
+            console.log(`[management-vc] disconnected unauthorized member ${newState.member.user.tag}`);
+        } catch (err) {
+            console.error(`[management-vc] could not disconnect ${newState.member?.user?.tag}:`, err.message);
+        }
+        return;
+    }
 
     try {
         await newState.disconnect("Management voice channel is locked");
