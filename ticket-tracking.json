@@ -40,13 +40,14 @@
       "• SirCosmix has force claimed ticket - Ticket moving nicely as of 17/9/26 23:05 BST",
       "• client passed questions phase - moving to interview"
     ],
-    "status": "🟡 Claimed",
-    "updatedAt": "2026-10-01T19:44:54.716Z",
-    "lastEvent": "transferred",
+    "status": "🔴 Closed",
+    "updatedAt": "2026-10-03T21:35:14.169Z",
+    "lastEvent": "closed",
     "ticketName": "hiring-4",
     "ticketTitle": "Hiring Application",
     "userId": "1281445753923047475",
-    "assignedTo": "1172089323223519235"
+    "assignedTo": "1172089323223519235",
+    "closedAt": "2026-10-03T21:35:14.169Z"
   },
 
   "_comment_1555356030844796990": "---------------- Ticket #1: hiring-1 ----------------",
