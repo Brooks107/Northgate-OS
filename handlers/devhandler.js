@@ -150,6 +150,22 @@ function evaluateCommandAccess(commandName, member, config, client, commandArgum
             : { result: "blocked", reason: "Requires a commission access role." };
     }
 
+    if (["close", "autoclose", "autocloseabort"].includes(commandName)) {
+        return member.permissions.has("ManageChannels") || isDeveloper || isOwner
+            ? { result: "allowed", reason: "Manage Channels permission, developer access, or ownership access." }
+            : { result: "blocked", reason: "Requires Manage Channels permission." };
+    }
+
+    if (["ticketpanel", "commissionspanel", "hiringpanel", "partnerpanel", "reactionpanel"].includes(commandName)) {
+        return isDeveloper || isOwner || isAdministrator || member.permissions.has("ManageChannels")
+            ? { result: "allowed", reason: "Developer, ownership, administrator, or staff panel access." }
+            : { result: "blocked", reason: "Requires developer, ownership, administrator, or panel access." };
+    }
+
+    if (["itsupport", "requestmanagementvc"].includes(commandName)) {
+        return { result: "allowed", reason: "This command is available to server members." };
+    }
+
     if (commandName === "hire") {
         return isManageRoles || isAdministrator || hasAnyRole(config.supportTeamRoles)
             ? { result: "allowed", reason: "Manage Roles, Administrator, or support access." }
