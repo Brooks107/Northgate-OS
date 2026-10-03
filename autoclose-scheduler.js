@@ -38,6 +38,13 @@ function removeJob(channelId) {
     saveJobs();
 }
 
+function cancel(channel) {
+    if (!channel?.id) return false;
+    if (!jobs.has(channel.id)) return false;
+    removeJob(channel.id);
+    return true;
+}
+
 function arm(job, delay = Math.max(0, job.runAt - Date.now())) {
     const previousTimer = timers.get(job.channelId);
     if (previousTimer) clearTimeout(previousTimer);
@@ -127,4 +134,4 @@ function schedule(channel, durationMs, user) {
     return { runAt: job.runAt, replaced: Boolean(previous) };
 }
 
-module.exports = { init, schedule, parseDuration, MAX_DURATION_MS };
+module.exports = { init, schedule, cancel, parseDuration, MAX_DURATION_MS };

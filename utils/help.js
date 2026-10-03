@@ -38,6 +38,7 @@ const SLASH_COMMAND_ACCESS = {
 	managementvclock: "Developers, ownership, or HR directors",
 	close: "Ticket users and staff, subject to ticket access",
 	autoclose: "Members with Manage Channels",
+	autocloseabort: "Members with Manage Channels",
 	itsupport: "Everyone",
 	requestmanagementvc: "Everyone",
 	ticketpanel: "Staff with ticket-panel access",
