@@ -100,6 +100,30 @@
     "closedAt": "2026-10-02T18:15:37.321Z"
   },
 
+  "_comment_1555966617161310268": "---------------- Ticket #1: commission-1 ----------------",
+
+  "1555966617161310268": {
+    "ticketName": "commission-1",
+    "ticketTitle": "Commission Request",
+    "userId": "1530760867983921152",
+    "messageId": "1555966630935265420",
+    "channelId": "1539010556701188206",
+    "ticketId": 1,
+    "originalInfo": {
+      "id": 1,
+      "title": "Commission Request",
+      "userId": "1530760867983921152",
+      "description": "Map Size: Close to Rho or a good long Pvp map, Payment: Uh like 800 robux?, Wait: 1-4 week, Quality: Very good like extremely even with to custom teams",
+      "createdAt": "10/3/2026, 9:35:52 AM"
+    },
+    "notes": [
+      "• Ticket created"
+    ],
+    "status": "🟢 Open",
+    "updatedAt": "2026-10-03T15:35:53.485Z",
+    "lastEvent": "created"
+  },
+
   "_scanDiagnostics": {
     "lastRunAt": "2026-10-03T15:20:41.775Z",
     "status": "completed",
