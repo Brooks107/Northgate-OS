@@ -6,6 +6,7 @@ const {
     PermissionFlagsBits
 } = require("discord.js");
 const { logCommand } = require("../utils/command-logger");
+const { setTicketPanelsLocked } = require("../utils/ticket-panel-lock");
 
 const LOCKDOWN_ROLE = "1536806576202186842";
 const LOCKED_CHANNEL_IDS = [
@@ -99,11 +100,17 @@ module.exports = async function handleAdminCommand(message, config) {
     const savedForceLockOverwrites = state.load().forceLockOverwrites;
 
     try {
+        if (shouldLock) config.forceLocked = true;
+
         const statusReply = await message.reply(
             shouldLock ? "🔒 Applying force lock..." : "🔓 Applying force unlock..."
         );
         let stateSaved = true;
         const originalOverwrites = {};
+
+        if (shouldLock) {
+            await setTicketPanelsLocked(message.client, config.channels.ticketchannelid, true);
+        }
 
         for (const channel of channels) {
             // Combine ViewChannel with SendMessages or Connect
@@ -170,7 +177,10 @@ module.exports = async function handleAdminCommand(message, config) {
                     deny: BigInt(overwrite.deny)
                 })));
             }
+        }
 
+        if (!shouldLock) {
+            await setTicketPanelsLocked(message.client, config.channels.ticketchannelid, false);
             config.locked = false;
             config.forceLocked = false;
             stateSaved = state.save({

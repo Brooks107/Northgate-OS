@@ -19,6 +19,10 @@ const gitSync = require("./git-sync");
 const commandRegistry = require("./command-registry");
 const state = require("./state");
 const ticketTracker = require("./ticket-tracker");
+const {
+    setTicketPanelsLocked,
+    TICKET_CREATION_INTERACTION_IDS
+} = require("./utils/ticket-panel-lock");
 const autocloseScheduler = require("./autoclose-scheduler");
 const { startHeartbeat } = require("./heartbeat");
 const { logCommand } = require("./utils/command-logger");
@@ -147,6 +151,18 @@ client.once(Events.ClientReady, async () => {
     ticketTracker.startHourlyReconciliation(client, config);
     autocloseScheduler.init(client, config);
     await adminPanelCommand.restore(client, config);
+    if (config.forceLocked) {
+        try {
+            const changedButtons = await setTicketPanelsLocked(
+                client,
+                config.channels.ticketchannelid,
+                true
+            );
+            console.log(`[lock] force lock restored; disabled ${changedButtons} ticket panel button(s).`);
+        } catch (error) {
+            console.error("[lock] could not restore ticket panel button lock:", error);
+        }
+    }
 
     if (typeof client.notifyAdminPanelRefresh === "function") {
         await client.notifyAdminPanelRefresh();
@@ -334,6 +350,15 @@ client.on("interactionCreate", async interaction => {
             const isHiringTicket = interaction.customId === "ticket_hire" || interaction.customId === "modal_ticket_hire" || interaction.customId === "hiring_claim" || interaction.customId === "hiring_close" || (interaction.customId === "ticket_claim" && channelName.startsWith("hiring-")) || (interaction.customId === "ticket_close" && channelName.startsWith("hiring-"));
             const isPartnershipTicket = interaction.customId === "ticket_partnership" || interaction.customId === "modal_ticket_partnership" || interaction.customId === "partnership_claim" || interaction.customId === "partnership_close" || (interaction.customId === "ticket_claim" && channelName.startsWith("partnership-")) || (interaction.customId === "ticket_close" && channelName.startsWith("partnership-"));
             const isInterrogationTicket = interaction.customId === "intero_claim" || interaction.customId === "intero_close";
+            if (
+                config.forceLocked &&
+                TICKET_CREATION_INTERACTION_IDS.has(interaction.customId)
+            ) {
+                return interaction.reply({
+                    content: "🚫 Ticket creation is currently locked. Please try again later.",
+                    flags: MessageFlags.Ephemeral
+                });
+            }
 
             if (isInterrogationTicket) return await interoHandler.execute(interaction, client, config);
             if (isCommissionTicket) return await commissionsHandler.execute(interaction, client, config);
