@@ -250,7 +250,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
 
     const args = message.content.slice(2).trim().split(/ +/);
     const command = args.shift()?.toLowerCase();
-    if (!["addgroup", "delgroup", "forceclose", "impersonate", "power", "forcerestart"].includes(command)) return false;
+    if (!["addgroup", "delgroup", "showgroup", "forceclose", "impersonate", "power", "forcerestart"].includes(command)) return false;
 
     await logCommand(message, config, `d!${command}`, "Developer command", args);
 
@@ -331,6 +331,36 @@ module.exports = async function handleDeveloperCommand(message, config) {
             `${command === "addgroup" ? "✅ Added" : "🗑️ Removed"} \`${id}\` ${command === "addgroup" ? "to" : "from"} the **${group}** group.` +
             (saved ? "" : "\n⚠️ The change could not be saved to disk and may reset after restart.")
         );
+        return true;
+    }
+
+    if (command === "showgroup") {
+        const group = args.shift()?.toLowerCase();
+        const configKey = GROUP_CONFIG_KEYS[group];
+
+        if (!configKey) {
+            await message.reply([
+                "❌ Usage: `d!showgroup <group>`",
+                `Groups: ${Object.keys(GROUP_CONFIG_KEYS).join(", ")}`
+            ].join("\n"));
+            return true;
+        }
+
+        const values = getGroupValues(config, configKey);
+        if (values.length === 0) {
+            await message.reply(`ℹ️ The **${group}** group is empty.`);
+            return true;
+        }
+
+        const resolved = await Promise.all(values.map(async value => {
+            const user = await message.client.users.fetch(value).catch(() => null);
+            return user ? `${value} → ${user.tag}` : `${value} → (not found / not a user)`;
+        }));
+
+        await message.reply([
+            `📋 **${group}** group values (${values.length}):`,
+            ...resolved.map(entry => `• ${entry}`)
+        ].join("\n"));
         return true;
     }
 
