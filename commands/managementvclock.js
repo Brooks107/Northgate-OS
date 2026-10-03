@@ -25,13 +25,12 @@ module.exports = {
             });
         }
 
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
         const channelId = config.managementVoiceChannelId;
         const channel = channelId ? await client.channels.fetch(channelId).catch(() => null) : null;
         if (!channel || !channel.isVoiceBased?.() || !channel.guild) {
-            return interaction.reply({
-                content: "❌ Set a valid `managementVoiceChannelId` in `config.json` first.",
-                flags: MessageFlags.Ephemeral
-            });
+            return interaction.editReply("❌ Set a valid `managementVoiceChannelId` in `config.json` first.");
         }
 
         const everyoneOverwrite = channel.permissionOverwrites.cache.get(
@@ -54,12 +53,10 @@ module.exports = {
             if (interaction.client && typeof interaction.client.notifyAdminPanelRefresh === "function") {
                 await interaction.client.notifyAdminPanelRefresh();
             }
-            return interaction.reply({
-                content: saved
-                    ? `🔓 ${channel} is now unlocked.`
-                    : `🔓 ${channel} is now unlocked.\n⚠️ Could not save to disk, so this may lock again after restart.`,
-                flags: MessageFlags.Ephemeral
-            });
+            return interaction.editReply(saved
+                ? `🔓 ${channel} is now unlocked.`
+                : `🔓 ${channel} is now unlocked.\n⚠️ Could not save to disk, so this may lock again after restart.`
+            );
         }
 
         await channel.permissionOverwrites.edit(channel.guild.roles.everyone, {
@@ -75,11 +72,9 @@ module.exports = {
         if (interaction.client && typeof interaction.client.notifyAdminPanelRefresh === "function") {
             await interaction.client.notifyAdminPanelRefresh();
         }
-        return interaction.reply({
-            content: saved
-                ? `🔒 ${channel} is now locked. Only approved management roles can join.`
-                : `🔒 ${channel} is now locked. Only approved management roles can join.\n⚠️ Could not save to disk, so the join guard will reset on restart.`,
-            flags: MessageFlags.Ephemeral
-        });
+        return interaction.editReply(saved
+            ? `🔒 ${channel} is now locked. Only approved management roles can join.`
+            : `🔒 ${channel} is now locked. Only approved management roles can join.\n⚠️ Could not save to disk, so the join guard will reset on restart.`
+        );
     }
 };
