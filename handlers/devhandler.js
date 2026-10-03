@@ -22,7 +22,7 @@ const GROUP_CONFIG_KEYS = {
     community: "communityrole",
     developergame: "devrole",
     staff: "staffrole",
-    hridr: "hrdirectorrole",
+    hrdir: "hrdirectorrole",
     hrman: "hrmanagerrole",
     ownership: "ownershiprole"
 };
