@@ -16,24 +16,24 @@ module.exports = async function handleGuildMemberAdd(member) {
         return;
     }
 
-    const embed = new EmbedBuilder()
-        .setColor(0x3498db)
-        .setTitle(`Welcome ${member.guild.name}!`)
-        .setDescription([
-            `Welcome to ${member.guild.name}, ${member}!`,
-            `Please make sure to read the rules in <#1518181292863127602>!`,
-            `Please direct any queries to our support tickets in <#1518198456932503642>!`
-        ])
-        .setThumbnail(member.user.displayAvatarURL())
-        .setFooter({ text: `Member #${member.guild.memberCount}` })
-        .setTimestamp();
-
     try {
+        const embed = new EmbedBuilder()
+            .setColor(0x3498db)
+            .setTitle(`Welcome ${member.guild.name}!`)
+            .setDescription([
+                `Welcome to ${member.guild.name}, ${member}!`,
+                "Please make sure to read the rules in <#1518181292863127602>!",
+                "Please direct any queries to our support tickets in <#1518198456932503642>!"
+            ].join("\n\n"))
+            .setThumbnail(member.user.displayAvatarURL())
+            .setFooter({ text: `Member #${member.guild.memberCount}` })
+            .setTimestamp();
+
         await channel.send({
             embeds: [embed],
             allowedMentions: { users: [member.id] }
         });
     } catch (error) {
-        console.error(`[welcome] could not send welcome message for ${member.user.tag}:`, error);
+        console.error(`[welcome] could not build or send welcome message for ${member.user.tag}:`, error);
     }
 };
