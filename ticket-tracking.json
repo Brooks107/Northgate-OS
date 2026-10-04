@@ -40,13 +40,14 @@
       "• SirCosmix has force claimed ticket - Ticket moving nicely as of 17/9/26 23:05 BST",
       "• client passed questions phase - moving to interview"
     ],
-    "status": "🟡 Claimed",
-    "updatedAt": "2026-10-01T19:44:54.716Z",
-    "lastEvent": "transferred",
+    "status": "🔴 Closed",
+    "updatedAt": "2026-10-03T21:35:14.169Z",
+    "lastEvent": "closed",
     "ticketName": "hiring-4",
     "ticketTitle": "Hiring Application",
     "userId": "1281445753923047475",
-    "assignedTo": "1172089323223519235"
+    "assignedTo": "1172089323223519235",
+    "closedAt": "2026-10-03T21:35:14.169Z"
   },
 
   "_comment_1555356030844796990": "---------------- Ticket #1: hiring-1 ----------------",
@@ -200,7 +201,7 @@
   },
 
   "_scanDiagnostics": {
-    "lastRunAt": "2026-10-03T15:20:41.775Z",
+    "lastRunAt": "2026-10-04T08:57:15.584Z",
     "status": "completed",
     "trackerChannelId": "1539010556701188206",
     "activeTicketChannels": 2,
@@ -217,7 +218,7 @@
     "duplicateEmbedsForTicket": 0,
     "imported": 0,
     "skippedExamples": [],
-    "completedAt": "2026-10-03T15:20:42.820Z"
+    "completedAt": "2026-10-04T08:57:16.611Z"
   },
 
   "_scanDiagnosticsMessageId": "1555627565710966795"
