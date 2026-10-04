@@ -6,6 +6,10 @@ const {
 } = require("discord.js");
 
 const ticketTracker = require("../ticket-tracker");
+const {
+    ProgressFailure,
+    createInteractionProgress
+} = require("../utils/progress-embed");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -28,17 +32,26 @@ module.exports = {
             });
         }
 
-        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-
         const id = interaction.options.getInteger("id");
-        const ticketChannel = findTicketChannel(interaction.guild, id);
-
-        if (!ticketChannel) {
-            return interaction.editReply(`❌ Ticket #${id} does not exist.`);
+        const progress = createInteractionProgress(interaction, `Closing ticket #${id}`, [
+            "Find the ticket channel",
+            "Release the ticket slot and refresh the admin panel",
+            "Save the ticket transcript",
+            "Remove the ticket from tracking",
+            "Schedule ticket channel deletion"
+        ]);
+        await progress.start();
+        let ticketChannel;
+        try {
+            await progress.runStep(0, async () => {
+                ticketChannel = findTicketChannel(interaction.guild, id);
+                if (!ticketChannel) throw new ProgressFailure(`Ticket #${id} does not exist.`);
+            });
+        } catch (error) {
+            if (error instanceof ProgressFailure) return;
+            throw error;
         }
-
-        await interaction.editReply(`🔒 Ticket #${id} closed. Saving transcript...`);
-        await closeTicket(ticketChannel, client, config, interaction.user);
+        await closeTicket(ticketChannel, client, config, interaction.user, progress);
     }
 };
 
@@ -47,23 +60,42 @@ function findTicketChannel(guild, id) {
     return guild.channels.cache.find(channel => ticketPattern.test(channel.name));
 }
 
-async function closeTicket(ticketChannel, client, config, closedBy) {
+async function closeTicket(ticketChannel, client, config, closedBy, progress) {
     const ticketId = Number(ticketChannel.name.match(/-(\d+)(?:-|$)/)?.[1]);
-    if (Number.isInteger(ticketId) && client.activeTicketIds?.has(ticketId)) {
-        client.activeTicketIds.delete(ticketId);
+    const releaseSlot = async () => {
+        if (Number.isInteger(ticketId) && client.activeTicketIds?.has(ticketId)) {
+            client.activeTicketIds.delete(ticketId);
+        }
+        if (client && typeof client.notifyAdminPanelRefresh === "function") {
+            await client.notifyAdminPanelRefresh();
+        }
+    };
+    const scheduleDelete = async () => {
+        setTimeout(() => {
+            ticketChannel.guild.channels.delete(ticketChannel.id).catch(error => {
+                console.error(`[close] failed to delete ${ticketChannel.name}:`, error);
+            });
+        }, 3000);
+    };
+
+    if (progress) {
+        await progress.runStep(1, releaseSlot);
+        const transcriptSaved = await progress.runStep(2, () => saveTranscript(ticketChannel, closedBy, config));
+        if (!transcriptSaved) await progress.warnStep(2);
+        await progress.runStep(3, () => ticketTracker.removeTracking(ticketChannel));
+        await progress.runStep(4, scheduleDelete);
+        await progress.complete(
+            `🔒 Ticket #${ticketId} closed. ` +
+            (transcriptSaved ? "Transcript saved." : "⚠️ Transcript could not be saved; check the bot logs.") +
+            " Channel deletion is queued."
+        );
+        return;
     }
 
-    if (client && typeof client.notifyAdminPanelRefresh === "function") {
-        await client.notifyAdminPanelRefresh();
-    }
-
+    await releaseSlot();
     await saveTranscript(ticketChannel, closedBy, config);
-
     await ticketTracker.removeTracking(ticketChannel);
-
-    setTimeout(() => {
-        ticketChannel.guild.channels.delete(ticketChannel.id).catch(() => {});
-    }, 3000);
+    await scheduleDelete();
 }
 
 module.exports.findTicketChannel = findTicketChannel;
@@ -118,7 +150,7 @@ async function saveTranscript(channel, closedBy, config) {
 
         if (!logChannel) {
             console.error("Transcript failed: transcriptschannelid is wrong or the bot can't see that channel.");
-            return;
+            return false;
         }
 
         await logChannel.send({
@@ -126,7 +158,9 @@ async function saveTranscript(channel, closedBy, config) {
             files: [file],
             allowedMentions: { parse: [] }
         });
+        return true;
     } catch (err) {
         console.error("Transcript failed:", err);
+        return false;
     }
 }

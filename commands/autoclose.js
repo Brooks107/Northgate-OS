@@ -6,6 +6,10 @@ const {
 
 const closeCommand = require("./close");
 const autocloseScheduler = require("../autoclose-scheduler");
+const {
+    ProgressFailure,
+    createInteractionProgress
+} = require("../utils/progress-embed");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -33,31 +37,42 @@ module.exports = {
             });
         }
 
-        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-
         const id = interaction.options.getInteger("id");
         const durationText = interaction.options.getString("duration");
         const durationMs = autocloseScheduler.parseDuration(durationText);
         if (!durationMs) {
-            return interaction.editReply("❌ Use a duration like `30s`, `15m`, `2h`, or `1d` (maximum `30d`).");
+            return interaction.reply({
+                content: "❌ Use a duration like `30s`, `15m`, `2h`, or `1d` (maximum `30d`).",
+                flags: MessageFlags.Ephemeral
+            });
         }
 
-        const ticketChannel = closeCommand.findTicketChannel(interaction.guild, id);
-        if (!ticketChannel) {
-            return interaction.editReply(`❌ Ticket #${id} does not exist.`);
-        }
-
+        const progress = createInteractionProgress(interaction, `Scheduling auto-close for #${id}`, [
+            "Find the ticket channel",
+            "Schedule the auto-close",
+            "Post the schedule in the ticket"
+        ]);
+        await progress.start();
+        let ticketChannel;
+        let scheduled;
         try {
-            const scheduled = autocloseScheduler.schedule(ticketChannel, durationMs, interaction.user);
+            await progress.runStep(0, async () => {
+                ticketChannel = closeCommand.findTicketChannel(interaction.guild, id);
+                if (!ticketChannel) throw new ProgressFailure(`Ticket #${id} does not exist.`);
+            });
+            await progress.runStep(1, async () => {
+                scheduled = autocloseScheduler.schedule(ticketChannel, durationMs, interaction.user);
+            });
             const action = scheduled.replaced ? "updated" : "scheduled";
             const runAtTimestamp = Math.floor(scheduled.runAt / 1000);
-
-            await ticketChannel.send(`⏱️ Ticket #${id} has been auto-close ${action} for <t:${runAtTimestamp}:R>.`);
-
-            return interaction.editReply(`✅ Auto-close ${action} for ticket #${id} <t:${runAtTimestamp}:R>.`);
+            await progress.runStep(2, () =>
+                ticketChannel.send(`⏱️ Ticket #${id} has been auto-close ${action} for <t:${runAtTimestamp}:R>.`)
+            );
+            await progress.complete(`✅ Auto-close ${action} for ticket #${id} <t:${runAtTimestamp}:R>.`);
         } catch (error) {
+            if (error instanceof ProgressFailure) return;
             console.error(`[autoclose] Could not schedule ticket #${id}:`, error.message);
-            return interaction.editReply("❌ I couldn't save that auto-close schedule. Please try again.");
+            throw error;
         }
     }
 };

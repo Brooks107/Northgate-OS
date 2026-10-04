@@ -1,6 +1,10 @@
 const { SlashCommandBuilder, MessageFlags } = require("discord.js");
 
 const interoHandler = require("../handlers/interohandler");
+const {
+    ProgressFailure,
+    createInteractionProgress
+} = require("../utils/progress-embed");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -42,12 +46,19 @@ module.exports = {
                 });
             }
 
-            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-            const result = await interoHandler.createTicket(interaction, client, config, user);
-            if (result.error) return interaction.editReply(result.error);
-
-            return interaction.editReply(
-                `✅ Interrogation ticket (#${result.ticketId}) created: <#${result.ticketChannel.id}>`
-            );
+            const progress = createInteractionProgress(interaction, "Creating interrogation ticket", [
+                "Find an available ticket slot",
+                "Create the private interrogation channel",
+                "Post the ticket details and controls",
+                "Create the ticket tracker entry",
+                "Refresh the admin panel"
+            ]);
+            await progress.start();
+            try {
+                await interoHandler.createTicket(interaction, client, config, user, progress);
+            } catch (error) {
+                if (error instanceof ProgressFailure) return;
+                throw error;
+            }
     }
 };

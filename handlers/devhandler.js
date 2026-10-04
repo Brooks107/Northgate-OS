@@ -250,7 +250,7 @@ async function saveTranscript(channel, closedBy, config) {
 
         if (!logChannel) {
             console.error("[devhandler] transcript failed: transcriptschannelid is wrong or the bot cannot see that channel.");
-            return;
+            return false;
         }
 
         await logChannel.send({
@@ -258,8 +258,10 @@ async function saveTranscript(channel, closedBy, config) {
             files: [file],
             allowedMentions: { parse: [] }
         });
+        return true;
     } catch (err) {
         console.error("[devhandler] transcript failed:", err);
+        return false;
     }
 }
 
@@ -514,21 +516,38 @@ module.exports = async function handleDeveloperCommand(message, config) {
 
         const match = channel.name.match(/^(?:support|appeal|commission|hiring|partnership)-(\d+)(?:-|$)/);
         const id = match ? Number(match[1]) : null;
-        if (id !== null && message.client?.activeTicketIds) {
-            message.client.activeTicketIds.delete(id);
-        }
-
-        await message.reply("🔒 Force closing ticket and saving transcript...");
-        await saveTranscript(channel, message.author, config);
-        await ticketTracker.removeTracking(channel);
-
-        if (message.client && typeof message.client.notifyAdminPanelRefresh === "function") {
-            await message.client.notifyAdminPanelRefresh();
-        }
-
-        setTimeout(() => {
-            channel.delete("Developer force close").catch(() => {});
-        }, 3000);
+        const progress = createMessageProgress(message, `Force-closing ${channel.name}`, [
+            "Release the ticket slot and refresh the admin panel",
+            "Save the ticket transcript",
+            "Remove the ticket from tracking",
+            "Schedule ticket channel deletion"
+        ]);
+        await progress.start();
+        await progress.runStep(0, async () => {
+            if (id !== null && message.client?.activeTicketIds) {
+                message.client.activeTicketIds.delete(id);
+            }
+            if (message.client && typeof message.client.notifyAdminPanelRefresh === "function") {
+                await message.client.notifyAdminPanelRefresh();
+            }
+        });
+        const transcriptSaved = await progress.runStep(1, () =>
+            saveTranscript(channel, message.author, config)
+        );
+        if (!transcriptSaved) await progress.warnStep(1);
+        await progress.runStep(2, () => ticketTracker.removeTracking(channel));
+        await progress.runStep(3, async () => {
+            setTimeout(() => {
+                channel.delete("Developer force close").catch(error => {
+                    console.error(`[forceclose] failed to delete ${channel.name}:`, error);
+                });
+            }, 3000);
+        });
+        await progress.complete(
+            `🔒 ${channel.name} closed. ` +
+            (transcriptSaved ? "Transcript saved." : "⚠️ Transcript could not be saved; check the bot logs.") +
+            " Channel deletion is queued."
+        );
 
         return true;
     }

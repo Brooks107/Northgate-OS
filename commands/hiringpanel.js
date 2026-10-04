@@ -1,4 +1,8 @@
 const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } = require("discord.js");
+const {
+    ProgressFailure,
+    createInteractionProgress
+} = require("../utils/progress-embed");
 
 module.exports = { 
     data: new SlashCommandBuilder()
@@ -17,8 +21,6 @@ module.exports = {
         }
 
 
-        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId("ticket_hire")
@@ -27,14 +29,19 @@ module.exports = {
         );
         
 
-        const channel = client.channels.cache.get(config.channels.ticketchannelid);
-        if (!channel) {
-            return interaction.editReply({
-                content: "❌ Ticket Channel not found. Please contact @brooksy246."
-            });
-        }
+        const progress = createInteractionProgress(interaction, "Creating the hiring panel", [
+            "Find the configured ticket channel",
+            "Post the hiring panel"
+        ]);
+        await progress.start();
 
-        await channel.send({
+        let channel;
+        try {
+            await progress.runStep(0, async () => {
+                channel = client.channels.cache.get(config.channels.ticketchannelid);
+                if (!channel) throw new ProgressFailure("Ticket channel not found. Please contact @brooksy246.");
+            });
+            await progress.runStep(1, () => channel.send({
             embeds: [
                 {
                     title: "⚙️ Hiring Panel",
@@ -43,10 +50,11 @@ module.exports = {
                 }
             ],
             components: [row]
-        });
-
-        return interaction.editReply({
-            content: "✅ Hiring panel sent."
-        });
+            }));
+            await progress.complete("✅ Hiring panel sent.");
+        } catch (error) {
+            if (error instanceof ProgressFailure) return;
+            throw error;
+        }
     }
 };

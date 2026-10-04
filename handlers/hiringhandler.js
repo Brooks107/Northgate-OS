@@ -14,6 +14,7 @@ const {
 
 const ticketTopic = require("../ticket-topic");
 const ticketTracker = require("../ticket-tracker");
+const { createInteractionProgress } = require("../utils/progress-embed");
 
 module.exports = {
     async execute(interaction, client, config) {
@@ -89,7 +90,12 @@ module.exports = {
                 });
             }
 
-            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+            const progress = createInteractionProgress(interaction, "Claiming hiring ticket", [
+                "Update the ticket claim button",
+                "Save the claim to the channel topic",
+                "Sync the ticket tracker"
+            ]);
+            await progress.start();
 
             const message = interaction.message;
 
@@ -106,19 +112,20 @@ module.exports = {
                     .setStyle(ButtonStyle.Danger)
             );
 
-            await message.edit({ components: [newRow] });
+            await progress.runStep(0, () => message.edit({ components: [newRow] }));
             const ticketState = ticketTopic.parse(interaction.channel.topic);
-            await interaction.channel.setTopic(ticketTopic.build({
+            await progress.runStep(1, () => interaction.channel.setTopic(ticketTopic.build({
                 ownerId: ticketState.ownerId,
                 claimedBy: interaction.user.id
-            }));
-            await ticketTracker.syncTicket(interaction.channel, {
+            })));
+            await progress.runStep(2, () => ticketTracker.syncTicket(interaction.channel, {
                 type: "claimed",
                 status: `🟡 Claimed by ${interaction.user.tag}`,
                 userId: interaction.user.id
-            });
+            }));
 
-            return interaction.editReply("📝 You have claimed this ticket.");
+            await progress.complete("📝 You have claimed this ticket.");
+            return;
         }
 
         // -------------------------------------------------
@@ -127,14 +134,21 @@ module.exports = {
         if (interaction.isModalSubmit() && interaction.customId === "modal_ticket_hire") {
             const categoryId = config.hiringticketcategory || config.reportsticketcategory || config.generalticketcategory;
             const prefix = "hiring";
-            client.refreshActiveTicketIds(interaction.guild);
+            const progress = createInteractionProgress(interaction, "Creating hiring ticket", [
+                "Find an available ticket slot",
+                "Find the Staff Management bot",
+                "Create the private hiring channel",
+                "Post the application and ticket controls",
+                "Pass applicant details to Staff Management",
+                "Create the ticket tracker entry"
+            ]);
+            await progress.start();
+            await progress.runStep(0, () => client.refreshActiveTicketIds(interaction.guild));
             const ticketId = client.getNextTicketId();
 
             if (!ticketId) {
-                return interaction.reply({
-                    content: "❌ All 20 ticket slots are currently in use. Please wait for a ticket to close.",
-                    flags: MessageFlags.Ephemeral
-                });
+                await progress.stopWithFailure("All 20 ticket slots are currently in use. Please wait for a ticket to close.");
+                return;
             }
 
             client.activeTicketIds.add(ticketId);
@@ -151,16 +165,19 @@ module.exports = {
             // server: an overwrite for someone who is not would stop the ticket being
             // created at all.
             const staffBotId = String(config.staffmanagerbotid || "");
-            const staffBot = /^\d{17,20}$/.test(staffBotId)
-                ? await interaction.guild.members.fetch(staffBotId).catch(() => null)
-                : null;
+            let staffBot;
+            await progress.runStep(1, async () => {
+                staffBot = /^\d{17,20}$/.test(staffBotId)
+                    ? await interaction.guild.members.fetch(staffBotId).catch(() => null)
+                    : null;
+            });
 
             let ticketChannel;
 
             try {
                 const visibleRoleIds = config.hiringticketaccess || [];
 
-                ticketChannel = await interaction.guild.channels.create({
+                ticketChannel = await progress.runStep(2, () => interaction.guild.channels.create({
                     name: `${prefix}-${ticketId}`,
                     type: ChannelType.GuildText,
                     parent: categoryId,
@@ -204,7 +221,7 @@ module.exports = {
                             ]
                         }] : [])
                     ]
-                });
+                }));
             } catch (err) {
                 client.activeTicketIds.delete(ticketId);
                 throw err;
@@ -222,7 +239,7 @@ module.exports = {
                     .setStyle(ButtonStyle.Danger)
             );
 
-            await ticketChannel.send({
+            await progress.runStep(3, () => ticketChannel.send({
                 content: "<@&1538588862148771910> <@&1535764413422899210> <@&1536398794240041050> <@&1536398792520372404>",
                 allowedMentions: { roles: ["1538588862148771910", "1535764413422899210", "1536398794240041050", "1536398792520372404"] },
                 embeds: [
@@ -241,25 +258,29 @@ module.exports = {
                     }
                 ],
                 components: [buttons]
-            });
+            }));
 
             // Hand the applicant's details to Staff Management, which fills them in
             // when staff run /hire in this ticket after the interview.
-            await sendHireDetails(ticketChannel, interaction.user.id, applicantName, robloxId);
+            const hireDetailsSent = await progress.runStep(4, () =>
+                sendHireDetails(ticketChannel, interaction.user.id, applicantName, robloxId)
+            );
+            if (!hireDetailsSent) await progress.warnStep(4);
 
             // Create tracking embed
-            await ticketTracker.createTicketEmbed(ticketChannel, {
+            await progress.runStep(5, () => ticketTracker.createTicketEmbed(ticketChannel, {
                 id: ticketId,
                 title: "Hiring Application",
                 userId: interaction.user.id,
                 description: `Role: ${jobRole}, Experience: ${experience}`,
                 createdAt: new Date().toLocaleString()
-            }, client, config);
+            }, client, config));
 
-            return interaction.reply({
-                content: `✅ Your hiring ticket (#${ticketId}) has been created: <#${ticketChannel.id}>`,
-                flags: MessageFlags.Ephemeral
-            });
+            await progress.complete(
+                `✅ Your hiring ticket (#${ticketId}) has been created: <#${ticketChannel.id}>` +
+                (hireDetailsSent ? "" : "\n⚠️ Staff Management could not receive the applicant details; check the ticket.")
+            );
+            return;
         }
 
         // -------------------------------------------------
@@ -276,19 +297,29 @@ module.exports = {
                 client.activeTicketIds.delete(id);
             }
 
-            await interaction.reply({
-                content: "🔒 Ticket closed. Saving transcript...",
-                flags: MessageFlags.Ephemeral
+            const progress = createInteractionProgress(interaction, `Closing #${channel.name}`, [
+                "Save the ticket transcript",
+                "Remove the ticket from tracking",
+                "Schedule ticket channel deletion"
+            ]);
+            await progress.start();
+            const transcriptSaved = await progress.runStep(0, () =>
+                saveTranscript(channel, interaction.user, config)
+            );
+            if (!transcriptSaved) await progress.warnStep(0);
+            await progress.runStep(1, () => ticketTracker.removeTracking(channel));
+            await progress.runStep(2, async () => {
+                setTimeout(() => {
+                    interaction.guild.channels.delete(channel.id).catch(error => {
+                        console.error(`[hiring-close] failed to delete ${channel.name}:`, error);
+                    });
+                }, 3000);
             });
-
-            await saveTranscript(channel, interaction.user, config);
-
-            // Remove from tracker
-            await ticketTracker.removeTracking(channel);
-
-            setTimeout(() => {
-                interaction.guild.channels.delete(channel.id).catch(() => {});
-            }, 3000);
+            await progress.complete(
+                `🔒 Ticket #${channel.name} closed. ` +
+                (transcriptSaved ? "Transcript saved." : "⚠️ Transcript could not be saved; check the bot logs.") +
+                " Channel deletion is queued."
+            );
         }
     }
 };
@@ -381,7 +412,7 @@ async function saveTranscript(channel, closedBy, config) {
 
         if (!logChannel) {
             console.error("Transcript failed: transcriptschannelid is wrong or the bot can't see that channel.");
-            return;
+            return false;
         }
 
         await logChannel.send({
@@ -389,8 +420,10 @@ async function saveTranscript(channel, closedBy, config) {
             files: [file],
             allowedMentions: { parse: [] }
         });
+        return true;
 
     } catch (err) {
         console.error("Transcript failed:", err);
+        return false;
     }
 }

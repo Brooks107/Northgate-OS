@@ -3,6 +3,10 @@ const {
     PermissionFlagsBits,
     MessageFlags
 } = require("discord.js");
+const {
+    ProgressFailure,
+    createInteractionProgress
+} = require("../utils/progress-embed");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -42,46 +46,32 @@ module.exports = {
             });
         }
 
-        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-
         const id = interaction.options.getInteger("id");
         const user = interaction.options.getUser("user");
+        const progress = createInteractionProgress(interaction, "Adding member to ticket", [
+            `Find ticket #${id}`,
+            `Grant ${user.tag} access to the ticket`
+        ]);
+        await progress.start();
 
-        // -------------------------------------------------
-        // FIND TICKET CHANNEL
-        // -------------------------------------------------
-        const ticketChannel = interaction.guild.channels.cache.find(
-            ch =>
-                ch.name.startsWith(`commission-${id}`) ||
-                ch.name.startsWith(`support-${id}`) ||
-                ch.name.startsWith(`appeal-${id}`) ||
-                ch.name.startsWith(`hiring-${id}`) ||
-                ch.name.startsWith(`partnership-${id}`) ||
-                ch.name.startsWith(`interrogation-${id}`)
-        );
-
-        if (!ticketChannel) {
-            return interaction.editReply(`❌ Ticket #${id} does not exist.`);
+        let ticketChannel;
+        try {
+            await progress.runStep(0, async () => {
+                ticketChannel = interaction.guild.channels.cache.find(ch =>
+                    ["commission", "support", "appeal", "hiring", "partnership", "interrogation"]
+                        .some(prefix => ch.name.startsWith(`${prefix}-${id}`))
+                );
+                if (!ticketChannel) throw new ProgressFailure(`Ticket #${id} does not exist.`);
+            });
+            await progress.runStep(1, () => ticketChannel.permissionOverwrites.edit(user.id, {
+                ViewChannel: true,
+                SendMessages: true,
+                ReadMessageHistory: true
+            }));
+            await progress.complete(`👤 Added **${user.tag}** to ticket #${id}.`);
+        } catch (error) {
+            if (error instanceof ProgressFailure) return;
+            throw error;
         }
-
-        // -------------------------------------------------
-        // CHECK USER ACCESS
-        // -------------------------------------------------
-        const perms = ticketChannel.permissionOverwrites.cache.get(user.id);
-
-
-        // -------------------------------------------------
-        // ADD USER ACCESS
-        // -------------------------------------------------
-        await ticketChannel.permissionOverwrites.edit(user.id, {
-            ViewChannel: true,
-            SendMessages: true, 
-            ReadMessageHistory: true
-        });
-
-        // -------------------------------------------------
-        // CONFIRMATION
-        // -------------------------------------------------
-        await interaction.editReply(`👤 Added **${user.tag}** to ticket #${id}.`);
     }
 };

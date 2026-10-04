@@ -6,6 +6,10 @@ const {
 
 const closeCommand = require("./close");
 const autocloseScheduler = require("../autoclose-scheduler");
+const {
+    ProgressFailure,
+    createInteractionProgress
+} = require("../utils/progress-embed");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -26,21 +30,31 @@ module.exports = {
             });
         }
 
-        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-
         const id = interaction.options.getInteger("id");
-        const ticketChannel = closeCommand.findTicketChannel(interaction.guild, id);
-
-        if (!ticketChannel) {
-            return interaction.editReply(`❌ Ticket #${id} does not exist.`);
+        const progress = createInteractionProgress(interaction, `Cancelling auto-close for #${id}`, [
+            "Find the ticket channel",
+            "Cancel the scheduled auto-close",
+            "Post the cancellation in the ticket"
+        ]);
+        await progress.start();
+        let ticketChannel;
+        try {
+            await progress.runStep(0, async () => {
+                ticketChannel = closeCommand.findTicketChannel(interaction.guild, id);
+                if (!ticketChannel) throw new ProgressFailure(`Ticket #${id} does not exist.`);
+            });
+            await progress.runStep(1, async () => {
+                if (!autocloseScheduler.cancel(ticketChannel)) {
+                    throw new ProgressFailure(`There is no auto-close scheduled for ticket #${id}.`);
+                }
+            });
+            await progress.runStep(2, () =>
+                ticketChannel.send(`🛑 Auto-close was cancelled for ticket #${id}.`)
+            );
+            await progress.complete(`✅ Auto-close cancelled for ticket #${id}.`);
+        } catch (error) {
+            if (error instanceof ProgressFailure) return;
+            throw error;
         }
-
-        const cancelled = autocloseScheduler.cancel(ticketChannel);
-        if (!cancelled) {
-            return interaction.editReply(`❌ There is no auto-close scheduled for ticket #${id}.`);
-        }
-
-        await ticketChannel.send(`🛑 Auto-close was cancelled for ticket #${id}.`);
-        return interaction.editReply(`✅ Auto-close cancelled for ticket #${id}.`);
     }
 };

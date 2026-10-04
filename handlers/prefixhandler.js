@@ -15,8 +15,16 @@ async function sendPrivateHelp(message) {
 
     await message.delete().catch(() => {});
     try {
-        for (const embeds of messages) await message.author.send({ embeds });
-    } catch {
+        const progress = createMessageProgress(message, "Sending private command help", [
+            ...messages.map((_, index) => `Send command list part ${index + 1}`)
+        ]);
+        await progress.start();
+        for (const [index, embeds] of messages.entries()) {
+            await progress.runStep(index, () => message.author.send({ embeds }));
+        }
+        await progress.complete("✅ Command help sent privately.");
+    } catch (error) {
+        console.error("[help] could not send private command help:", error);
         const fallback = await message.channel.send({
             content: "❌ I could not DM you the command list. Please turn on direct messages from server members and try `!help` again.",
             allowedMentions: { users: [] }
@@ -102,50 +110,65 @@ module.exports = async function handlePrefixCommand(message, config) {
                 return message.reply("❌ Please provide a valid ticket ID: `d!forceclaim <id>`");
             }
 
-            const ticketChannel = message.guild?.channels.cache.find(channel =>
-                channel.name.startsWith(`commission-${id}`) ||
-                channel.name.startsWith(`support-${id}`) ||
-                channel.name.startsWith(`appeal-${id}`) ||
-                channel.name.startsWith(`hiring-${id}`) ||
-                channel.name.startsWith(`partnership-${id}`) ||
-                channel.name.startsWith(`interrogation-${id}`)
-            );
+            const progress = createMessageProgress(message, `Force-claiming ticket #${id}`, [
+                "Find the ticket channel",
+                "Find the ticket control message",
+                "Update the ticket claim button",
+                "Save the ticket claim"
+            ]);
+            await progress.start();
 
-            if (!ticketChannel) {
-                return message.reply(`❌ Ticket #${id} does not exist.`);
+            let ticketChannel;
+            let ticketMessage;
+            try {
+                await progress.runStep(0, async () => {
+                    ticketChannel = message.guild?.channels.cache.find(channel =>
+                        ["commission", "support", "appeal", "hiring", "partnership", "interrogation"]
+                            .some(prefix => channel.name.startsWith(`${prefix}-${id}`))
+                    );
+                    if (!ticketChannel) throw new ProgressFailure(`Ticket #${id} does not exist.`);
+                });
+                await progress.runStep(1, async () => {
+                    const initialMessages = await ticketChannel.messages.fetch({
+                        after: ticketChannel.id,
+                        limit: 10
+                    }).catch(() => null);
+                    ticketMessage = initialMessages?.find(m =>
+                        m.author.id === message.client.user.id && m.components.length > 0
+                    ) || initialMessages?.find(m => m.author.id === message.client.user.id);
+                    if (!ticketMessage) {
+                        throw new ProgressFailure(`Could not find the original ticket control message in ${ticketChannel}.`);
+                    }
+                });
+
+                const isInterrogationTicket = ticketChannel.name.startsWith(`interrogation-${id}`);
+
+                const row = new ActionRowBuilder().addComponents(
+                    new ButtonBuilder()
+                        .setCustomId(`ticket_claimed_${message.author.id}`)
+                        .setLabel(`🙋‍♂️ Claimed by ${message.author.displayName || message.author.username}`)
+                        .setStyle(ButtonStyle.Secondary)
+                        .setDisabled(true),
+                    new ButtonBuilder()
+                        .setCustomId(isInterrogationTicket ? "intero_close" : "ticket_close")
+                        .setLabel("🔒 Close Ticket")
+                        .setStyle(ButtonStyle.Danger)
+                );
+
+                await progress.runStep(2, () => ticketMessage.edit({ components: [row] }));
+
+                await progress.runStep(3, async () => {
+                    if (ticketTopic && typeof ticketTopic.parse === "function") {
+                        const { ownerId } = ticketTopic.parse(ticketChannel.topic || "");
+                        await ticketChannel.setTopic(ticketTopic.build({ ownerId, claimedBy: message.author.id }));
+                    }
+                });
+                await progress.complete(`📝 You have force claimed ticket #${id}.`);
+            } catch (error) {
+                if (error instanceof ProgressFailure) return true;
+                console.error(`[forceclaim] failed for ticket #${id}:`, error);
             }
-
-            const initialMessages = await ticketChannel.messages.fetch({ after: ticketChannel.id, limit: 10 }).catch(() => null);
-
-            const ticketMessage = initialMessages?.find(m => m.author.id === message.client.user.id && m.components.length > 0)
-                || initialMessages?.find(m => m.author.id === message.client.user.id);
-
-            if (!ticketMessage) {
-                return message.reply(`❌ Could not find the original ticket control message in ${ticketChannel}.`);
-            }
-
-            const isInterrogationTicket = ticketChannel.name.startsWith(`interrogation-${id}`);
-
-            const row = new ActionRowBuilder().addComponents(
-                new ButtonBuilder()
-                    .setCustomId(`ticket_claimed_${message.author.id}`)
-                    .setLabel(`🙋‍♂️ Claimed by ${message.author.displayName || message.author.username}`)
-                    .setStyle(ButtonStyle.Secondary)
-                    .setDisabled(true),
-                new ButtonBuilder()
-                    .setCustomId(isInterrogationTicket ? "intero_close" : "ticket_close")
-                    .setLabel("🔒 Close Ticket")
-                    .setStyle(ButtonStyle.Danger)
-            );
-
-            await ticketMessage.edit({ components: [row] });
-
-            if (ticketTopic && typeof ticketTopic.parse === "function") {
-                const { ownerId } = ticketTopic.parse(ticketChannel.topic || "");
-                await ticketChannel.setTopic(ticketTopic.build({ ownerId, claimedBy: message.author.id }));
-            }
-
-            return message.reply(`📝 You have force claimed ticket #${id}.`);
+            return true;
         }
 
         return;
@@ -198,15 +221,23 @@ module.exports = async function handlePrefixCommand(message, config) {
             return message.reply(`❌ Ticket #${ticketId} does not exist in this server.`);
         }
 
-        const result = await ticketTracker.injectInfo(ticketChannel, info, message.client);
-        if (result.success) {
-            await message.react("✅");
-            await message.reply("Your info has been loaded into the ticket tracker and archived");
-            console.log(`[inject] ${message.author.tag} injected info into ${ticketChannel.name}`);
+        const progress = createMessageProgress(message, `Injecting information into ${ticketChannel.name}`, [
+            "Fetch the ticket tracker entry",
+            "Update the tracker embed",
+            "Save the updated tracker entry",
+            "Confirm the update"
+        ]);
+        await progress.start();
+        const result = await ticketTracker.injectInfo(ticketChannel, info, message.client, progress);
+        if (!result.success) {
+            await progress.stopWithFailure(result.error);
             return;
         }
 
-        return message.reply({ content: `❌ ${result.error}` });
+        await progress.runStep(3, () => message.react("✅"));
+        await progress.complete("Your info has been loaded into the ticket tracker and archived.");
+        console.log(`[inject] ${message.author.tag} injected info into ${ticketChannel.name}`);
+        return;
     }
 
     if (command === "sub") {
@@ -241,20 +272,35 @@ module.exports = async function handlePrefixCommand(message, config) {
             return message.reply(`❌ Ticket #${ticketId} does not exist in this server.`);
         }
 
-        const result = await ticketTracker.substituteNote(ticketChannel, noteId, note, message.client);
-        if (result.success) {
-            await message.react("✅");
-            console.log(`[sub] ${message.author.tag} ${note ? "updated" : "deleted"} note ${noteId} in ${ticketChannel.name}`);
+        const progress = createMessageProgress(message, `${note ? "Updating" : "Deleting"} ticket note #${noteId}`, [
+            "Fetch the ticket tracker entry",
+            "Update the tracker embed",
+            "Save the updated tracker entry",
+            "Confirm the update"
+        ]);
+        await progress.start();
+        const result = await ticketTracker.substituteNote(ticketChannel, noteId, note, message.client, progress);
+        if (!result.success) {
+            await progress.stopWithFailure(result.error);
             return;
         }
 
-        return message.reply({ content: `❌ ${result.error}` });
+        await progress.runStep(3, () => message.react("✅"));
+        await progress.complete(`Ticket note #${noteId} ${note ? "updated" : "deleted"}.`);
+        console.log(`[sub] ${message.author.tag} ${note ? "updated" : "deleted"} note ${noteId} in ${ticketChannel.name}`);
+        return;
     }
 
     if (command === "ping") {
-        const sent = await message.reply("Pinging...");
-        const latency = sent.createdTimestamp - message.createdTimestamp;
-        await sent.edit(`🏓 Pong! Latency: **${latency}ms**`);
+        const progress = createMessageProgress(message, "Checking bot response", [
+            "Measure the response time"
+        ]);
+        await progress.start();
+        let latency;
+        await progress.runStep(0, async () => {
+            latency = progress.getMessage().createdTimestamp - message.createdTimestamp;
+        });
+        await progress.complete(`🏓 Pong! Latency: **${latency}ms**`);
         return;
     }
 
@@ -315,23 +361,36 @@ module.exports = async function handlePrefixCommand(message, config) {
             return message.reply("❌ Only administrators can use this command.");
         }
 
-        const linksChannelId = (
-            config.channels?.linkschannel?.id ??
-            config.channels?.linkschannelid ??
-            config.channels?.linksChannelId ??
-            config.linksChannelId ??
-            config.linkschannelid
-        );
+        const progress = createMessageProgress(message, "Posting the links embed", [
+            "Find the configured links channel",
+            "Post the portfolio links"
+        ]);
+        await progress.start();
 
-        if (!linksChannelId || !/^[0-9]+$/.test(String(linksChannelId))) {
-            console.warn("[links] no valid links channel configured");
-            return message.reply("❌ The links channel is not configured yet.");
-        }
+        let linksChannel;
+        try {
+            await progress.runStep(0, async () => {
+                const linksChannelId = (
+                    config.channels?.linkschannel?.id ??
+                    config.channels?.linkschannelid ??
+                    config.channels?.linksChannelId ??
+                    config.linksChannelId ??
+                    config.linkschannelid
+                );
 
-        const linksChannel = await message.guild?.channels.fetch(linksChannelId).catch(() => null);
-        if (!linksChannel || !linksChannel.isTextBased?.()) {
-            console.warn(`[links] configured channel ${linksChannelId} is not a valid text channel`);
-            return message.reply("❌ The configured links channel is invalid or not accessible.");
+                if (!linksChannelId || !/^[0-9]+$/.test(String(linksChannelId))) {
+                    throw new ProgressFailure("The links channel is not configured yet.");
+                }
+
+                linksChannel = await message.guild?.channels.fetch(linksChannelId).catch(() => null);
+                if (!linksChannel || !linksChannel.isTextBased?.()) {
+                    throw new ProgressFailure("The configured links channel is invalid or not accessible.");
+                }
+            });
+        } catch (error) {
+            if (error instanceof ProgressFailure) return;
+            console.error("[links] failed to find the configured channel:", error);
+            return;
         }
 
         const embed = {
@@ -369,10 +428,18 @@ module.exports = async function handlePrefixCommand(message, config) {
         };
 
         try {
-            await linksChannel.send({ embeds: [embed] });
-        } catch (err) {
-            console.error("[links] failed to send links embed:", err);
-            return message.reply("❌ I cannot send the links embed in that channel. Check channel permissions.");
+            await progress.runStep(1, async () => {
+                try {
+                    await linksChannel.send({ embeds: [embed] });
+                } catch (error) {
+                    console.error("[links] failed to send links embed:", error);
+                    throw new ProgressFailure("I cannot send the links embed in that channel. Check channel permissions.");
+                }
+            });
+            await progress.complete(`✅ Links embed posted in ${linksChannel}.`);
+        } catch (error) {
+            if (error instanceof ProgressFailure) return;
+            console.error("[links] progress update failed:", error);
         }
 
         return;
@@ -439,23 +506,36 @@ module.exports = async function handlePrefixCommand(message, config) {
             return message.reply("❌ Only administrators can use this command.");
         }
 
-        const rulesChannelId = (
-            config.channels?.ruleschannel?.id ??
-            config.channels?.ruleschannelid ??
-            config.channels?.rulesChannelId ??
-            config.rulesChannelId ??
-            config.ruleschannelid
-        );
+        const progress = createMessageProgress(message, "Posting the rules embed", [
+            "Find the configured rules channel",
+            "Post the server rules"
+        ]);
+        await progress.start();
 
-        if (!rulesChannelId || !/^[0-9]+$/.test(String(rulesChannelId))) {
-            console.warn("[rules] no valid rules channel configured");
-            return message.reply("❌ The rules channel is not configured yet.");
-        }
+        let rulesChannel;
+        try {
+            await progress.runStep(0, async () => {
+                const rulesChannelId = (
+                    config.channels?.ruleschannel?.id ??
+                    config.channels?.ruleschannelid ??
+                    config.channels?.rulesChannelId ??
+                    config.rulesChannelId ??
+                    config.ruleschannelid
+                );
 
-        const rulesChannel = await message.guild?.channels.fetch(rulesChannelId).catch(() => null);
-        if (!rulesChannel || !rulesChannel.isTextBased?.()) {
-            console.warn(`[rules] configured rules channel ${rulesChannelId} is not a valid text channel`);
-            return message.reply("❌ The configured rules channel is invalid or not accessible.");
+                if (!rulesChannelId || !/^[0-9]+$/.test(String(rulesChannelId))) {
+                    throw new ProgressFailure("The rules channel is not configured yet.");
+                }
+
+                rulesChannel = await message.guild?.channels.fetch(rulesChannelId).catch(() => null);
+                if (!rulesChannel || !rulesChannel.isTextBased?.()) {
+                    throw new ProgressFailure("The configured rules channel is invalid or not accessible.");
+                }
+            });
+        } catch (error) {
+            if (error instanceof ProgressFailure) return;
+            console.error("[rules] failed to find the configured channel:", error);
+            return;
         }
 
         const embed = {
@@ -546,10 +626,18 @@ module.exports = async function handlePrefixCommand(message, config) {
         };
 
         try {
-            await rulesChannel.send({ embeds: [embed] });
-        } catch (err) {
-            console.error("[rules] failed to send rules embed:", err);
-            return message.reply("❌ I cannot send the rules embed in that channel. Check channel permissions.");
+            await progress.runStep(1, async () => {
+                try {
+                    await rulesChannel.send({ embeds: [embed] });
+                } catch (error) {
+                    console.error("[rules] failed to send rules embed:", error);
+                    throw new ProgressFailure("I cannot send the rules embed in that channel. Check channel permissions.");
+                }
+            });
+            await progress.complete(`✅ Rules embed posted in ${rulesChannel}.`);
+        } catch (error) {
+            if (error instanceof ProgressFailure) return;
+            console.error("[rules] progress update failed:", error);
         }
     }
 };

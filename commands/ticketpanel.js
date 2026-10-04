@@ -1,4 +1,8 @@
 const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } = require("discord.js");
+const {
+    ProgressFailure,
+    createInteractionProgress
+} = require("../utils/progress-embed");
 
 module.exports = { 
     data: new SlashCommandBuilder()
@@ -17,8 +21,6 @@ module.exports = {
         }
 
 
-        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId("ticket_support")
@@ -31,14 +33,19 @@ module.exports = {
         );
         
 
-        const channel = client.channels.cache.get(config.channels.ticketchannelid);
-        if (!channel) {
-            return interaction.editReply({
-                content: "❌ Ticket Channel not found. Please contact @brooksy246."
-            });
-        }
+        const progress = createInteractionProgress(interaction, "Creating the support ticket panel", [
+            "Find the configured ticket channel",
+            "Post the ticket panel"
+        ]);
+        await progress.start();
 
-        await channel.send({
+        let channel;
+        try {
+            await progress.runStep(0, async () => {
+                channel = client.channels.cache.get(config.channels.ticketchannelid);
+                if (!channel) throw new ProgressFailure("Ticket channel not found. Please contact @brooksy246.");
+            });
+            await progress.runStep(1, () => channel.send({
             embeds: [
                 {
                     title: "🆘 Support Ticket System",
@@ -47,10 +54,11 @@ module.exports = {
                 }
             ],
             components: [row]
-        });
-
-        return interaction.editReply({
-            content: "✅ Support panel sent."
-        });
+            }));
+            await progress.complete("✅ Support panel sent.");
+        } catch (error) {
+            if (error instanceof ProgressFailure) return;
+            throw error;
+        }
     }
 };

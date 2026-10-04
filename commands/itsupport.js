@@ -1,4 +1,8 @@
 const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, MessageFlags } = require("discord.js");
+const {
+    ProgressFailure,
+    createInteractionProgress
+} = require("../utils/progress-embed");
 const gif = [
     "https://klipy.com/gifs/shits-fucked"
     ]
@@ -32,28 +36,32 @@ module.exports = {
                 });
             }
 
-            await interaction.deferReply();
-
-            const channelId = config.channels?.itsupport ?? config.channels?.itreports;
-            const supportChannel = channelId
-                ? await client.channels.fetch(channelId).catch(() => null)
-                : null;
-
-            if (!supportChannel?.isTextBased?.()) {
-                return interaction.editReply({
-                    content: "❌ The IT support channel is not configured or is unavailable."
-                });
-            }
-
             const command = interaction.options.getString("command");
             const whatHappened = interaction.options.getString("what_happened");
             const attachment = interaction.options.getAttachment("images_logs");
+            const channelId = config.channels?.itsupport ?? config.channels?.itreports;
+            const progress = createInteractionProgress(interaction, "Sending IT support report", [
+                "Find the IT support channel",
+                "Post the report and action buttons",
+                "Post the status visual"
+            ]);
+            await progress.start();
 
-            const reply = await interaction.editReply({
-                content: "✅ Your IT support request has been sent to the IT team.",
-                fetchReply: true
-            });
-            await interaction.channel.send(gif[0]);
+            let supportChannel;
+            try {
+                await progress.runStep(0, async () => {
+                    supportChannel = channelId
+                        ? await client.channels.fetch(channelId).catch(() => null)
+                        : null;
+                    if (!supportChannel?.isTextBased?.()) {
+                        throw new ProgressFailure("The IT support channel is not configured or is unavailable.");
+                    }
+                });
+            } catch (error) {
+                if (error instanceof ProgressFailure) return;
+                throw error;
+            }
+
             const reportEmbed = new EmbedBuilder()
                 .setTitle("IT Support Request")
                 .setColor(0xe67e22)
@@ -61,7 +69,7 @@ module.exports = {
                     { name: "User", value: `${interaction.user} (${interaction.user.tag})` },
                     { name: "Command/Problem", value: command },
                     { name: "What Happened", value: whatHappened },
-                    { name: "Bot Reply", value: reply.url || "Reply link unavailable" }
+                    { name: "Bot Reply", value: "Private acknowledgement via `/itsupport`." }
                 )
                 .setTimestamp();
 
@@ -70,7 +78,7 @@ module.exports = {
                 if (attachment.contentType?.startsWith("image/")) reportEmbed.setImage(attachment.url);
             }
 
-            await supportChannel.send({
+            await progress.runStep(1, () => supportChannel.send({
                 embeds: [reportEmbed],
                 components: [
                     new ActionRowBuilder().addComponents(
@@ -84,11 +92,10 @@ module.exports = {
                             .setStyle(ButtonStyle.Danger)
                     )
                 ]
-            });
+            }));
 
-            
+            await progress.runStep(2, () => interaction.channel.send(gif[0]));
+            await progress.complete("✅ Your IT support request has been sent to the IT team.");
         }
 };
-
-
 

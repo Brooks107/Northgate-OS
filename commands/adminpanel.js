@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require("discord.js");
 const state = require("../state");
+const { createInteractionProgress } = require("../utils/progress-embed");
 
 function statusLabel(isActive, labelTrue, labelFalse) {
     return isActive ? `🟢 ${labelTrue}` : `🔴 ${labelFalse}`;
@@ -184,11 +185,31 @@ module.exports = {
             });
         }
 
-        await interaction.guild?.members.fetch().catch(() => null);
+        const progress = createInteractionProgress(interaction, "Creating the admin panel", [
+            "Fetch server members for role counts",
+            "Post the admin panel",
+            "Save the panel reference and enable refreshes"
+        ]);
+        await progress.start();
 
-        const message = await interaction.reply({
-            embeds: [buildAdminPanelEmbed(client, config, interaction.guild)],
-            fetchReply: true
+        let membersFetched = true;
+        await progress.runStep(0, async () => {
+            if (interaction.guild) {
+                try {
+                    await interaction.guild.members.fetch();
+                } catch (error) {
+                    membersFetched = false;
+                    console.error("[adminpanel] could not fetch members for role counts:", error);
+                }
+            }
+        });
+        if (!membersFetched) await progress.warnStep(0);
+
+        let message;
+        await progress.runStep(1, async () => {
+            message = await interaction.channel.send({
+                embeds: [buildAdminPanelEmbed(client, config, interaction.guild)]
+            });
         });
 
         const panel = {
@@ -197,9 +218,14 @@ module.exports = {
             messageId: message.id
         };
 
-        state.save({ adminPanel: panel });
-        registerAdminPanelRefresh(client, config, panel);
-
+        const saved = await progress.runStep(2, async () => {
+            const result = state.save({ adminPanel: panel });
+            registerAdminPanelRefresh(client, config, panel);
+            return result;
+        });
+        await progress.complete(saved
+            ? "✅ Admin panel posted and automatic refresh enabled."
+            : "✅ Admin panel posted and automatic refresh enabled. ⚠️ The panel reference could not be saved, so automatic refresh may not survive a restart.");
         return message;
     },
 

@@ -351,20 +351,50 @@ client.on("interactionCreate", async interaction => {
             }
 
             const [action, reporterId] = interaction.customId.split(":");
-            await interaction.deferUpdate();
+            const isCompleted = action === "itsupport_completed";
+            const progress = createInteractionProgress(
+                interaction,
+                isCompleted ? "Closing IT support report" : "Dismissing IT support report",
+                isCompleted
+                    ? ["Find the report author", "Notify the author", "Remove the report"]
+                    : ["Remove the report"]
+            );
+            await progress.start();
 
-            if (action === "itsupport_completed") {
-                try {
-                    const reporter = await client.users.fetch(reporterId);
-                    await reporter.send(
-                        "✅ Your IT support report has been handled. Thank you for taking the time to report it; your contributions are appreciated."
-                    );
-                } catch (error) {
-                    console.error(`[itsupport] could not DM reporter ${reporterId}:`, error.message);
+            if (isCompleted) {
+                let reporter;
+                await progress.runStep(0, async () => {
+                    try {
+                        reporter = await client.users.fetch(reporterId);
+                    } catch (error) {
+                        console.error(`[itsupport] could not fetch reporter ${reporterId}:`, error.message);
+                    }
+                });
+                if (reporter) {
+                    const dmSent = await progress.runStep(1, async () => {
+                        try {
+                            await reporter.send(
+                                "✅ Your IT support report has been handled. Thank you for taking the time to report it; your contributions are appreciated."
+                            );
+                            return true;
+                        } catch (error) {
+                            console.error(`[itsupport] could not DM reporter ${reporterId}:`, error.message);
+                            return false;
+                        }
+                    });
+                    if (!dmSent) await progress.warnStep(1);
+                } else {
+                    await progress.runStep(1, async () => {});
+                    await progress.warnStep(1);
                 }
+                await progress.runStep(2, () => interaction.message.delete());
+            } else {
+                await progress.runStep(0, () => interaction.message.delete());
             }
 
-            await interaction.message.delete();
+            await progress.complete(isCompleted
+                ? `✅ IT support report completed by ${interaction.user}.`
+                : `🛑 IT support report dismissed by ${interaction.user}.`);
             return;
         }
 

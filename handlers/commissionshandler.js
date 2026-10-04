@@ -13,6 +13,7 @@ const {
 
 const ticketTopic = require("../ticket-topic");
 const ticketTracker = require("../ticket-tracker");
+const { createInteractionProgress } = require("../utils/progress-embed");
 
 module.exports = {
     async execute(interaction, client, config) {
@@ -87,7 +88,12 @@ module.exports = {
                 });
             }
 
-            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+            const progress = createInteractionProgress(interaction, "Claiming commission ticket", [
+                "Update the ticket claim button",
+                "Save the claim to the channel topic",
+                "Sync the ticket tracker"
+            ]);
+            await progress.start();
 
             const message = interaction.message;
 
@@ -104,19 +110,20 @@ module.exports = {
                     .setStyle(ButtonStyle.Danger)
             );
 
-            await message.edit({ components: [newRow] });
+            await progress.runStep(0, () => message.edit({ components: [newRow] }));
             const ticketState = ticketTopic.parse(interaction.channel.topic);
-            await interaction.channel.setTopic(ticketTopic.build({
+            await progress.runStep(1, () => interaction.channel.setTopic(ticketTopic.build({
                 ownerId: ticketState.ownerId,
                 claimedBy: interaction.user.id
-            }));
-            await ticketTracker.syncTicket(interaction.channel, {
+            })));
+            await progress.runStep(2, () => ticketTracker.syncTicket(interaction.channel, {
                 type: "claimed",
                 status: `🟡 Claimed by ${interaction.user.tag}`,
                 userId: interaction.user.id
-            });
+            }));
 
-            return interaction.editReply("📝 You have claimed this ticket.");
+            await progress.complete("📝 You have claimed this ticket.");
+            return;
         }
 
         // -------------------------------------------------
@@ -135,23 +142,35 @@ module.exports = {
                 client.activeTicketIds.delete(id);
             }
 
-            if (client && typeof client.notifyAdminPanelRefresh === "function") {
-                await client.notifyAdminPanelRefresh();
-            }
-
-            await interaction.reply({
-                content: "🔒 Ticket closed. Saving transcript...",
-                flags: MessageFlags.Ephemeral
+            const progress = createInteractionProgress(interaction, `Closing #${channel.name}`, [
+                "Refresh the admin panel",
+                "Save the ticket transcript",
+                "Remove the ticket from tracking",
+                "Schedule ticket channel deletion"
+            ]);
+            await progress.start();
+            await progress.runStep(0, async () => {
+                if (client && typeof client.notifyAdminPanelRefresh === "function") {
+                    await client.notifyAdminPanelRefresh();
+                }
             });
-
-            await saveTranscript(channel, interaction.user, config);
-
-            // Remove from tracker
-            await ticketTracker.removeTracking(channel);
-
-            setTimeout(() => {
-                interaction.guild.channels.delete(channel.id).catch(() => {});
-            }, 3000);
+            const transcriptSaved = await progress.runStep(1, () =>
+                saveTranscript(channel, interaction.user, config)
+            );
+            if (!transcriptSaved) await progress.warnStep(1);
+            await progress.runStep(2, () => ticketTracker.removeTracking(channel));
+            await progress.runStep(3, async () => {
+                setTimeout(() => {
+                    interaction.guild.channels.delete(channel.id).catch(error => {
+                        console.error(`[commission-close] failed to delete ${channel.name}:`, error);
+                    });
+                }, 3000);
+            });
+            await progress.complete(
+                `🔒 Ticket #${channel.name} closed. ` +
+                (transcriptSaved ? "Transcript saved." : "⚠️ Transcript could not be saved; check the bot logs.") +
+                " Channel deletion is queued."
+            );
         }
 
         // -------------------------------------------------
@@ -172,7 +191,12 @@ module.exports = {
 
             const id = interaction.customId.slice("commission_complete_".length);
 
-            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+            const progress = createInteractionProgress(interaction, `Completing commission #${id}`, [
+                "Disable the completion button",
+                "Post the completion notice",
+                "Delete the completed commission thread"
+            ]);
+            await progress.start();
 
             const completedRow = new ActionRowBuilder().addComponents(
                 new ButtonBuilder()
@@ -182,20 +206,19 @@ module.exports = {
                     .setDisabled(true)
             );
 
-            await interaction.message.edit({ components: [completedRow] });
+            await progress.runStep(0, () => interaction.message.edit({ components: [completedRow] }));
 
-            await interaction.channel.send({
+            await progress.runStep(1, () => interaction.channel.send({
                 content: `✅ **Commission #${id} marked complete** by ${interaction.user}.`,
                 allowedMentions: { parse: [] }
+            }));
+
+            await progress.runStep(2, async () => {
+                if (interaction.channel.isThread()) {
+                    await interaction.channel.delete("Commission completed");
+                }
             });
-
-            await interaction.editReply(`✅ Commission #${id} marked as complete.`);
-
-            if (interaction.channel.isThread()) {
-                await interaction.channel.delete("Commission completed").catch(err => {
-                    console.error(`[commission] failed to delete completed thread #${id}:`, err.message);
-                });
-            }
+            await progress.complete(`✅ Commission #${id} marked as complete.`);
 
             return;
         }
@@ -216,14 +239,21 @@ module.exports = {
             const categoryId = config.commissionsticketcategory;
             const prefix = "commission";
 
-            client.refreshActiveTicketIds(interaction.guild);
+            const progress = createInteractionProgress(interaction, "Creating commission ticket", [
+                "Find an available ticket slot",
+                "Create the private commission channel",
+                "Refresh the admin panel",
+                "Post the commission request and controls",
+                "Create the ticket tracker entry",
+                "Refresh the admin panel again"
+            ]);
+            await progress.start();
+            await progress.runStep(0, () => client.refreshActiveTicketIds(interaction.guild));
             const ticketId = client.getNextTicketId();
 
             if (!ticketId) {
-                return interaction.reply({
-                    content: "❌ All 20 ticket slots are currently in use. Please wait for a ticket to close.",
-                    flags: MessageFlags.Ephemeral
-                });
+                await progress.stopWithFailure("All 20 ticket slots are currently in use. Please wait for a ticket to close.");
+                return;
             }
 
             client.activeTicketIds.add(ticketId);
@@ -236,7 +266,7 @@ module.exports = {
             let ticketChannel;
 
             try {
-                ticketChannel = await interaction.guild.channels.create({
+                ticketChannel = await progress.runStep(1, () => interaction.guild.channels.create({
                     name: `${prefix}-${ticketId}`,
                     type: ChannelType.GuildText,
                     parent: categoryId,
@@ -273,7 +303,7 @@ module.exports = {
                             ]
                         }
                     ]
-                });
+                }));
             } catch (err) {
                 // The slot was reserved before the API call; hand it back, or a
                 // failed attempt burns one of the 20 ticket IDs permanently.
@@ -293,11 +323,13 @@ module.exports = {
                     .setStyle(ButtonStyle.Danger)
             );
 
-            if (client && typeof client.notifyAdminPanelRefresh === "function") {
-                await client.notifyAdminPanelRefresh();
-            }
+            await progress.runStep(2, async () => {
+                if (client && typeof client.notifyAdminPanelRefresh === "function") {
+                    await client.notifyAdminPanelRefresh();
+                }
+            });
 
-            await ticketChannel.send({
+            await progress.runStep(3, () => ticketChannel.send({
                 content: "<@&1535764411510161519> <@&1517982021782339684> <@&1535764196459806850>",
                 allowedmentions: { roles: ["1535764411510161519", "1517982021782339684", "1535764196459806850"] },
                 embeds: [
@@ -315,25 +347,25 @@ module.exports = {
                     }
                 ],
                 components: [buttons]
-            });
+            }));
 
             // Create tracking embed
-            await ticketTracker.createTicketEmbed(ticketChannel, {
+            await progress.runStep(4, () => ticketTracker.createTicketEmbed(ticketChannel, {
                 id: ticketId,
                 title: "Commission Request",
                 userId: interaction.user.id,
                 description: `Map Size: ${mapSize}, Payment: ${payment}, Wait: ${waitTime}, Quality: ${quality}`,
                 createdAt: new Date().toLocaleString()
-            }, client, config);
+            }, client, config));
 
-            if (client && typeof client.notifyAdminPanelRefresh === "function") {
-                await client.notifyAdminPanelRefresh();
-            }
-
-            return interaction.reply({
-                content: `✅ Your commission ticket (#${ticketId}) has been created: <#${ticketChannel.id}>`,
-                flags: MessageFlags.Ephemeral
+            await progress.runStep(5, async () => {
+                if (client && typeof client.notifyAdminPanelRefresh === "function") {
+                    await client.notifyAdminPanelRefresh();
+                }
             });
+
+            await progress.complete(`✅ Your commission ticket (#${ticketId}) has been created: <#${ticketChannel.id}>`);
+            return;
         }
     }
 };
@@ -388,7 +420,7 @@ async function saveTranscript(channel, closedBy, config) {
 
         if (!logChannel) {
             console.error("Transcript failed: transcriptschannelid is wrong or the bot can't see that channel.");
-            return;
+            return false;
         }
 
         await logChannel.send({
@@ -396,8 +428,10 @@ async function saveTranscript(channel, closedBy, config) {
             files: [file],
             allowedMentions: { parse: [] }
         });
+        return true;
 
     } catch (err) {
         console.error("Transcript failed:", err);
+        return false;
     }
 }

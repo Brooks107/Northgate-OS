@@ -13,6 +13,7 @@ const {
 
 const ticketTopic = require("../ticket-topic");
 const ticketTracker = require("../ticket-tracker");
+const { createInteractionProgress } = require("../utils/progress-embed");
 
 module.exports = {
     async execute(interaction, client, config) {
@@ -79,7 +80,12 @@ module.exports = {
                 });
             }
 
-            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+            const progress = createInteractionProgress(interaction, "Claiming partnership ticket", [
+                "Update the ticket claim button",
+                "Save the claim to the channel topic",
+                "Sync the ticket tracker"
+            ]);
+            await progress.start();
 
             const message = interaction.message;
 
@@ -96,19 +102,20 @@ module.exports = {
                     .setStyle(ButtonStyle.Danger)
             );
 
-            await message.edit({ components: [newRow] });
+            await progress.runStep(0, () => message.edit({ components: [newRow] }));
             const ticketState = ticketTopic.parse(interaction.channel.topic);
-            await interaction.channel.setTopic(ticketTopic.build({
+            await progress.runStep(1, () => interaction.channel.setTopic(ticketTopic.build({
                 ownerId: ticketState.ownerId,
                 claimedBy: interaction.user.id
-            }));
-            await ticketTracker.syncTicket(interaction.channel, {
+            })));
+            await progress.runStep(2, () => ticketTracker.syncTicket(interaction.channel, {
                 type: "claimed",
                 status: `🟡 Claimed by ${interaction.user.tag}`,
                 userId: interaction.user.id
-            });
+            }));
 
-            return interaction.editReply("📝 You have claimed this ticket.");
+            await progress.complete("📝 You have claimed this ticket.");
+            return;
         }
 
         // -------------------------------------------------
@@ -117,14 +124,19 @@ module.exports = {
         if (interaction.isModalSubmit() && interaction.customId === "modal_ticket_partnership") {
             const categoryId = config.partnershipticketcategory || config.generalticketcategory || config.reportsticketcategory;
             const prefix = "partnership";
-            client.refreshActiveTicketIds(interaction.guild);
+            const progress = createInteractionProgress(interaction, "Creating partnership ticket", [
+                "Find an available ticket slot",
+                "Create the private partnership channel",
+                "Post the partnership request and controls",
+                "Create the ticket tracker entry"
+            ]);
+            await progress.start();
+            await progress.runStep(0, () => client.refreshActiveTicketIds(interaction.guild));
             const ticketId = client.getNextTicketId();
 
             if (!ticketId) {
-                return interaction.reply({
-                    content: "❌ All 20 ticket slots are currently in use. Please wait for a ticket to close.",
-                    flags: MessageFlags.Ephemeral
-                });
+                await progress.stopWithFailure("All 20 ticket slots are currently in use. Please wait for a ticket to close.");
+                return;
             }
 
             client.activeTicketIds.add(ticketId);
@@ -139,7 +151,7 @@ module.exports = {
             try {
                 const allowedRoleIds = config.partnershipticketaccess || [];
 
-                ticketChannel = await interaction.guild.channels.create({
+                ticketChannel = await progress.runStep(1, () => interaction.guild.channels.create({
                     name: `${prefix}-${ticketId}`,
                     type: ChannelType.GuildText,
                     parent: categoryId,
@@ -172,7 +184,7 @@ module.exports = {
                             ]
                         }
                     ]
-                });
+                }));
             } catch (err) {
                 client.activeTicketIds.delete(ticketId);
                 throw err;
@@ -190,7 +202,7 @@ module.exports = {
                     .setStyle(ButtonStyle.Danger)
             );
 
-            await ticketChannel.send({
+            await progress.runStep(2, () => ticketChannel.send({
                 content: "<@&1535764412923781270> <@&1536398802783572058> <@&1536398786346225684> <@&1535023189246345277>",
                 allowedMentions: { roles: ["1535764412923781270", "1536398802783572058", "1536398786346225684", "1535023189246345277"] },
                 embeds: [
@@ -208,21 +220,19 @@ module.exports = {
                     }
                 ],
                 components: [buttons]
-            });
+            }));
 
             // Create tracking embed
-            await ticketTracker.createTicketEmbed(ticketChannel, {
+            await progress.runStep(3, () => ticketTracker.createTicketEmbed(ticketChannel, {
                 id: ticketId,
                 title: "Partnership Request",
                 userId: interaction.user.id,
                 description: `Company: ${companyName}, Idea: ${partnershipIdea}`,
                 createdAt: new Date().toLocaleString()
-            }, client, config);
+            }, client, config));
 
-            return interaction.reply({
-                content: `✅ Your partnership ticket (#${ticketId}) has been created: <#${ticketChannel.id}>`,
-                flags: MessageFlags.Ephemeral
-            });
+            await progress.complete(`✅ Your partnership ticket (#${ticketId}) has been created: <#${ticketChannel.id}>`);
+            return;
         }
 
         // -------------------------------------------------
@@ -239,19 +249,29 @@ module.exports = {
                 client.activeTicketIds.delete(id);
             }
 
-            await interaction.reply({
-                content: "🔒 Ticket closed. Saving transcript...",
-                flags: MessageFlags.Ephemeral
+            const progress = createInteractionProgress(interaction, `Closing #${channel.name}`, [
+                "Save the ticket transcript",
+                "Remove the ticket from tracking",
+                "Schedule ticket channel deletion"
+            ]);
+            await progress.start();
+            const transcriptSaved = await progress.runStep(0, () =>
+                saveTranscript(channel, interaction.user, config)
+            );
+            if (!transcriptSaved) await progress.warnStep(0);
+            await progress.runStep(1, () => ticketTracker.removeTracking(channel));
+            await progress.runStep(2, async () => {
+                setTimeout(() => {
+                    interaction.guild.channels.delete(channel.id).catch(error => {
+                        console.error(`[partnership-close] failed to delete ${channel.name}:`, error);
+                    });
+                }, 3000);
             });
-
-            await saveTranscript(channel, interaction.user, config);
-
-            // Remove from tracker
-            await ticketTracker.removeTracking(channel);
-
-            setTimeout(() => {
-                interaction.guild.channels.delete(channel.id).catch(() => {});
-            }, 3000);
+            await progress.complete(
+                `🔒 Ticket #${channel.name} closed. ` +
+                (transcriptSaved ? "Transcript saved." : "⚠️ Transcript could not be saved; check the bot logs.") +
+                " Channel deletion is queued."
+            );
         }
     }
 };
@@ -306,7 +326,7 @@ async function saveTranscript(channel, closedBy, config) {
 
         if (!logChannel) {
             console.error("Transcript failed: transcriptschannelid is wrong or the bot can't see that channel.");
-            return;
+            return false;
         }
 
         await logChannel.send({
@@ -314,8 +334,10 @@ async function saveTranscript(channel, closedBy, config) {
             files: [file],
             allowedMentions: { parse: [] }
         });
+        return true;
 
     } catch (err) {
         console.error("Transcript failed:", err);
+        return false;
     }
 }

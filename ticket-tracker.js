@@ -483,15 +483,23 @@ module.exports = {
      * @param {Channel} ticketChannel - The ticket channel
      * @param {string} info - The info to inject
      */
-    async injectInfo(ticketChannel, info, client) {
+    async injectInfo(ticketChannel, info, client, progress) {
         const tracked = trackedTickets[ticketChannel.id];
         if (!tracked) {
             return { success: false, error: "Ticket not tracked" };
         }
 
         try {
-            const channel = await client.channels.fetch(tracked.channelId);
-            const message = await channel.messages.fetch(tracked.messageId);
+            let message;
+            const fetchTrackingMessage = async () => {
+                const channel = await client.channels.fetch(tracked.channelId);
+                message = await channel.messages.fetch(tracked.messageId);
+            };
+            if (progress) {
+                await progress.runStep(0, fetchTrackingMessage);
+            } else {
+                await fetchTrackingMessage();
+            }
 
             // Add to notes
             tracked.notes.push(`• ${info}`);
@@ -516,10 +524,20 @@ module.exports = {
                 .setFooter({ text: `Channel: ${ticketChannel.name}` })
                 .setTimestamp();
 
-            await message.edit({ embeds: [embed] });
-            tracked.updatedAt = new Date().toISOString();
-            tracked.lastEvent = "note_added";
-            saveTracking();
+            const updateEmbed = () => message.edit({ embeds: [embed] });
+            if (progress) {
+                await progress.runStep(1, updateEmbed);
+                await progress.runStep(2, async () => {
+                    tracked.updatedAt = new Date().toISOString();
+                    tracked.lastEvent = "note_added";
+                    saveTracking();
+                });
+            } else {
+                await updateEmbed();
+                tracked.updatedAt = new Date().toISOString();
+                tracked.lastEvent = "note_added";
+                saveTracking();
+            }
 
             console.log(`[ticket-tracker] Injected info into ${ticketChannel.name}`);
             return { success: true, noteCount: tracked.notes.length };
@@ -532,7 +550,7 @@ module.exports = {
     /**
      * Replace or delete a note by its 1-based position in the progress notes.
      */
-    async substituteNote(ticketChannel, noteId, note, client) {
+    async substituteNote(ticketChannel, noteId, note, client, progress) {
         const tracked = trackedTickets[ticketChannel.id];
         if (!tracked) {
             return { success: false, error: "Ticket not tracked" };
@@ -544,8 +562,16 @@ module.exports = {
         }
 
         try {
-            const channel = await client.channels.fetch(tracked.channelId);
-            const message = await channel.messages.fetch(tracked.messageId);
+            let message;
+            const fetchTrackingMessage = async () => {
+                const channel = await client.channels.fetch(tracked.channelId);
+                message = await channel.messages.fetch(tracked.messageId);
+            };
+            if (progress) {
+                await progress.runStep(0, fetchTrackingMessage);
+            } else {
+                await fetchTrackingMessage();
+            }
 
             if (note) {
                 tracked.notes[noteIndex] = `• ${note}`;
@@ -567,10 +593,20 @@ module.exports = {
                 .setFooter({ text: `Channel: ${ticketChannel.name}` })
                 .setTimestamp();
 
-            await message.edit({ embeds: [embed] });
-            tracked.updatedAt = new Date().toISOString();
-            tracked.lastEvent = note ? "note_updated" : "note_deleted";
-            saveTracking();
+            const updateEmbed = () => message.edit({ embeds: [embed] });
+            if (progress) {
+                await progress.runStep(1, updateEmbed);
+                await progress.runStep(2, async () => {
+                    tracked.updatedAt = new Date().toISOString();
+                    tracked.lastEvent = note ? "note_updated" : "note_deleted";
+                    saveTracking();
+                });
+            } else {
+                await updateEmbed();
+                tracked.updatedAt = new Date().toISOString();
+                tracked.lastEvent = note ? "note_updated" : "note_deleted";
+                saveTracking();
+            }
 
             return { success: true, noteCount: tracked.notes.length };
         } catch (err) {

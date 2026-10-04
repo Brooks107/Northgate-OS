@@ -5,6 +5,10 @@ const {
 } = require("discord.js");
 
 const ticketTopic = require("../ticket-topic");
+const {
+    ProgressFailure,
+    createInteractionProgress
+} = require("../utils/progress-embed");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -41,53 +45,54 @@ module.exports = {
             });
         }
 
-        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-
         const id = interaction.options.getInteger("id");
         const reason = interaction.options.getString("reason");
 
-        // -------------------------------------------------
-        // FIND COMMISSION TICKET ONLY
-        // -------------------------------------------------
-        const ticketChannel = interaction.guild.channels.cache.find(
-            ch => ch.name.startsWith(`commission-${id}`)
-        );
-
-        if (!ticketChannel) {
-            return interaction.editReply(`❌ Commission ticket #${id} does not exist.`);
-        }
-
-        // -------------------------------------------------
-        // GET THE TICKET OPENER FROM THE CHANNEL TOPIC
-        // -------------------------------------------------
-        const { ownerId } = ticketTopic.parse(ticketChannel.topic);
-
+        const progress = createInteractionProgress(interaction, `Denying commission #${id}`, [
+            "Find the commission ticket",
+            "Find the ticket opener",
+            "Post the denial in the ticket",
+            "Notify the ticket opener by DM"
+        ]);
+        await progress.start();
+        let ticketChannel;
         let user = null;
-        if (ownerId) {
-            user = await interaction.client.users.fetch(ownerId).catch(() => null);
+        try {
+            await progress.runStep(0, async () => {
+                ticketChannel = interaction.guild.channels.cache.find(ch =>
+                    ch.name.startsWith(`commission-${id}`)
+                );
+                if (!ticketChannel) throw new ProgressFailure(`Commission ticket #${id} does not exist.`);
+            });
+            await progress.runStep(1, async () => {
+                const { ownerId } = ticketTopic.parse(ticketChannel.topic);
+                if (ownerId) user = await interaction.client.users.fetch(ownerId).catch(() => null);
+            });
+            await progress.runStep(2, () => ticketChannel.send({
+                content: `❌ **Your commission has been denied.**\n**Reason:** ${reason}`
+            }));
+            if (user) {
+                const dmSent = await progress.runStep(3, async () => {
+                    try {
+                        await user.send({
+                            content: `❌ Your commission ticket (#${id}) has been **denied**.\n**Reason:** ${reason}`
+                        });
+                        return true;
+                    } catch (error) {
+                        console.warn(`[deny] Could not DM commission opener ${user.id}:`, error.message);
+                        return false;
+                    }
+                });
+                if (!dmSent) await progress.warnStep(3);
+            } else {
+                await progress.runStep(3, async () => {});
+                await progress.warnStep(3);
+            }
+
+            await progress.complete(`❌ Commission ticket #${id} denied. A denial message has been posted in the ticket.`);
+        } catch (error) {
+            if (error instanceof ProgressFailure) return;
+            throw error;
         }
-
-        // -------------------------------------------------
-        // POST DENIAL MESSAGE IN THE TICKET
-        // -------------------------------------------------
-        await ticketChannel.send({
-            content: `❌ **Your commission has been denied.**\n**Reason:** ${reason}`
-        });
-
-        // -------------------------------------------------
-        // SEND DM TO USER
-        // -------------------------------------------------
-        if (user) {
-            user.send({
-                content: `❌ Your commission ticket (#${id}) has been **denied**.\n**Reason:** ${reason}`
-            }).catch(() => {});
-        }
-
-        // -------------------------------------------------
-        // CONFIRM TO STAFF
-        // -------------------------------------------------
-        // The ticket ID stays reserved while commission-<id>-<user> still exists;
-        // /close frees it when the channel is actually deleted.
-        await interaction.editReply(`❌ Commission ticket #${id} denied. A denial message has been posted in the ticket.`);
     }
 };

@@ -6,6 +6,7 @@ const {
     PermissionFlagsBits
 } = require("discord.js");
 const { logCommand } = require("../utils/command-logger");
+const { createMessageProgress } = require("../utils/progress-embed");
 const { setTicketPanelsLocked } = require("../utils/ticket-panel-lock");
 
 const LOCKDOWN_ROLE = "1536806576202186842";
@@ -85,129 +86,149 @@ module.exports = async function handleAdminCommand(message, config) {
         }
     }
 
-    const channels = await Promise.all(
-        LOCKED_CHANNEL_IDS.map(id => message.guild?.channels.fetch(id).catch(() => null))
-    );
-    const missingChannels = LOCKED_CHANNEL_IDS.filter((id, index) => !channels[index]);
-    if (missingChannels.length > 0) {
-        await message.reply(`❌ Could not find all lock channels. Missing: ${missingChannels.join(", ")}`);
-        return true;
-    }
-
     const shouldLock = command === "forcelock";
-    const roles = [...(await message.guild.roles.fetch()).values()];
     const startedAt = process.hrtime.bigint();
     const savedForceLockOverwrites = state.load().forceLockOverwrites;
+    const stepLabels = [
+        "Find all lock channels and server roles",
+        ...(shouldLock ? ["Lock ticket panel buttons"] : []),
+        ...LOCKED_CHANNEL_IDS.map(id => `Update permissions in <#${id}>`),
+        ...(!shouldLock && savedForceLockOverwrites ? ["Restore saved channel permissions"] : []),
+        ...(!shouldLock ? ["Unlock ticket panel buttons"] : []),
+        "Save the lock state",
+        "Refresh the admin panel"
+    ];
+    const progress = createMessageProgress(
+        message,
+        shouldLock ? "Applying force lock" : "Applying force unlock",
+        stepLabels
+    );
+    await progress.start();
+
+    let channels = [];
+    let roles = [];
+    let step = 0;
+    let stateSaved = true;
+    const originalOverwrites = {};
 
     try {
-        if (shouldLock) config.forceLocked = true;
-
-        const statusReply = await message.reply(
-            shouldLock ? "🔒 Applying force lock..." : "🔓 Applying force unlock..."
-        );
-        let stateSaved = true;
-        const originalOverwrites = {};
+        await progress.runStep(step++, async () => {
+            channels = await Promise.all(
+                LOCKED_CHANNEL_IDS.map(id => message.guild?.channels.fetch(id).catch(() => null))
+            );
+            const missingChannels = LOCKED_CHANNEL_IDS.filter((id, index) => !channels[index]);
+            if (missingChannels.length > 0) {
+                throw new Error(`Could not find all lock channels. Missing: ${missingChannels.join(", ")}`);
+            }
+            roles = [...(await message.guild.roles.fetch()).values()];
+        });
 
         if (shouldLock) {
-            await setTicketPanelsLocked(message.client, config.channels.ticketchannelid, true);
+            config.forceLocked = true;
+            await progress.runStep(step++, () =>
+                setTicketPanelsLocked(message.client, config.channels.ticketchannelid, true)
+            );
         }
 
         for (const channel of channels) {
-            // Combine ViewChannel with SendMessages or Connect
-            const permission = PermissionFlagsBits.ViewChannel | (
-                VOICE_LOCK_CHANNEL_IDS.has(channel.id)
-                    ? PermissionFlagsBits.Connect
-                    : PermissionFlagsBits.SendMessages
-            );
+            await progress.runStep(step++, async () => {
+                const permission = PermissionFlagsBits.ViewChannel | (
+                    VOICE_LOCK_CHANNEL_IDS.has(channel.id)
+                        ? PermissionFlagsBits.Connect
+                        : PermissionFlagsBits.SendMessages
+                );
 
-            const overwrites = new Map(
-                channel.permissionOverwrites.cache.map(overwrite => [overwrite.id, {
-                    id: overwrite.id,
-                    type: overwrite.type,
-                    allow: BigInt(overwrite.allow.bitfield),
-                    deny: BigInt(overwrite.deny.bitfield)
-                }])
-            );
-
-            if (shouldLock) {
-                originalOverwrites[channel.id] = [...overwrites.values()].map(overwrite => ({
-                    id: overwrite.id,
-                    type: overwrite.type,
-                    allow: overwrite.allow.toString(),
-                    deny: overwrite.deny.toString()
-                }));
-            }
-
-            for (const role of roles) {
-                const existing = overwrites.get(role.id);
-                let allow = existing?.allow ?? 0n;
-                let deny = existing?.deny ?? 0n;
+                const overwrites = new Map(
+                    channel.permissionOverwrites.cache.map(overwrite => [overwrite.id, {
+                        id: overwrite.id,
+                        type: overwrite.type,
+                        allow: BigInt(overwrite.allow.bitfield),
+                        deny: BigInt(overwrite.deny.bitfield)
+                    }])
+                );
 
                 if (shouldLock) {
-                    allow &= ~permission;
-                    deny |= permission;
-                } else {
-                    allow &= ~permission;
-                    deny &= ~permission;
+                    originalOverwrites[channel.id] = [...overwrites.values()].map(overwrite => ({
+                        id: overwrite.id,
+                        type: overwrite.type,
+                        allow: overwrite.allow.toString(),
+                        deny: overwrite.deny.toString()
+                    }));
                 }
 
-                overwrites.set(role.id, { id: role.id, type: 0, allow, deny });
-            }
+                for (const role of roles) {
+                    const existing = overwrites.get(role.id);
+                    let allow = existing?.allow ?? 0n;
+                    let deny = existing?.deny ?? 0n;
 
-            await channel.permissionOverwrites.set([...overwrites.values()]);
+                    if (shouldLock) {
+                        allow &= ~permission;
+                        deny |= permission;
+                    } else {
+                        allow &= ~permission;
+                        deny &= ~permission;
+                    }
+
+                    overwrites.set(role.id, { id: role.id, type: 0, allow, deny });
+                }
+
+                await channel.permissionOverwrites.set([...overwrites.values()]);
+            });
         }
 
-        if (shouldLock) {
-            config.locked = true;
-            config.forceLocked = true;
-            stateSaved = state.save({
-                locked: true,
-                forceLocked: true,
-                forceLockOverwrites: originalOverwrites
+        if (!shouldLock && savedForceLockOverwrites) {
+            await progress.runStep(step++, async () => {
+                for (const channel of channels) {
+                    const original = savedForceLockOverwrites[channel.id];
+                    if (!original) continue;
+                    await channel.permissionOverwrites.set(original.map(overwrite => ({
+                        id: overwrite.id,
+                        type: overwrite.type,
+                        allow: BigInt(overwrite.allow),
+                        deny: BigInt(overwrite.deny)
+                    })));
+                }
             });
-        } else if (savedForceLockOverwrites) {
-            for (const channel of channels) {
-                const original = savedForceLockOverwrites[channel.id];
-                if (!original) continue;
-
-                await channel.permissionOverwrites.set(original.map(overwrite => ({
-                    id: overwrite.id,
-                    type: overwrite.type,
-                    allow: BigInt(overwrite.allow),
-                    deny: BigInt(overwrite.deny)
-                })));
-            }
         }
 
         if (!shouldLock) {
-            await setTicketPanelsLocked(message.client, config.channels.ticketchannelid, false);
-            config.locked = false;
-            config.forceLocked = false;
-            stateSaved = state.save({
-                locked: false,
-                forceLocked: false,
-                forceLockOverwrites: null
-            });
+            await progress.runStep(step++, () =>
+                setTicketPanelsLocked(message.client, config.channels.ticketchannelid, false)
+            );
         }
 
-        if (typeof message.client.notifyAdminPanelRefresh === "function") {
-            await message.client.notifyAdminPanelRefresh();
-        }
+        await progress.runStep(step++, async () => {
+            config.locked = shouldLock;
+            config.forceLocked = shouldLock;
+            stateSaved = state.save(shouldLock
+                ? {
+                    locked: true,
+                    forceLocked: true,
+                    forceLockOverwrites: originalOverwrites
+                }
+                : {
+                    locked: false,
+                    forceLocked: false,
+                    forceLockOverwrites: null
+                });
+        });
 
-        if (!stateSaved) {
-            await message.reply("❌ Channel permissions changed, but the lock state could not be saved.");
-            return true;
-        }
+        await progress.runStep(step++, async () => {
+            if (typeof message.client.notifyAdminPanelRefresh === "function") {
+                await message.client.notifyAdminPanelRefresh();
+            }
+        });
 
         const elapsedMilliseconds = Number(process.hrtime.bigint() - startedAt) / 1e6;
-        await statusReply.edit(
-            shouldLock
+        await progress.complete(
+            (shouldLock
                 ? `🔒 Force lock completed in ${(elapsedMilliseconds / 1000).toFixed(2)} seconds.`
-                : `🔓 Force unlock completed in ${(elapsedMilliseconds / 1000).toFixed(2)} seconds.`
+                : `🔓 Force unlock completed in ${(elapsedMilliseconds / 1000).toFixed(2)} seconds.`) +
+            (stateSaved ? "" : "\n⚠️ Channel permissions changed, but the lock state could not be saved.")
         );
     } catch (error) {
         console.error(`[adminhandler] failed to ${command}:`, error);
-        await message.reply("❌ Failed to update the lock channel permissions.");
+        await progress.setNotice(error.message);
     }
 
     return true;

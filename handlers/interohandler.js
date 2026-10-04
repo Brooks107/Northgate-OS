@@ -11,6 +11,10 @@ const {
 
 const ticketTopic = require("../ticket-topic");
 const ticketTracker = require("../ticket-tracker");
+const {
+    ProgressFailure,
+    createInteractionProgress
+} = require("../utils/progress-embed");
 
 function getRoleIds(value) {
     return Array.isArray(value) ? value.filter(Boolean) : value ? [value] : [];
@@ -30,11 +34,11 @@ function ticketButtons() {
 }
 
 module.exports = {
-    async createTicket(interaction, client, config, user) {
-        client.refreshActiveTicketIds(interaction.guild);
+    async createTicket(interaction, client, config, user, progress) {
+        await progress.runStep(0, () => client.refreshActiveTicketIds(interaction.guild));
         const ticketId = client.getNextTicketId();
         if (!ticketId) {
-            return { error: "❌ All 20 ticket slots are currently in use. Please wait for a ticket to close." };
+            throw new ProgressFailure("All 20 ticket slots are currently in use. Please wait for a ticket to close.");
         }
 
         client.activeTicketIds.add(ticketId);
@@ -42,7 +46,7 @@ module.exports = {
         let ticketChannel;
 
         try {
-            ticketChannel = await interaction.guild.channels.create({
+            ticketChannel = await progress.runStep(1, () => interaction.guild.channels.create({
                 name: `interrogation-${ticketId}`,
                 type: ChannelType.GuildText,
                 parent: config.interrogationticketcategory,
@@ -78,9 +82,13 @@ module.exports = {
                         ]
                     }
                 ]
-            });
+            }));
+        } catch (error) {
+            client.activeTicketIds.delete(ticketId);
+            throw error;
+        }
 
-            await ticketChannel.send({
+        await progress.runStep(2, () => ticketChannel.send({
                 content: `${user}`,
                 allowedMentions: { users: [user.id] },
                 embeds: [new EmbedBuilder()
@@ -91,23 +99,22 @@ module.exports = {
                     )
                     .setTimestamp()],
                 components: [ticketButtons()]
-            });
+        }));
 
-            await ticketTracker.createTicketEmbed(ticketChannel, {
+        await progress.runStep(3, () => ticketTracker.createTicketEmbed(ticketChannel, {
                 id: ticketId,
                 title: "Interrogation Ticket",
                 userId: user.id,
                 description: `Interrogation ticket opened for ${user.tag}.`,
                 createdAt: new Date().toLocaleString()
-            }, client, config);
-        } catch (error) {
-            client.activeTicketIds.delete(ticketId);
-            throw error;
-        }
+        }, client, config));
 
-        if (typeof client.notifyAdminPanelRefresh === "function") {
-            await client.notifyAdminPanelRefresh();
-        }
+        await progress.runStep(4, async () => {
+            if (typeof client.notifyAdminPanelRefresh === "function") {
+                await client.notifyAdminPanelRefresh();
+            }
+        });
+        await progress.complete(`✅ Interrogation ticket (#${ticketId}) created: <#${ticketChannel.id}>`);
 
         return { ticketId, ticketChannel };
     },
@@ -126,11 +133,19 @@ module.exports = {
         }
 
         if (interaction.customId === "intero_claim") {
-            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
             const ticketState = ticketTopic.parse(interaction.channel.topic);
             if (ticketState.claimedBy) {
-                return interaction.editReply(`❌ This ticket is already claimed by <@${ticketState.claimedBy}>.`);
+                return interaction.reply({
+                    content: `❌ This ticket is already claimed by <@${ticketState.claimedBy}>.`,
+                    flags: MessageFlags.Ephemeral
+                });
             }
+            const progress = createInteractionProgress(interaction, "Claiming interrogation ticket", [
+                "Update the ticket claim button",
+                "Save the claim to the channel topic",
+                "Sync the ticket tracker"
+            ]);
+            await progress.start();
 
             const claimedRow = new ActionRowBuilder().addComponents(
                 new ButtonBuilder()
@@ -143,17 +158,18 @@ module.exports = {
                     .setLabel("🔒 Close Ticket")
                     .setStyle(ButtonStyle.Danger)
             );
-            await interaction.message.edit({ components: [claimedRow] });
-            await interaction.channel.setTopic(ticketTopic.build({
+            await progress.runStep(0, () => interaction.message.edit({ components: [claimedRow] }));
+            await progress.runStep(1, () => interaction.channel.setTopic(ticketTopic.build({
                 ownerId: ticketState.ownerId,
                 claimedBy: interaction.user.id
-            }));
-            await ticketTracker.syncTicket(interaction.channel, {
+            })));
+            await progress.runStep(2, () => ticketTracker.syncTicket(interaction.channel, {
                 type: "claimed",
                 status: `🟡 Claimed by ${interaction.user.tag}`,
                 userId: interaction.user.id
-            });
-            return interaction.editReply("📝 You have claimed this interrogation ticket.");
+            }));
+            await progress.complete("📝 You have claimed this interrogation ticket.");
+            return;
         }
 
         if (interaction.customId === "intero_close") {
@@ -161,13 +177,27 @@ module.exports = {
             const match = channel.name.match(/^interrogation-(\d+)/);
             if (match) client.activeTicketIds.delete(Number(match[1]));
 
-            await interaction.reply({
-                content: "🔒 Ticket closed. Saving transcript...",
-                flags: MessageFlags.Ephemeral
+            const progress = createInteractionProgress(interaction, `Closing #${channel.name}`, [
+                "Save the ticket transcript",
+                "Remove the ticket from tracking",
+                "Schedule ticket channel deletion"
+            ]);
+            await progress.start();
+            const transcriptSaved = await progress.runStep(0, () =>
+                saveTranscript(channel, interaction.user, config)
+            );
+            if (!transcriptSaved) await progress.warnStep(0);
+            await progress.runStep(1, () => ticketTracker.removeTracking(channel));
+            await progress.runStep(2, async () => {
+                setTimeout(() => channel.delete().catch(error => {
+                    console.error(`[interrogation-close] failed to delete ${channel.name}:`, error);
+                }), 3000);
             });
-            await saveTranscript(channel, interaction.user, config);
-            await ticketTracker.removeTracking(channel);
-            setTimeout(() => channel.delete().catch(() => {}), 3000);
+            await progress.complete(
+                `🔒 Ticket #${channel.name} closed. ` +
+                (transcriptSaved ? "Transcript saved." : "⚠️ Transcript could not be saved; check the bot logs.") +
+                " Channel deletion is queued."
+            );
         }
     }
 };
@@ -208,7 +238,10 @@ async function saveTranscript(channel, closedBy, config) {
     const transcriptChannel = transcriptChannelId
         ? await channel.guild.channels.fetch(transcriptChannelId).catch(() => null)
         : null;
-    if (!transcriptChannel) return;
+    if (!transcriptChannel) {
+        console.error(`[interrogation-transcript] transcript channel is unavailable for ${channel.name}.`);
+        return false;
+    }
 
     await transcriptChannel.send({
         content: `📄 Transcript for **${channel.name}**`,
@@ -216,4 +249,5 @@ async function saveTranscript(channel, closedBy, config) {
             name: `${channel.name}-transcript.txt`
         })]
     });
+    return true;
 }

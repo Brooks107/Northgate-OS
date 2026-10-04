@@ -9,6 +9,7 @@ function createProgressTracker({ title, steps, send, edit }) {
     let failedStep = null;
     let failureMessage = null;
     let completionMessage = null;
+    let notice = null;
 
     function buildEmbed() {
         const lines = steps.map((step, index) => {
@@ -21,6 +22,7 @@ function createProgressTracker({ title, steps, send, edit }) {
         const description = [
             completionMessage,
             failureMessage,
+            notice,
             lines.join("\n")
         ].filter(Boolean).join("\n\n");
 
@@ -74,10 +76,27 @@ function createProgressTracker({ title, steps, send, edit }) {
         },
 
         async warnStep(index) {
-            if (!completedSteps.has(index)) {
+            if (!completedSteps.has(index) && failedStep !== index) {
                 throw new Error(`Cannot warn for unfinished progress step ${index} in "${title}".`);
             }
+            if (failedStep === index) {
+                completedSteps.add(index);
+                failedStep = null;
+                failureMessage = null;
+            }
             warningSteps.add(index);
+            await refresh();
+        },
+
+        async setNotice(message) {
+            notice = message;
+            await refresh();
+        },
+
+        async stopWithFailure(message) {
+            failedStep = completedSteps.size;
+            activeStep = null;
+            failureMessage = message;
             await refresh();
         },
 
@@ -109,7 +128,7 @@ function createMessageProgress(message, title, steps) {
         title,
         steps,
         send: async payload => {
-            progressMessage = await message.reply(payload);
+            progressMessage = await message.author.send(payload);
         },
         edit: payload => progressMessage.edit(payload)
     });
