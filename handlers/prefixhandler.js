@@ -1,4 +1,4 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } = require("discord.js");
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, PermissionFlagsBits } = require("discord.js");
 const ticketTopic = require("../ticket-topic");
 const ticketTracker = require("../ticket-tracker");
 const { logCommand } = require("../utils/command-logger");
@@ -285,15 +285,13 @@ module.exports = async function handlePrefixCommand(message, config) {
     }
 
     if (command === "ping") {
-        const progress = createMessageProgress(message, "Checking bot response", [
-            "Measure the response time"
-        ]);
-        await progress.start();
-        let latency;
-        await progress.runStep(0, async () => {
-            latency = progress.getMessage().createdTimestamp - message.createdTimestamp;
-        });
-        await progress.complete(`🏓 Pong! Latency: **${latency}ms**`);
+        const latency = Date.now() - message.createdTimestamp;
+        const embed = new EmbedBuilder()
+            .setColor(0x3498db)
+            .setTitle("🏓 Pong!")
+            .setDescription(`Latency: **${latency}ms**`)
+            .setTimestamp();
+        await message.reply({ embeds: [embed] });
         return;
     }
 
