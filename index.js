@@ -15,6 +15,7 @@ const reactionRoles = require("./handlers/reactionroles");
 const adminHandler = require("./handlers/adminhandler");
 const developerHandler = require("./handlers/devhandler");
 const prefixHandler = require("./handlers/prefixhandler");
+const joinHandler = require("./handlers/joinhandler");
 const gitSync = require("./git-sync");
 const commandRegistry = require("./command-registry");
 const state = require("./state");
@@ -99,6 +100,8 @@ client.on(Events.MessageReactionRemove, async (reaction, user) => {
         console.error("[reaction-roles] failed to remove role:", error);
     }
 });
+
+client.on(Events.GuildMemberAdd, joinHandler);
 
 startHeartbeat(client);
 
