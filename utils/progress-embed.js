@@ -128,7 +128,7 @@ function createMessageProgress(message, title, steps) {
         title,
         steps,
         send: async payload => {
-            progressMessage = await message.author.send(payload);
+            progressMessage = await message.channel.send(payload);
         },
         edit: payload => progressMessage.edit(payload)
     });

@@ -15,14 +15,7 @@ async function sendPrivateHelp(message) {
 
     await message.delete().catch(() => {});
     try {
-        const progress = createMessageProgress(message, "Sending private command help", [
-            ...messages.map((_, index) => `Send command list part ${index + 1}`)
-        ]);
-        await progress.start();
-        for (const [index, embeds] of messages.entries()) {
-            await progress.runStep(index, () => message.author.send({ embeds }));
-        }
-        await progress.complete("✅ Command help sent privately.");
+        for (const embeds of messages) await message.author.send({ embeds });
     } catch (error) {
         console.error("[help] could not send private command help:", error);
         const fallback = await message.channel.send({
