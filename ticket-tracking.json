@@ -13,12 +13,13 @@
     "notes": [
       "• Ticket created"
     ],
-    "status": "🟢 Open",
-    "updatedAt": "2026-10-01T19:38:45.450Z",
-    "lastEvent": "note_deleted",
+    "status": "🔴 Closed",
+    "updatedAt": "2026-10-04T10:00:49.588Z",
+    "lastEvent": "closed",
     "ticketName": "partnership-2",
     "ticketTitle": "Partnership Request",
-    "userId": "1259124148798754907"
+    "userId": "1259124148798754907",
+    "closedAt": "2026-10-04T10:00:49.588Z"
   },
 
   "_comment_1550260920427618374": "---------------- Ticket #4: hiring-4 ----------------",
@@ -201,24 +202,24 @@
   },
 
   "_scanDiagnostics": {
-    "lastRunAt": "2026-10-04T09:40:49.950Z",
+    "lastRunAt": "2026-10-04T13:04:05.744Z",
     "status": "completed",
     "trackerChannelId": "1539010556701188206",
-    "activeTicketChannels": 2,
-    "messagesScanned": 2,
-    "messagesWithEmbeds": 2,
-    "messagesFromCurrentBot": 2,
+    "activeTicketChannels": 1,
+    "messagesScanned": 1,
+    "messagesWithEmbeds": 1,
+    "messagesFromCurrentBot": 1,
     "messagesFromOtherAuthors": 0,
-    "embedsScanned": 2,
+    "embedsScanned": 1,
     "embedsMissingFooterOrNumber": 0,
     "embedsWithoutActiveTicketMatch": 0,
     "ambiguousTicketMatches": 0,
-    "activeTicketsWithMatchingEmbeds": 2,
-    "alreadyTrackedTickets": 2,
+    "activeTicketsWithMatchingEmbeds": 1,
+    "alreadyTrackedTickets": 1,
     "duplicateEmbedsForTicket": 0,
     "imported": 0,
     "skippedExamples": [],
-    "completedAt": "2026-10-04T09:40:50.969Z"
+    "completedAt": "2026-10-04T13:04:06.713Z"
   },
 
   "_scanDiagnosticsMessageId": "1555627565710966795"
