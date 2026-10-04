@@ -19,7 +19,7 @@ module.exports = async function handleGuildMemberAdd(member) {
     try {
         const embed = new EmbedBuilder()
             .setColor(0x3498db)
-            .setTitle(`Welcome ${member.guild.name}!`)
+            .setTitle(`Welcome to Northgate Studios ${member}!`)
             .setDescription([
                 `Welcome to ${member.guild.name}, ${member}!`,
                 "Please make sure to read the rules in <#1518181292863127602>!",
