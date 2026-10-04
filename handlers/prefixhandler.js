@@ -3,6 +3,10 @@ const ticketTopic = require("../ticket-topic");
 const ticketTracker = require("../ticket-tracker");
 const { logCommand } = require("../utils/command-logger");
 const { buildHelpEmbeds, packIntoMessages } = require("../utils/help");
+const {
+    ProgressFailure,
+    createMessageProgress
+} = require("../utils/progress-embed");
 
 // !help sends one embed per NorthGate bot. The command tables live in
 // ../utils/help, which is also where a new command has to be added.
@@ -51,17 +55,33 @@ module.exports = async function handlePrefixCommand(message, config) {
             return message.reply("❌ Only developers can use this command.");
         }
 
-        const channel = await message.client.channels.fetch(match[1]).catch(() => null);
-        if (!channel?.isTextBased?.() || typeof channel.send !== "function") {
-            return message.reply("❌ I could not find a text channel with that ID or I cannot send messages there.");
-        }
+        const progress = createMessageProgress(message, "Sending developer message", [
+            "Find the destination text channel",
+            "Send the message"
+        ]);
+        await progress.start();
 
+        let channel;
         try {
-            await channel.send(match[2].trim());
-            return message.reply(`✅ Message sent to <#${channel.id}>.`);
+            await progress.runStep(0, async () => {
+                channel = await message.client.channels.fetch(match[1]).catch(() => null);
+                if (!channel?.isTextBased?.() || typeof channel.send !== "function") {
+                    throw new ProgressFailure("I could not find a text channel with that ID or I cannot send messages there.");
+                }
+            });
+            await progress.runStep(1, async () => {
+                try {
+                    await channel.send(match[2].trim());
+                } catch (error) {
+                    console.error("[msg] failed to send message from DM:", error);
+                    throw new ProgressFailure("I could not send a message in that channel. Check my channel permissions.");
+                }
+            });
+            await progress.complete(`✅ Message sent to <#${channel.id}>.`);
         } catch (error) {
-            console.error("[msg] failed to send message from DM:", error);
-            return message.reply("❌ I could not send a message in that channel. Check my channel permissions.");
+            if (error instanceof ProgressFailure) return;
+            console.error("[msg] progress update failed:", error);
+            return;
         }
     }
 
@@ -248,12 +268,45 @@ module.exports = async function handlePrefixCommand(message, config) {
             return message.reply("Please provide a number between **1** and **100**.");
         }
 
-        await message.delete().catch(() => {});
-        const messages = await message.channel.messages.fetch({ limit: amount });
-        await message.channel.bulkDelete(messages, true);
+        const progress = createMessageProgress(message, "Purging messages", [
+            "Remove the purge command",
+            `Fetch up to ${amount} recent messages`,
+            "Delete the fetched messages"
+        ]);
+        await progress.start();
 
-        message.channel.send(`🧹 Deleted **${amount}** messages.`)
-            .then(msg => setTimeout(() => msg.delete().catch(() => {}), 3000));
+        let deletedCount = 0;
+        try {
+            await progress.runStep(0, async () => {
+                try {
+                    await message.delete();
+                } catch (error) {
+                    console.warn("[purge] could not delete the invoking command:", error.message);
+                }
+            });
+
+            let messages;
+            await progress.runStep(1, async () => {
+                messages = await message.channel.messages.fetch({ limit: amount });
+            });
+
+            await progress.runStep(2, async () => {
+                const progressMessageId = progress.getMessage().id;
+                const purgeableMessages = messages.filter(item => item.id !== progressMessageId);
+                if (purgeableMessages.size > 0) {
+                    const deleted = await message.channel.bulkDelete(purgeableMessages, true);
+                    deletedCount = deleted.size;
+                }
+            });
+            await progress.complete(`🧹 Deleted **${deletedCount}** messages.`);
+            setTimeout(() => {
+                progress.getMessage().delete().catch(error => {
+                    console.warn("[purge] could not remove the progress message:", error.message);
+                });
+            }, 3000);
+        } catch (error) {
+            console.error("[purge] failed to remove messages:", error);
+        }
         return;
     }
 

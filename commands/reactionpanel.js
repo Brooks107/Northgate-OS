@@ -1,4 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require("discord.js");
+const { createInteractionProgress } = require("../utils/progress-embed");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -15,8 +16,6 @@ module.exports = {
                 flags: MessageFlags.Ephemeral
             });
         }
-
-        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         const Announcementping = config.pings?.announcementid;
         const eventping = config.pings?.eventpingid;
@@ -40,21 +39,27 @@ module.exports = {
             .map(role => `${role.emoji}  ${role.name}${role.roleId ? ` - <@&${role.roleId}>` : ""}`)
             .join("\n");
 
-        const message = await interaction.channel.send({
-            embeds: [new EmbedBuilder()
-                .setTitle("NorthGate Notification Roles")
-                .setDescription(`React below to choose the notifications you want to receive.\n\n${description}`)
-                .setColor(0x2f80ed)]
+        const progress = createInteractionProgress(interaction, "Creating reaction-role panel", [
+            "Post the notification-role panel",
+            ...roles.map(role => `Add the ${role.emoji} reaction`)
+        ]);
+        await progress.start();
+
+        let message;
+        await progress.runStep(0, async () => {
+            message = await interaction.channel.send({
+                embeds: [new EmbedBuilder()
+                    .setTitle("NorthGate Notification Roles")
+                    .setDescription(`React below to choose the notifications you want to receive.\n\n${description}`)
+                    .setColor(0x2f80ed)]
+            });
         });
 
-        for (const role of roles) {
-            await message.react(role.emoji);
+        for (const [index, role] of roles.entries()) {
+            await progress.runStep(index + 1, () => message.react(role.emoji));
         }
-
         client.reactionRoleMessageId = message.id;
 
-        return interaction.editReply({
-            content: "✅ Reaction role panel sent.",
-        });
+        await progress.complete("✅ Reaction role panel sent.");
     }
 }

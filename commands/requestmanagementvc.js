@@ -3,9 +3,12 @@ const {
     ActionRowBuilder,
     ButtonBuilder,
     ButtonStyle,
-    EmbedBuilder,
-    MessageFlags
+    EmbedBuilder
 } = require("discord.js");
+const {
+    ProgressFailure,
+    createInteractionProgress
+} = require("../utils/progress-embed");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -13,16 +16,27 @@ module.exports = {
         .setDescription("Request access to the management voice channel."),
 
     async execute(interaction, client, config) {
-        const channelId = config.managementVoiceChannelId;
-        const channel = channelId ? await client.channels.fetch(channelId).catch(() => null) : null;
-        if (!channel || !channel.isVoiceBased?.() || !channel.guild) {
-            return interaction.reply({
-                content: "❌ Set a valid `managementVoiceChannelId` in `config.json` first.",
-                flags: MessageFlags.Ephemeral
+        const progress = createInteractionProgress(interaction, "Management VC access request", [
+            "Find the configured management voice channel",
+            "Post the access request"
+        ]);
+        await progress.start();
+
+        let channel;
+        try {
+            await progress.runStep(0, async () => {
+                const channelId = config.managementVoiceChannelId;
+                channel = channelId ? await client.channels.fetch(channelId).catch(() => null) : null;
+                if (!channel || !channel.isVoiceBased?.() || !channel.guild) {
+                    throw new ProgressFailure("Set a valid `managementVoiceChannelId` in `config.json` first.");
+                }
             });
+        } catch (error) {
+            if (error instanceof ProgressFailure) return;
+            throw error;
         }
 
-        await channel.send({
+        await progress.runStep(1, () => channel.send({
             embeds: [new EmbedBuilder()
                 .setColor(0xf1c40f)
                 .setTitle("Management VC access request")
@@ -35,11 +49,8 @@ module.exports = {
                     .setLabel("Accept request")
                     .setStyle(ButtonStyle.Success)
             )]
-        });
+        }));
 
-        return interaction.reply({
-            content: "✅ Your access request was sent in the management VC chat.",
-            flags: MessageFlags.Ephemeral
-        });
+        await progress.complete("✅ Your access request was sent in the management VC chat.");
     }
 };

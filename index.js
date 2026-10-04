@@ -26,6 +26,10 @@ const {
 const autocloseScheduler = require("./autoclose-scheduler");
 const { startHeartbeat } = require("./heartbeat");
 const { logCommand } = require("./utils/command-logger");
+const {
+    ProgressFailure,
+    createInteractionProgress
+} = require("./utils/progress-embed");
 const adminPanelCommand = require("./commands/adminpanel");
 
 const COMMAND_RATE_LIMIT_WINDOW_MS = 60_000;
@@ -281,32 +285,53 @@ client.on("interactionCreate", async interaction => {
         }
 
         if (interaction.isButton() && interaction.customId.startsWith("management_vc_accept:")) {
-            const channelId = config.managementVoiceChannelId;
-            const channel = channelId ? await client.channels.fetch(channelId).catch(() => null) : null;
             const requesterId = interaction.customId.split(":")[1];
-            const acceptor = await interaction.guild?.members.fetch(interaction.user.id).catch(() => null);
-            const requester = await interaction.guild?.members.fetch(requesterId).catch(() => null);
+            const progress = createInteractionProgress(interaction, "Accepting management VC request", [
+                "Find the management channel and both members",
+                "Confirm you are in the management voice channel",
+                "Grant the requester connection access",
+                "Move the requester into the voice channel",
+                "Mark the request as accepted"
+            ]);
+            await progress.start();
 
-            if (!channel || !channel.isVoiceBased?.() || !acceptor || !requester) {
-                return interaction.reply({
-                    content: "❌ The management voice channel or requester could not be found.",
-                    flags: MessageFlags.Ephemeral
+            let channel;
+            let acceptor;
+            let requester;
+            try {
+                await progress.runStep(0, async () => {
+                    const channelId = config.managementVoiceChannelId;
+                    channel = channelId ? await client.channels.fetch(channelId).catch(() => null) : null;
+                    acceptor = await interaction.guild?.members.fetch(interaction.user.id).catch(() => null);
+                    requester = await interaction.guild?.members.fetch(requesterId).catch(() => null);
+
+                    if (!channel || !channel.isVoiceBased?.() || !acceptor || !requester) {
+                        throw new ProgressFailure("The management voice channel or requester could not be found.");
+                    }
                 });
-            }
 
-            if (acceptor.voice.channelId !== channel.id) {
-                return interaction.reply({
-                    content: "❌ You must already be in the management VC to accept requests.",
-                    flags: MessageFlags.Ephemeral
+                await progress.runStep(1, async () => {
+                    if (acceptor.voice.channelId !== channel.id) {
+                        throw new ProgressFailure("You must already be in the management VC to accept requests.");
+                    }
                 });
+                await progress.runStep(2, () =>
+                    channel.permissionOverwrites.edit(requester, { Connect: true })
+                );
+                await progress.runStep(3, () =>
+                    requester.voice.setChannel(channel, "Management VC request accepted")
+                );
+                await progress.runStep(4, () =>
+                    interaction.message.edit({
+                        content: `✅ Accepted by ${interaction.user}.`,
+                        components: []
+                    })
+                );
+                await progress.complete("✅ The requester now has access to the management voice channel.");
+            } catch (error) {
+                if (error instanceof ProgressFailure) return;
+                throw error;
             }
-
-            await channel.permissionOverwrites.edit(requester, { Connect: true });
-            await requester.voice.setChannel(channel, "Management VC request accepted");
-            await interaction.update({
-                content: `✅ Accepted by ${interaction.user}.`,
-                components: []
-            });
             return;
         }
 

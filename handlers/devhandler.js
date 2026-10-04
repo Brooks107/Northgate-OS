@@ -6,6 +6,7 @@ const {
     EmbedBuilder
 } = require("discord.js");
 const { logCommand } = require("../utils/command-logger");
+const { createMessageProgress } = require("../utils/progress-embed");
 const state = require("../state");
 const ticketTracker = require("../ticket-tracker");
 
@@ -336,18 +337,32 @@ module.exports = async function handleDeveloperCommand(message, config) {
         }
 
         const currentGroups = state.load().groupArrays || {};
-        const saved = state.save({
-            groupArrays: {
-                ...currentGroups,
-                [configKey]: values
-            }
-        });
-        config[configKey] = values;
+        const progress = createMessageProgress(message, "Updating role group", [
+            `Update the **${group}** group in memory`,
+            "Save the updated groups to disk"
+        ]);
+        await progress.start();
 
-        await message.reply(
-            `${command === "addgroup" ? "✅ Added" : "🗑️ Removed"} \`${id}\` ${command === "addgroup" ? "to" : "from"} the **${group}** group.` +
-            (saved ? "" : "\n⚠️ The change could not be saved to disk and may reset after restart.")
-        );
+        let saved;
+        try {
+            await progress.runStep(0, async () => {
+                config[configKey] = values;
+            });
+            await progress.runStep(1, async () => {
+                saved = state.save({
+                    groupArrays: {
+                        ...currentGroups,
+                        [configKey]: values
+                    }
+                });
+            });
+            await progress.complete(
+                `${command === "addgroup" ? "✅ Added" : "🗑️ Removed"} \`${id}\` ${command === "addgroup" ? "to" : "from"} the **${group}** group.` +
+                (saved ? "" : "\n⚠️ The change could not be saved to disk and may reset after restart.")
+            );
+        } catch (error) {
+            console.error(`[devhandler] failed to ${command} ${id} in ${group}:`, error);
+        }
         return true;
     }
 
@@ -441,19 +456,32 @@ module.exports = async function handleDeveloperCommand(message, config) {
         }
 
         const maintenanceMode = action === "off";
-        config.maintenanceMode = maintenanceMode;
-        const saved = state.save({ maintenanceMode });
+        const progress = createMessageProgress(message, "Updating bot power mode", [
+            "Save the maintenance state",
+            "Update the bot presence"
+        ]);
+        await progress.start();
 
-        message.client.user.setPresence({
-            status: maintenanceMode ? "invisible" : "online",
-            activities: []
-        });
-
-        await message.reply(
-            maintenanceMode
-                ? `🔴 Bot set to **invisible maintenance mode**.${saved ? "" : "\n⚠️ Could not save this state to disk."}`
-                : `🟢 Bot is **online** again.${saved ? "" : "\n⚠️ Could not save this state to disk."}`
-        );
+        let saved;
+        try {
+            await progress.runStep(0, async () => {
+                config.maintenanceMode = maintenanceMode;
+                saved = state.save({ maintenanceMode });
+            });
+            await progress.runStep(1, async () => {
+                message.client.user.setPresence({
+                    status: maintenanceMode ? "invisible" : "online",
+                    activities: []
+                });
+            });
+            await progress.complete(
+                maintenanceMode
+                    ? `🔴 Bot set to **invisible maintenance mode**.${saved ? "" : "\n⚠️ Could not save this state to disk."}`
+                    : `🟢 Bot is **online** again.${saved ? "" : "\n⚠️ Could not save this state to disk."}`
+            );
+        } catch (error) {
+            console.error(`[devhandler] failed to set power mode to ${action}:`, error);
+        }
         return true;
     }
 
