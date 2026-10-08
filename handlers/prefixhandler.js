@@ -405,7 +405,7 @@ module.exports = async function handlePrefixCommand(message, config) {
                 },
                 {
                     name: "SPONSORS",
-                    value: ["Vortigern Industries](https://discord.gg/XHZJ9qjs2B)"]
+                    value: "[Vortigern Industries](https://discord.gg/XHZJ9qjs2B)]"
                 },
                 {
                     name: "Our Youtube",
