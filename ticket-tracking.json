@@ -203,8 +203,8 @@
   },
 
   "_scanDiagnostics": {
-    "lastRunAt": "2026-10-18T11:19:51.236Z",
-    "status": "completed",
+    "lastRunAt": "2026-10-18T13:19:51.236Z",
+    "status": "failed",
     "trackerChannelId": "1539010556701188206",
     "activeTicketChannels": 0,
     "messagesScanned": 0,
@@ -220,7 +220,8 @@
     "duplicateEmbedsForTicket": 0,
     "imported": 0,
     "skippedExamples": [],
-    "completedAt": "2026-10-18T11:19:52.216Z"
+    "lastError": "Connect Timeout Error (attempted address: discord.com:443, timeout: 10000ms)",
+    "completedAt": "2026-10-18T13:20:33.175Z"
   },
 
   "_scanDiagnosticsMessageId": "1555627565710966795"
