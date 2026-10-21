@@ -221,9 +221,10 @@
     "notes": [
       "• Ticket created"
     ],
-    "status": "🟢 Open",
-    "updatedAt": "2026-10-21T15:54:30.111Z",
-    "lastEvent": "created"
+    "status": "🔴 Closed",
+    "updatedAt": "2026-10-21T15:55:23.875Z",
+    "lastEvent": "closed",
+    "closedAt": "2026-10-21T15:55:23.875Z"
   },
 
   "_scanDiagnostics": {
