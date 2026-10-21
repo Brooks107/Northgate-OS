@@ -227,6 +227,30 @@
     "closedAt": "2026-10-21T15:55:23.875Z"
   },
 
+  "_comment_1562509743665315940": "---------------- Ticket #1: hiring-1 ----------------",
+
+  "1562509743665315940": {
+    "ticketName": "hiring-1",
+    "ticketTitle": "Hiring Application",
+    "userId": "1189564860074307738",
+    "messageId": "1562509754155147416",
+    "channelId": "1539010556701188206",
+    "ticketId": 1,
+    "originalInfo": {
+      "id": 1,
+      "title": "Hiring Application",
+      "userId": "1189564860074307738",
+      "description": "Role: HR - CHIEF OF STAFF after Moonlight left, Experience: So long story short\n- Ex- Management Director for OnlyAdex 20k+ subs on yt if not more\n- Ex-SCPRP Game Mod\n- Ex-Site Aether Head Developer \n- Ex-Site Aether Head Of Staff\n- Ex-Site Aether Factions Hub Director\n- Ex-Community Servers Owner\n- Ex-F19 Vice-Administrator (1k Members Site)\n- Ex-F19 FHD (1k Members Site)\n- Great experience in working with Cosmix and Ax\n- 2nd Owner of Ax's Project Quarcia: Mud & Blood\n- Current HC at different Communities \n\n(this is a list shortened from my 4k words essay because THE BOT WAS BROKEN)",
+      "createdAt": "10/21/2026, 10:55:55 AM"
+    },
+    "notes": [
+      "• Ticket created"
+    ],
+    "status": "🟢 Open",
+    "updatedAt": "2026-10-21T16:55:55.724Z",
+    "lastEvent": "created"
+  },
+
   "_scanDiagnostics": {
     "lastRunAt": "2026-10-21T16:47:17.242Z",
     "status": "completed",
