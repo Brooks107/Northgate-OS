@@ -202,6 +202,30 @@
     "closedAt": "2026-10-03T15:38:32.608Z"
   },
 
+  "_comment_1562494284970856655": "---------------- Ticket #2: hiring-2 ----------------",
+
+  "1562494284970856655": {
+    "ticketName": "hiring-2",
+    "ticketTitle": "Hiring Application",
+    "userId": "1259124148798754907",
+    "messageId": "1562494295963992126",
+    "channelId": "1539010556701188206",
+    "ticketId": 2,
+    "originalInfo": {
+      "id": 2,
+      "title": "Hiring Application",
+      "userId": "1259124148798754907",
+      "description": "Role: TEST, Experience: TEST",
+      "createdAt": "10/21/2026, 9:54:29 AM"
+    },
+    "notes": [
+      "• Ticket created"
+    ],
+    "status": "🟢 Open",
+    "updatedAt": "2026-10-21T15:54:30.111Z",
+    "lastEvent": "created"
+  },
+
   "_scanDiagnostics": {
     "lastRunAt": "2026-10-21T15:47:17.242Z",
     "status": "completed",
