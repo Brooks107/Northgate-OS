@@ -253,9 +253,34 @@
     "closedAt": "2026-10-21T19:05:50.721Z"
   },
 
+  "_comment_1562825433035186176": "---------------- Ticket #1: support-1 ----------------",
+
+  "1562825433035186176": {
+    "ticketName": "support-1",
+    "ticketTitle": "Support Ticket",
+    "userId": "788004214814277663",
+    "messageId": "1562825439532155015",
+    "channelId": "1539010556701188206",
+    "ticketId": 1,
+    "originalInfo": {
+      "id": 1,
+      "title": "Support Ticket",
+      "userId": "788004214814277663",
+      "description": "I'd like to apologies for bothering and ask, the ones that are currently interested in building still, they may come to our site so we can commission them if they like.",
+      "createdAt": "10/22/2026, 7:50:20 AM"
+    },
+    "notes": [
+      "• Ticket created"
+    ],
+    "status": "🟡 Claimed",
+    "updatedAt": "2026-10-22T13:51:12.202Z",
+    "lastEvent": "claimed",
+    "assignedTo": "1267321190821789780"
+  },
+
   "_scanDiagnostics": {
     "lastRunAt": "2026-10-22T13:47:17.243Z",
-    "status": "running",
+    "status": "completed",
     "trackerChannelId": "1539010556701188206",
     "activeTicketChannels": 0,
     "messagesScanned": 0,
@@ -270,7 +295,8 @@
     "alreadyTrackedTickets": 0,
     "duplicateEmbedsForTicket": 0,
     "imported": 0,
-    "skippedExamples": []
+    "skippedExamples": [],
+    "completedAt": "2026-10-22T13:47:18.316Z"
   },
 
   "_scanDiagnosticsMessageId": "1555627565710966795"
