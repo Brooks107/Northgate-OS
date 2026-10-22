@@ -293,7 +293,7 @@ client.on("interactionCreate", async interaction => {
                 "Find the management channel and both members",
                 "Confirm you are in the management voice channel",
                 "Grant the requester connection access",
-                "Move the requester into the voice channel",
+                "Move the requester if already connected to voice",
                 "Mark the request as accepted"
             ]);
             await progress.start();
@@ -321,8 +321,10 @@ client.on("interactionCreate", async interaction => {
                 await progress.runStep(2, () =>
                     channel.permissionOverwrites.edit(requester, { Connect: true })
                 );
-                await progress.runStep(3, () =>
-                    requester.voice.setChannel(channel, "Management VC request accepted")
+                const requesterInVoice = Boolean(requester.voice.channelId);
+                await progress.runStep(3, () => requesterInVoice
+                    ? requester.voice.setChannel(channel, "Management VC request accepted")
+                    : Promise.resolve()
                 );
                 await progress.runStep(4, () =>
                     interaction.message.edit({
@@ -330,7 +332,10 @@ client.on("interactionCreate", async interaction => {
                         components: []
                     })
                 );
-                await progress.complete("✅ The requester now has access to the management voice channel.");
+                await progress.complete(requesterInVoice
+                    ? "✅ The requester now has access to the management voice channel."
+                    : "✅ The requester now has access and can join the management voice channel."
+                );
             } catch (error) {
                 if (error instanceof ProgressFailure) return;
                 throw error;
