@@ -8,7 +8,7 @@ const path = require("path");
  */
 
 const TRACKING_FILE = path.join(__dirname, "ticket-tracking.json");
-const TICKET_CHANNEL_PATTERN = /^(support|appeal|commission|hiring|partnership|interrogation)-(\d+)(?:-|$)/i;
+const TICKET_CHANNEL_PATTERN = /^(support|appeal|hiring|partnership|interrogation)-(\d+)(?:-|$)/i;
 const SCAN_LOG_CHANNEL_ID = "1548387829628010703";
 
 // In-memory map: ticketChannelId -> { messageId, embeds: [] }

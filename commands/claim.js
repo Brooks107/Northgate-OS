@@ -33,11 +33,9 @@ module.exports = {
             });
         }
 
-        const isAuthorized = (config.supportTeamRoles?.some(roleId =>
+        const isAuthorized = config.supportTeamRoles?.some(roleId =>
             interaction.member?.roles?.cache?.has(roleId)
-        ) || config.commissionticketaccess?.some(roleId =>
-            interaction.member?.roles?.cache?.has(roleId)
-        ));
+        );
 
         if (!isAuthorized) {
             return interaction.reply({
@@ -47,7 +45,7 @@ module.exports = {
         }
 
         const id = interaction.options.getInteger("id");
-        const ticketPattern = new RegExp(`^(?:commission|support|appeal|hiring|partnership|interrogation)-${id}(?:-|$)`, "i");
+        const ticketPattern = new RegExp(`^(?:support|appeal|hiring|partnership|interrogation)-${id}(?:-|$)`, "i");
         const progress = createInteractionProgress(interaction, `Claiming ticket #${id}`, [
             "Find the ticket channel",
             "Find the ticket control message",

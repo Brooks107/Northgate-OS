@@ -87,7 +87,6 @@ function buildAdminPanelEmbed(client, config, guild) {
 
     const issues = [];
     if (config.locked) issues.push("Global command lock is active");
-    if (config.commissionLocked) issues.push("Commission requests are locked");
     if (config.managementVoiceChannelLocked) issues.push("Management VC is locked");
     if (config.forceLocked) issues.push("Emergency lockdown is active");
     if (activeTicketIds.length >= 15) issues.push("Ticket pool is nearly full");
@@ -112,7 +111,6 @@ function buildAdminPanelEmbed(client, config, guild) {
                 name: "📊 Live Status",
                 value: [
                     `Global Commands: ${statusLabel(!config.locked, "Open", "Locked")}`,
-                    `Commission Requests: ${statusLabel(!config.commissionLocked, "Open", "Locked")}`,
                     `Management VC: ${statusLabel(!config.managementVoiceChannelLocked, "Open", "Locked")}`,
                     `Emergency Lockdown: ${statusLabel(!config.forceLocked, "Clear", "Active")}`,
                     `Active Ticket Slots: **${activeTicketIds.length}/20**`

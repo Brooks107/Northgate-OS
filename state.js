@@ -9,7 +9,7 @@ const path = require("path");
 // touches config.json -- silently freezing auto-deploy until someone notices.
 const STATE_FILE = path.join(__dirname, "state.json");
 
-const KEYS = ["locked", "commissionLocked", "managementVoiceChannelLocked", "forceLocked", "maintenanceMode"];
+const KEYS = ["locked", "managementVoiceChannelLocked", "forceLocked", "maintenanceMode"];
 
 function load() {
     try {

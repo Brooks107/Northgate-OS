@@ -3,8 +3,6 @@
         "ticketchannelid": "1518198456932503642",
         "transcriptschannelid": "1520357938110140496",
         "locked": false,
-        "activeCommissionsChannelId": "1536821588211531967",
-        "commissionlocked": false,
         "ruleschannelid": "1518181292863127602",
         "linkschannelid": "1530157246095294464",
         "logging": "1548403110236524564",
@@ -14,7 +12,6 @@
     "managementVoiceChannelId": "1536025830050758797",
     "appealsticketcategory": "1536336008029675580",
     "generalticketcategory": "1518259299766374410",
-    "commissionsticketcategory": "1518256130432831531",
     "reportsticketcategory": "1518259254916677632",
     "hiringticketcategory": "1538873864979882024",
     "partnershipticketcategory": "1518259575973740675",
@@ -30,9 +27,6 @@
         "1535764196459806850",
         "1534998279094534196",
         "1517983148275667144"
-    ],
-    "commissionticketaccess": [
-        "1534327769599574066"
     ],
     "developers": [
         "1259124148798754907",
@@ -76,7 +70,6 @@
             "ticket-tracking.json"
         ]
     },
-    "commissionLocked": false,
     "prrole": "1535023189246345277",
     "hrrole": "1538588862148771910",
     "communityrole": "1536398794684375050",

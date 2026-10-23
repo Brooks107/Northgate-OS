@@ -3,7 +3,6 @@ const { ComponentType } = require("discord.js");
 const TICKET_OPEN_BUTTON_IDS = new Set([
     "ticket_support",
     "ticket_appeal",
-    "ticket_commission",
     "ticket_hire",
     "ticket_partnership"
 ]);
@@ -11,7 +10,6 @@ const TICKET_CREATION_INTERACTION_IDS = new Set([
     ...TICKET_OPEN_BUTTON_IDS,
     "modal_ticket_support",
     "modal_ticket_appeal",
-    "modal_ticket_commission",
     "modal_ticket_hire",
     "modal_ticket_partnership"
 ]);

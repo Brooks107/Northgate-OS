@@ -116,7 +116,7 @@ module.exports = async function handlePrefixCommand(message, config) {
             try {
                 await progress.runStep(0, async () => {
                     ticketChannel = message.guild?.channels.cache.find(channel =>
-                        ["commission", "support", "appeal", "hiring", "partnership", "interrogation"]
+                        ["support", "appeal", "hiring", "partnership", "interrogation"]
                             .some(prefix => channel.name.startsWith(`${prefix}-${id}`))
                     );
                     if (!ticketChannel) throw new ProgressFailure(`Ticket #${id} does not exist.`);
@@ -189,8 +189,6 @@ module.exports = async function handlePrefixCommand(message, config) {
 
         const isStaff = config.supportTeamRoles?.some(roleId =>
             message.member?.roles?.cache?.has(roleId)
-        ) || config.commissionticketaccess?.some(roleId =>
-            message.member?.roles?.cache?.has(roleId)
         ) || config.developers?.includes(message.author.id);
 
         if (!isStaff) {
@@ -204,7 +202,6 @@ module.exports = async function handlePrefixCommand(message, config) {
         const ticketChannel = message.guild?.channels.cache.find(channel =>
             channel.name === `support-${ticketId}` ||
             channel.name === `appeal-${ticketId}` ||
-            channel.name === `commission-${ticketId}` ||
             channel.name === `hiring-${ticketId}` ||
             channel.name === `partnership-${ticketId}` ||
             channel.name === `interrogation-${ticketId}`
@@ -244,8 +241,6 @@ module.exports = async function handlePrefixCommand(message, config) {
 
         const isStaff = config.supportTeamRoles?.some(roleId =>
             message.member?.roles?.cache?.has(roleId)
-        ) || config.commissionticketaccess?.some(roleId =>
-            message.member?.roles?.cache?.has(roleId)
         ) || config.developers?.includes(message.author.id);
 
         if (!isStaff) {
@@ -255,7 +250,6 @@ module.exports = async function handlePrefixCommand(message, config) {
         const ticketChannel = message.guild?.channels.cache.find(channel =>
             channel.name === `support-${ticketId}` ||
             channel.name === `appeal-${ticketId}` ||
-            channel.name === `commission-${ticketId}` ||
             channel.name === `hiring-${ticketId}` ||
             channel.name === `partnership-${ticketId}` ||
             channel.name === `interrogation-${ticketId}`
@@ -447,7 +441,7 @@ module.exports = async function handlePrefixCommand(message, config) {
                 "",
                 "By opening a NGC ticket using the <@1536279872127762492> ticket system, you consent to the storage of your data in our tracking channels and the retention of that data in our ticket archive stored in our systems - This information stored will only be accessible to all staff throughout the time your ticket is open. After closure only <@1259124148798754907> and <@1410407078643765340> may go back and look at the full archive. Please DM them to request any erasures.",
                 "",
-                `Northgate Studios reserves the right to close, deny or otherwise turn down service towards any ticket opener at NGC with, or without notice. Including but not limited to: "Partnerships", "Commissions" "Hiring" and "Appeals"`,
+                `Northgate Studios reserves the right to close, deny or otherwise turn down service towards any ticket opener at NGC with, or without notice. Including but not limited to: "Partnerships", "Hiring" and "Appeals"`,
                 "",
             ].join("\n"),
             image: {

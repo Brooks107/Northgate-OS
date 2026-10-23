@@ -24,11 +24,9 @@ module.exports = {
         ),
 
     async execute(interaction, client, config) {
-        const isAuthorized = (config.supportTeamRoles?.some(roleId =>
+        const isAuthorized = config.supportTeamRoles?.some(roleId =>
             interaction.member?.roles?.cache?.has(roleId)
-        ) || config.commissionticketaccess?.some(roleId =>
-            interaction.member?.roles?.cache?.has(roleId)
-        ));
+        );
 
         if (!isAuthorized) {
             return interaction.reply({
@@ -49,7 +47,7 @@ module.exports = {
         try {
             await progress.runStep(0, async () => {
                 ticketChannel = interaction.guild.channels.cache.find(ch =>
-                    ["commission", "support", "appeal", "hiring", "partnership", "interrogation"]
+                    ["support", "appeal", "hiring", "partnership", "interrogation"]
                         .some(prefix => ch.name.startsWith(`${prefix}-${id}`))
                 );
                 if (!ticketChannel) throw new ProgressFailure(`Ticket #${id} does not exist.`);

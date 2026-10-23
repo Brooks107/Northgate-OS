@@ -7,6 +7,6 @@
 .env
 .env.*
 
-# Runtime lock flags, written by /cmdlock, /comlock and friends.
+# Runtime lock flags, written by /cmdlock and other lock commands.
 # Must stay untracked: a dirty working tree blocks git-sync's fast-forward.
 state.json

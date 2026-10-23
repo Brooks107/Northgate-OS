@@ -56,7 +56,7 @@ module.exports = {
 };
 
 function findTicketChannel(guild, id) {
-    const ticketPattern = new RegExp(`^(?:commission|support|appeal|hiring|partnership|interrogation)-${id}(?:-|$)`, "i");
+    const ticketPattern = new RegExp(`^(?:support|appeal|hiring|partnership|interrogation)-${id}(?:-|$)`, "i");
     return guild.channels.cache.find(channel => ticketPattern.test(channel.name));
 }
 

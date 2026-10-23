@@ -13,7 +13,6 @@ const ticketTracker = require("../ticket-tracker");
 const GROUP_CONFIG_KEYS = {
     operations: "operationsroles",
     support: "supportTeamRoles",
-    commissions: "commissionticketaccess",
     dev: "developers",
     general: "generalticketaccess",
     appeal: "appealsticketaccess",
@@ -157,15 +156,9 @@ function evaluateCommandAccess(commandName, member, config, client, commandArgum
     }
 
     if (["add", "claim", "remove", "transfer", "unclaim"].includes(commandName)) {
-        return hasAnyRole([...(config.supportTeamRoles || []), ...(config.commissionticketaccess || [])])
-            ? { result: "allowed", reason: "Support or commission access role." }
-            : { result: "blocked", reason: "Requires a support or commission access role." };
-    }
-
-    if (["approve", "deny", "comlock", "comunlock"].includes(commandName)) {
-        return hasAnyRole(config.commissionticketaccess)
-            ? { result: "allowed", reason: "Commission access role." }
-            : { result: "blocked", reason: "Requires a commission access role." };
+        return hasAnyRole(config.supportTeamRoles)
+            ? { result: "allowed", reason: "Support access role." }
+            : { result: "blocked", reason: "Requires a support access role." };
     }
 
     if (["close", "autoclose", "autocloseabort"].includes(commandName)) {
@@ -174,7 +167,7 @@ function evaluateCommandAccess(commandName, member, config, client, commandArgum
             : { result: "blocked", reason: "Requires Manage Channels permission." };
     }
 
-    if (["ticketpanel", "commissionspanel", "hiringpanel", "partnerpanel", "reactionpanel"].includes(commandName)) {
+    if (["ticketpanel", "hiringpanel", "partnerpanel", "reactionpanel"].includes(commandName)) {
         return isDeveloper || isOwner || isAdministrator || member.permissions.has("ManageChannels")
             ? { result: "allowed", reason: "Developer, ownership, administrator, or staff panel access." }
             : { result: "blocked", reason: "Requires developer, ownership, administrator, or panel access." };
@@ -497,7 +490,6 @@ module.exports = async function handleDeveloperCommand(message, config) {
         const ticketCategoryIds = new Set([
             config.generalticketcategory,
             config.appealsticketcategory,
-            config.commissionsticketcategory,
             config.hiringticketcategory,
             config.partnershipticketcategory
         ].filter(Boolean));
@@ -505,7 +497,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
         const isTicketChannel =
             Boolean(channel) &&
             (
-                channel.name.match(/^(?:support|appeal|commission|hiring|partnership)-(\d+)(?:-|$)/) ||
+                channel.name.match(/^(?:support|appeal|hiring|partnership)-(\d+)(?:-|$)/) ||
                 (channel.parentId && ticketCategoryIds.has(channel.parentId))
             );
 
@@ -514,7 +506,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
             return true;
         }
 
-        const match = channel.name.match(/^(?:support|appeal|commission|hiring|partnership)-(\d+)(?:-|$)/);
+        const match = channel.name.match(/^(?:support|appeal|hiring|partnership)-(\d+)(?:-|$)/);
         const id = match ? Number(match[1]) : null;
         const progress = createMessageProgress(message, `Force-closing ${channel.name}`, [
             "Release the ticket slot and refresh the admin panel",

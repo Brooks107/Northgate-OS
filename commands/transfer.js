@@ -40,8 +40,6 @@ module.exports = {
 
 		const isAuthorized = config.supportTeamRoles?.some(roleId =>
 			interaction.member?.roles?.cache?.has(roleId)
-		) || config.commissionticketaccess?.some(roleId =>
-			interaction.member?.roles?.cache?.has(roleId)
 		);
 
 		if (!isAuthorized) {
@@ -62,16 +60,11 @@ module.exports = {
 		]);
 		await progress.start();
 
-		// guild.channels.cache holds threads as well as channels, and /approve
-		// opens a forum thread named "commission-<id>" -- exactly the ticket
-		// channel's own name. A thread has no topic and no setTopic(), so
-		// matching one here either loses the claim or throws. Only ever take the
-		// ticket's text channel.
 		let ticketChannel;
 		await progress.runStep(0, async () => {
 			ticketChannel = interaction.guild.channels.cache.find(ch =>
 				ch.type === ChannelType.GuildText &&
-				/^(?:commission|support|appeal|hiring|partnership|interrogation)-\d+(?:-|$)/.test(ch.name) &&
+				/^(?:support|appeal|hiring|partnership|interrogation)-\d+(?:-|$)/.test(ch.name) &&
 				ch.name.match(/-(\d+)(?:-|$)/)?.[1] === String(id)
 			);
 			if (!ticketChannel) throw new ProgressFailure(`Ticket #${id} does not exist.`);
@@ -128,7 +121,7 @@ module.exports = {
 					? "support_claim"
 					: isInterrogationTicket
 						? "intero_claim"
-						: "commission_claim";
+						: "ticket_claim";
 		const closeCustomId = isPartnershipTicket
 			? "partnership_close"
 			: isHiringTicket
