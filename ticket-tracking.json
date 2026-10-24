@@ -179,6 +179,30 @@
     "closedAt": "2026-10-22T13:53:26.315Z"
   },
 
+  "_comment_1563622801842376754": "---------------- Ticket #1: hiring-1 ----------------",
+
+  "1563622801842376754": {
+    "ticketName": "hiring-1",
+    "ticketTitle": "Hiring Application",
+    "userId": "1473006904186896415",
+    "messageId": "1563622810117738608",
+    "channelId": "1539010556701188206",
+    "ticketId": 1,
+    "originalInfo": {
+      "id": 1,
+      "title": "Hiring Application",
+      "userId": "1473006904186896415",
+      "description": "Role: Northgate artist, Experience: i have made alot in the past today i made 4 yesterday i was just chilling probally like 2 i made ive made alot of logos also and banners and i do everything for free.",
+      "createdAt": "10/24/2026, 12:38:48 PM"
+    },
+    "notes": [
+      "• Ticket created"
+    ],
+    "status": "🟢 Open",
+    "updatedAt": "2026-10-24T18:38:48.840Z",
+    "lastEvent": "created"
+  },
+
   "_scanDiagnostics": {
     "lastRunAt": "2026-10-24T18:18:42.787Z",
     "status": "completed",
