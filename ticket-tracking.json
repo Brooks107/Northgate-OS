@@ -205,6 +205,30 @@
     "closedAt": "2026-10-24T19:24:52.784Z"
   },
 
+  "_comment_1564389470432792596": "---------------- Ticket #1: hiring-1 ----------------",
+
+  "1564389470432792596": {
+    "ticketName": "hiring-1",
+    "ticketTitle": "Hiring Application",
+    "userId": "1396089290748067862",
+    "messageId": "1564389481254093013",
+    "channelId": "1539010556701188206",
+    "ticketId": 1,
+    "originalInfo": {
+      "id": 1,
+      "title": "Hiring Application",
+      "userId": "1396089290748067862",
+      "description": "Role: Whatever hr role I could qualify for, Experience: I don’t have experience being a direct hr member but I do have experience making everything better managing assisting and with many people.",
+      "createdAt": "10/26/2026, 3:25:17 PM"
+    },
+    "notes": [
+      "• Ticket created"
+    ],
+    "status": "🟢 Open",
+    "updatedAt": "2026-10-26T21:25:17.397Z",
+    "lastEvent": "created"
+  },
+
   "_scanDiagnostics": {
     "lastRunAt": "2026-10-26T21:06:31.219Z",
     "status": "completed",
