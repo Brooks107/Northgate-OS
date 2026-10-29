@@ -249,8 +249,34 @@
     "notes": [
       "• Ticket created"
     ],
+    "status": "🔴 Closed",
+    "updatedAt": "2026-10-29T02:34:14.933Z",
+    "lastEvent": "closed",
+    "assignedTo": "1419379683455271034",
+    "closedAt": "2026-10-29T02:34:14.933Z"
+  },
+
+  "_comment_1565191877769298055": "---------------- Ticket #2: hiring-2 ----------------",
+
+  "1565191877769298055": {
+    "ticketName": "hiring-2",
+    "ticketTitle": "Hiring Application",
+    "userId": "1528605349374984385",
+    "messageId": "1565191889269956679",
+    "channelId": "1539010556701188206",
+    "ticketId": 2,
+    "originalInfo": {
+      "id": 2,
+      "title": "Hiring Application",
+      "userId": "1528605349374984385",
+      "description": "Role: Hr manager, Experience: I am currently a department manager in Site 95 and I have had over 5 years experience in various HR roles such as moderation overseer Co owner and owner, OoTa Ssuh manager and Development overseer in site nexus, I'm currently also working on a game with my friend named Pick a rock which is still in experimental phase",
+      "createdAt": "10/28/2026, 8:33:46 PM"
+    },
+    "notes": [
+      "• Ticket created"
+    ],
     "status": "🟡 Claimed",
-    "updatedAt": "2026-10-29T02:26:20.194Z",
+    "updatedAt": "2026-10-29T02:35:20.068Z",
     "lastEvent": "claimed",
     "assignedTo": "1419379683455271034"
   },
