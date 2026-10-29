@@ -230,6 +230,30 @@
     "closedAt": "2026-10-26T21:32:11.235Z"
   },
 
+  "_comment_1565189950633279548": "---------------- Ticket #1: support-1 ----------------",
+
+  "1565189950633279548": {
+    "ticketName": "support-1",
+    "ticketTitle": "Support Ticket",
+    "userId": "1528605349374984385",
+    "messageId": "1565189957868585031",
+    "channelId": "1539010556701188206",
+    "ticketId": 1,
+    "originalInfo": {
+      "id": 1,
+      "title": "Support Ticket",
+      "userId": "1528605349374984385",
+      "description": "E",
+      "createdAt": "10/28/2026, 8:26:05 PM"
+    },
+    "notes": [
+      "• Ticket created"
+    ],
+    "status": "🟢 Open",
+    "updatedAt": "2026-10-29T02:26:05.879Z",
+    "lastEvent": "created"
+  },
+
   "_scanDiagnostics": {
     "lastRunAt": "2026-10-29T02:06:31.227Z",
     "status": "completed",
