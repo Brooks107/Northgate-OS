@@ -249,9 +249,10 @@
     "notes": [
       "• Ticket created"
     ],
-    "status": "🟢 Open",
-    "updatedAt": "2026-10-29T02:26:05.879Z",
-    "lastEvent": "created"
+    "status": "🟡 Claimed",
+    "updatedAt": "2026-10-29T02:26:20.194Z",
+    "lastEvent": "claimed",
+    "assignedTo": "1419379683455271034"
   },
 
   "_scanDiagnostics": {
