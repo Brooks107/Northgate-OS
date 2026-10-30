@@ -26,6 +26,7 @@ const {
 const autocloseScheduler = require("./autoclose-scheduler");
 const { startHeartbeat } = require("./heartbeat");
 const { logCommand } = require("./utils/command-logger");
+const featureRequestHandler = require("./handlers/feature-request-handler");
 const {
     ProgressFailure,
     createInteractionProgress
@@ -246,6 +247,13 @@ client.on("interactionCreate", async interaction => {
                 content: "🔴 The bot is currently offline for maintenance.",
                 flags: MessageFlags.Ephemeral
             });
+        }
+
+        if (
+            (interaction.isButton() || interaction.isModalSubmit()) &&
+            interaction.customId.startsWith("frequest:")
+        ) {
+            return featureRequestHandler.execute(interaction, client, config);
         }
 
         if (interaction.isChatInputCommand()) {

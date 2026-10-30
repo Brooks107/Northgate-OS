@@ -30,6 +30,7 @@ module.exports = {
             const nameInput = new TextInputBuilder()
                 .setCustomId("applicant_name")
                 .setLabel("What is your name?")
+                .setPlaceholder("What you want to be addressed by ( DO NOT PUT YOUR REAL NAME )")
                 .setStyle(TextInputStyle.Short)
                 .setMaxLength(50)
                 .setRequired(true);

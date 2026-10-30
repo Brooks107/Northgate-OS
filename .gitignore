@@ -10,3 +10,7 @@
 # Runtime lock flags, written by /cmdlock and other lock commands.
 # Must stay untracked: a dirty working tree blocks git-sync's fast-forward.
 state.json
+
+# Feature request submissions contain private user-provided details.
+feature-requests.json
+feature-requests.json.*.tmp
