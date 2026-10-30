@@ -9,6 +9,7 @@ const { logCommand } = require("../utils/command-logger");
 const { createMessageProgress } = require("../utils/progress-embed");
 const state = require("../state");
 const ticketTracker = require("../ticket-tracker");
+const { NORTHGATE_OS_PREFIX } = require("../utils/help");
 
 const GROUP_CONFIG_KEYS = {
     operations: "operationsroles",
@@ -28,6 +29,7 @@ const GROUP_CONFIG_KEYS = {
 };
 
 const ROLE_GROUPS = new Set(Object.keys(GROUP_CONFIG_KEYS).filter(group => group !== "dev"));
+const LOCKDOWN_ROLE = "1536806576202186842";
 
 function getGroupValues(config, configKey) {
     const value = config[configKey];
@@ -123,6 +125,41 @@ function evaluateCommandAccess(commandName, member, config, client, commandArgum
             : { result: "blocked", reason: "Developer-only command." };
     }
 
+    if (commandName === "n!ping" || commandName === "!help") {
+        return { result: "allowed", reason: "Available to everyone." };
+    }
+
+    if (commandName === "n!purge") {
+        return member.permissions.has("ManageMessages")
+            ? { result: "allowed", reason: "Requires Manage Messages permission." }
+            : { result: "blocked", reason: "Requires Manage Messages permission." };
+    }
+
+    if (["n!links", "n!rules", "n!ticketrules"].includes(commandName)) {
+        return isAdministrator
+            ? { result: "allowed", reason: "Requires Administrator permission." }
+            : { result: "blocked", reason: "Requires Administrator permission." };
+    }
+
+    if (["n!inject", "n!sub"].includes(commandName)) {
+        const canUse = isDeveloper || hasAnyRole(config.supportTeamRoles);
+        return canUse
+            ? { result: "allowed", reason: "Requires a support access role or developer access." }
+            : { result: "blocked", reason: "Requires a support access role or developer access." };
+    }
+
+    if (["d!addgroup", "d!delgroup", "d!showgroup", "d!forceclaim", "d!forceclose", "d!forcerestart", "d!impersonate"].includes(commandName)) {
+        return isDeveloper
+            ? { result: "allowed", reason: "Developer-only command; other context requirements may also apply." }
+            : { result: "blocked", reason: "Developer-only command." };
+    }
+
+    if (commandName === "a!forcelock" || commandName === "a!forceunlock") {
+        return hasAnyRole(LOCKDOWN_ROLE)
+            ? { result: "allowed", reason: "Requires the lockdown role." }
+            : { result: "blocked", reason: "Requires the lockdown role." };
+    }
+
     if (!client.commands?.has(commandName)) {
         return { result: "unknown", reason: "That command is not currently registered." };
     }
@@ -141,6 +178,12 @@ function evaluateCommandAccess(commandName, member, config, client, commandArgum
         return isDeveloper || isOwner
             ? { result: "allowed", reason: "Developer or ownership access." }
             : { result: "blocked", reason: "Requires a developer ID or ownership role." };
+    }
+
+    if (commandName === "frequest") {
+        return hasAnyRole(config.staffrole)
+            ? { result: "allowed", reason: "Requires the configured staff role." }
+            : { result: "blocked", reason: "Requires the configured staff role." };
     }
 
     if (["cmdlock", "cmdunlock"].includes(commandName)) {
@@ -393,6 +436,46 @@ module.exports = async function handleDeveloperCommand(message, config) {
     }
 
     if (command === "impersonate") {
+        if (["list", "commands"].includes(args[0]?.toLowerCase())) {
+            const registeredCommands = [...(message.client.commands?.values() || [])]
+                .map(registered => registered.data.toJSON())
+                .sort((a, b) => a.name.localeCompare(b.name));
+
+            const slashLines = registeredCommands.map(registered =>
+                `• \`/${registered.name}\` — ${registered.description || "No description provided."}`
+            );
+            const prefixLines = NORTHGATE_OS_PREFIX.map(([name, description]) =>
+                `• \`${name}\` — ${description}`
+            );
+            const pages = [];
+            let page = "";
+            const appendSection = (heading, lines) => {
+                if (!lines.length) return;
+                const headingText = `${heading}\n`;
+                if (page && page.length + headingText.length > 1900) {
+                    pages.push(page);
+                    page = "";
+                }
+                page += headingText;
+
+                for (const line of lines) {
+                    if (page.length + line.length + 1 > 1900) {
+                        pages.push(page);
+                        page = `${heading} (continued)\n`;
+                    }
+                    page += `${line}\n`;
+                }
+            };
+            appendSection("📋 **Registered slash commands:**", slashLines);
+            appendSection("📋 **NorthGate prefix commands:**", prefixLines);
+            if (page) pages.push(page);
+
+            for (const content of pages) {
+                await message.reply(content);
+            }
+            return true;
+        }
+
         const target = args.shift();
         const targetCommand = args.shift()?.toLowerCase()?.replace(/^\//, "");
         const targetPowerAction = args.shift()?.toLowerCase();
@@ -425,7 +508,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
         }[access.result];
 
         await message.reply([
-            `🔎 **${resultLabel}**: **${member.user.tag}** running \`${targetCommand.startsWith("d!") || targetCommand === "!msg" ? targetCommand : `/${targetCommand}`}\``,
+            `🔎 **${resultLabel}**: **${member.user.tag}** running \`${/^(?:[dna]!|!)/.test(targetCommand) ? targetCommand : `/${targetCommand}`}\``,
             "",
             access.reason,
             "No command was executed."
