@@ -281,6 +281,30 @@
     "assignedTo": "1419379683455271034"
   },
 
+  "_comment_1565825155618447472": "---------------- Ticket #1: hiring-1 ----------------",
+
+  "1565825155618447472": {
+    "ticketName": "hiring-1",
+    "ticketTitle": "Hiring Application",
+    "userId": "1251197469728182376",
+    "messageId": "1565825166171316426",
+    "channelId": "1539010556701188206",
+    "ticketId": 1,
+    "originalInfo": {
+      "id": 1,
+      "title": "Hiring Application",
+      "userId": "1251197469728182376",
+      "description": "Role: Quality And Assurance Tester, Experience: I have helped friends and small developers find  obvious bugs and glitches but I have no started or certified way to prove it.",
+      "createdAt": "10/30/2026, 2:30:11 PM"
+    },
+    "notes": [
+      "• Ticket created"
+    ],
+    "status": "🟢 Open",
+    "updatedAt": "2026-10-30T20:30:11.424Z",
+    "lastEvent": "created"
+  },
+
   "_scanDiagnostics": {
     "lastRunAt": "2026-10-30T19:46:55.656Z",
     "status": "completed",
