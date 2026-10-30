@@ -294,7 +294,7 @@ async function handleButton(interaction, client, config, action, reference) {
             request,
             action === "complete"
                 ? "✅ Your feature request has been completed."
-                : "❌ The team determined that your feature request cannot be completed."
+                : "❌ The team determined that your feature request is immpossible to complete."
         );
         return interaction.reply({
             content: `✅ Feature request ${reference} marked ${request.status}.`,
