@@ -58,10 +58,10 @@ function makeEmbed(request) {
     return new EmbedBuilder()
         .setColor(request.status === "Complete" ? 0x2ecc71 : request.status === "Rendered Impossible" || request.status === "Declined" ? 0xe74c3c : 0x3498db)
         .setTitle(`Feature Request ${request.reference}`)
-        .setDescription(request.description)
         .addFields(
             { name: "Bot", value: request.bot, inline: true },
             { name: "Status", value: request.status, inline: true },
+            { name: "Description", value: request.description },
             { name: "Requester", value: `<@${request.requesterId}> (${request.requesterTag})` },
             { name: "Requested timeframe", value: request.timeframe },
             { name: "Submitted", value: `<t:${Math.floor(new Date(request.submittedAt).getTime() / 1000)}:F>` }
