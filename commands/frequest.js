@@ -30,6 +30,17 @@ module.exports = {
         ),
 
     async execute(interaction, client, config) {
+        const staffRoleId = String(config.staffrole || "");
+        const hasStaffRole = interaction.inGuild() &&
+            interaction.member?.roles?.cache?.has(staffRoleId);
+
+        if (!hasStaffRole) {
+            return interaction.reply({
+                content: "❌ Only members with the configured staff role can submit a feature request.",
+                flags: MessageFlags.Ephemeral
+            });
+        }
+
         if (config.locked) {
             return interaction.reply({
                 content: "🚫 NorthGate OS is currently **locked**. Command `/frequest` cannot be used.",
