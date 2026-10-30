@@ -55,12 +55,16 @@ function createReference(requests) {
 }
 
 function makeEmbed(request) {
+    const status = request.status === "Forwarded" && request.forwardedTo
+        ? `Forwarded to ${request.forwardedTo}`
+        : request.status;
+
     return new EmbedBuilder()
         .setColor(request.status === "Complete" ? 0x2ecc71 : request.status === "Rendered Impossible" || request.status === "Declined" ? 0xe74c3c : 0x3498db)
         .setTitle(`Feature Request ${request.reference}`)
         .addFields(
             { name: "Bot", value: request.bot, inline: true },
-            { name: "Status", value: request.status, inline: true },
+            { name: "Status", value: status, inline: true },
             { name: "Description", value: request.description },
             { name: "Requester", value: `<@${request.requesterId}> (${request.requesterTag})` },
             { name: "Requested timeframe", value: request.timeframe },
@@ -224,6 +228,7 @@ async function handleButton(interaction, client, config, action, reference) {
         }
 
         request.status = "Forwarded";
+        request.forwardedTo = action === "forward_coolbeanz" ? "coolbeanz02778" : "Westcliff7799";
         request.assignedTo = recipientId;
         const recipient = await client.users.fetch(recipientId);
         const forwardedMessage = await recipient.send({
