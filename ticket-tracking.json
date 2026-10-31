@@ -307,7 +307,7 @@
   },
 
   "_scanDiagnostics": {
-    "lastRunAt": "2026-10-31T13:46:55.663Z",
+    "lastRunAt": "2026-10-31T14:46:55.662Z",
     "status": "completed",
     "trackerChannelId": "1539010556701188206",
     "activeTicketChannels": 2,
@@ -324,7 +324,7 @@
     "duplicateEmbedsForTicket": 0,
     "imported": 0,
     "skippedExamples": [],
-    "completedAt": "2026-10-31T13:46:56.810Z"
+    "completedAt": "2026-10-31T14:46:56.688Z"
   },
 
   "_scanDiagnosticsMessageId": "1555627565710966795"
