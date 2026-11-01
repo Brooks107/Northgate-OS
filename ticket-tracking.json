@@ -301,10 +301,11 @@
     "notes": [
       "• Ticket created"
     ],
-    "status": "🟡 Claimed",
-    "updatedAt": "2026-10-30T20:34:00.631Z",
-    "lastEvent": "claimed",
-    "assignedTo": "1259124148798754907"
+    "status": "🔴 Closed",
+    "updatedAt": "2026-11-01T21:51:39.510Z",
+    "lastEvent": "closed",
+    "assignedTo": "1259124148798754907",
+    "closedAt": "2026-11-01T21:51:39.510Z"
   },
 
   "_scanDiagnostics": {
