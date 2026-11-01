@@ -275,10 +275,11 @@
     "notes": [
       "• Ticket created"
     ],
-    "status": "🟡 Claimed",
-    "updatedAt": "2026-10-29T02:35:20.068Z",
-    "lastEvent": "claimed",
-    "assignedTo": "1419379683455271034"
+    "status": "🔴 Closed",
+    "updatedAt": "2026-11-01T15:22:35.118Z",
+    "lastEvent": "closed",
+    "assignedTo": "1419379683455271034",
+    "closedAt": "2026-11-01T15:22:35.117Z"
   },
 
   "_comment_1565825155618447472": "---------------- Ticket #1: hiring-1 ----------------",
