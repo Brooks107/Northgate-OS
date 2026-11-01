@@ -308,24 +308,24 @@
   },
 
   "_scanDiagnostics": {
-    "lastRunAt": "2026-11-01T14:46:55.664Z",
+    "lastRunAt": "2026-11-01T15:46:55.664Z",
     "status": "completed",
     "trackerChannelId": "1539010556701188206",
-    "activeTicketChannels": 2,
-    "messagesScanned": 2,
-    "messagesWithEmbeds": 2,
-    "messagesFromCurrentBot": 2,
+    "activeTicketChannels": 1,
+    "messagesScanned": 1,
+    "messagesWithEmbeds": 1,
+    "messagesFromCurrentBot": 1,
     "messagesFromOtherAuthors": 0,
-    "embedsScanned": 2,
+    "embedsScanned": 1,
     "embedsMissingFooterOrNumber": 0,
     "embedsWithoutActiveTicketMatch": 0,
     "ambiguousTicketMatches": 0,
-    "activeTicketsWithMatchingEmbeds": 2,
-    "alreadyTrackedTickets": 2,
+    "activeTicketsWithMatchingEmbeds": 1,
+    "alreadyTrackedTickets": 1,
     "duplicateEmbedsForTicket": 0,
     "imported": 0,
     "skippedExamples": [],
-    "completedAt": "2026-11-01T14:46:56.917Z"
+    "completedAt": "2026-11-01T15:46:56.843Z"
   },
 
   "_scanDiagnosticsMessageId": "1555627565710966795"
