@@ -70,17 +70,12 @@ const NORTHGATE_OS_PREFIX = [
 // ---------------------------------------------------------------------------
 
 const NORTH_SHIELD_SLASH = [
-	["/ping", "Check North Shield is running, and see what it has loaded.", "Moderators"],
-	["/heat", "A member's score, every flag behind it, and a dropdown to undo any single one.", "Moderators"],
-	["/whitelist", "Stop North Shield scoring a person, channel or role in this server.", "Administrators"],
-	["/unwhitelist", "Put a person, channel or role back under normal scoring.", "Administrators"],
-	["/config", "View or change North Shield settings for this server.", "Administrators"],
-	["/status", "Change the line shown under the bot in the member list.", "Bot owners"]
+	["/ping", "Check North Shield is running.", "Everyone"],
+	["/config", "View or change North Shield's settings.", "Bot owners"]
 ];
 
 const NORTH_SHIELD_PREFIX = [
-	["!ping", "Check North Shield is running.", "Everyone"],
-	["!sc", "Register North Shield's slash commands with Discord.", "Bot owners"]
+	["d!impersonate <user> <command>", "Check whether someone could run a North Shield command, without running it.", "Bot owners"]
 ];
 
 const STAFF_SLASH = [
@@ -101,8 +96,14 @@ const STAFF_SLASH = [
 ];
 
 const STAFF_PREFIX = [
-	["!sc", "Register Staff Management's slash commands with Discord.", "Bot owners"]
+	["d!impersonate <user> <command>", "Check whether someone could run a Staff Management command, without running it.", "Bot owners"]
 ];
+
+// Slash command names that belong to the other NorthGate bots. d!impersonate
+// leaves these to the bot that owns them, which checks its own settings.
+const OTHER_BOT_COMMANDS = new Set(
+	[...NORTH_SHIELD_SLASH, ...STAFF_SLASH].map(([name]) => name.replace(/^\//, ""))
+);
 
 // ---------------------------------------------------------------------------
 // Building the embeds
@@ -176,7 +177,7 @@ function northShieldEmbed() {
 	return buildEmbed({
 		title: "North Shield",
 		colour: 0xe67e22,
-		description: "Moderation: scores members on what they post, and flags larping and rule breaking.",
+		description: "Moderation. Being rebuilt: only its setup commands are live right now.",
 		slash: NORTH_SHIELD_SLASH,
 		prefix: NORTH_SHIELD_PREFIX
 	});
@@ -240,6 +241,7 @@ module.exports = {
 	textLength,
 	SLASH_COMMAND_ACCESS,
 	NORTHGATE_OS_PREFIX,
+	OTHER_BOT_COMMANDS,
 	FIELD_MAX,
 	MAX_FIELDS,
 	MESSAGE_EMBED_MAX

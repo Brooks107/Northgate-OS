@@ -9,7 +9,7 @@ const { logCommand } = require("../utils/command-logger");
 const { createMessageProgress } = require("../utils/progress-embed");
 const state = require("../state");
 const ticketTracker = require("../ticket-tracker");
-const { NORTHGATE_OS_PREFIX } = require("../utils/help");
+const { NORTHGATE_OS_PREFIX, OTHER_BOT_COMMANDS } = require("../utils/help");
 
 const GROUP_CONFIG_KEYS = {
     operations: "operationsroles",
@@ -109,7 +109,6 @@ function evaluateCommandAccess(commandName, member, config, client, commandArgum
         : [config.ownershiprole].filter(Boolean);
     const isOwner = hasAnyRole(ownershipRoles);
     const isAdministrator = member.permissions.has("Administrator");
-    const isManageRoles = member.permissions.has("ManageRoles");
 
     if (commandName === "d!power") {
         const powerAction = commandArguments[0];
@@ -218,12 +217,6 @@ function evaluateCommandAccess(commandName, member, config, client, commandArgum
 
     if (["itsupport", "requestmanagementvc"].includes(commandName)) {
         return { result: "allowed", reason: "This command is available to server members." };
-    }
-
-    if (commandName === "hire") {
-        return isManageRoles || isAdministrator || hasAnyRole(config.supportTeamRoles)
-            ? { result: "allowed", reason: "Manage Roles, Administrator, or support access." }
-            : { result: "blocked", reason: "Requires Manage Roles, Administrator, or support access." };
     }
 
     if (commandName === "managementvclock") {
@@ -469,6 +462,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
             appendSection("📋 **Registered slash commands:**", slashLines);
             appendSection("📋 **NorthGate prefix commands:**", prefixLines);
             if (page) pages.push(page);
+            pages[pages.length - 1] += "\nℹ️ Staff Management, North Shield and Frontier OS answer `d!impersonate` for their own commands.";
 
             for (const content of pages) {
                 await message.reply(content);
@@ -483,6 +477,11 @@ module.exports = async function handleDeveloperCommand(message, config) {
 
         if (!/^\d{17,20}$/.test(targetId || "") || !targetCommand) {
             await message.reply("❌ Usage: `d!impersonate <user ID or mention> <command>`");
+            return true;
+        }
+
+        // Another NorthGate bot's command: that bot answers with its own settings.
+        if (OTHER_BOT_COMMANDS.has(targetCommand) && !message.client.commands?.has(targetCommand)) {
             return true;
         }
 
@@ -508,7 +507,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
         }[access.result];
 
         await message.reply([
-            `🔎 **${resultLabel}**: **${member.user.tag}** running \`${/^(?:[dna]!|!)/.test(targetCommand) ? targetCommand : `/${targetCommand}`}\``,
+            `🔎 **${resultLabel}**: **${member.user.tag}** running \`${/^(?:[dna]!|!)/.test(targetCommand) ? targetCommand : `/${targetCommand}`}\` (NorthGate OS)`,
             "",
             access.reason,
             "No command was executed."
