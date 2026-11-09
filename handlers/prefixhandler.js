@@ -284,6 +284,7 @@ module.exports = async function handlePrefixCommand(message, config) {
             .setColor(0x3498db)
             .setTitle("🏓 Pong!")
             .setDescription(`Latency: **${latency}ms**`)
+            .setFooter({ text: message.client.user.username })
             .setTimestamp();
         await message.reply({ embeds: [embed] });
         return;
