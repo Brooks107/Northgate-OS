@@ -59,7 +59,7 @@ const NORTHGATE_OS_PREFIX = [
 	["d!forceclose", "Force-close a ticket and save its transcript.", "Developers, inside a ticket"],
 	["d!impersonate <user> <command>", "Check whether someone could run a command, without running it; use `d!impersonate list` to show slash and prefix commands.", "Developers"],
 	["d!power <on|off|status>", "Turn the bot on or off, or see its power status.", "Developers; ownership can turn it off"],
-	["d!forcerestart", "Restart the bot immediately.", "Developers"],
+	["d!forcerestart core", "Restart NorthGate OS immediately.", "Developers"],
 	["!msg <channel id> <message>", "Send a message to a channel from a developer DM.", "Developers, from DMs"],
 	["a!forcelock", "Lock the configured channels and voice channels immediately.", "Members with the lockdown role"],
 	["a!forceunlock", "Restore the configured channels after a force lock.", "Members with the lockdown role"]
@@ -75,6 +75,7 @@ const NORTH_SHIELD_SLASH = [
 ];
 
 const NORTH_SHIELD_PREFIX = [
+	["d!forcerestart shield", "Restart North Shield immediately.", "Bot owners"],
 	["d!impersonate <user> <command>", "Check whether someone could run a North Shield command, without running it.", "Bot owners"]
 ];
 
@@ -96,6 +97,7 @@ const STAFF_SLASH = [
 ];
 
 const STAFF_PREFIX = [
+	["d!forcerestart ops", "Restart Staff Management immediately.", "Bot owners"],
 	["d!impersonate <user> <command>", "Check whether someone could run a Staff Management command, without running it.", "Bot owners"]
 ];
 

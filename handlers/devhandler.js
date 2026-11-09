@@ -301,6 +301,18 @@ module.exports = async function handleDeveloperCommand(message, config) {
     const command = args.shift()?.toLowerCase();
     if (!["addgroup", "delgroup", "showgroup", "forceclose", "impersonate", "power", "forcerestart"].includes(command)) return false;
 
+    // d!forcerestart names the bot: core (this one), ops (Staff Management) or
+    // shield (North Shield). Another bot's name is left to that bot. With no
+    // name, only this bot answers, with the usage.
+    if (command === "forcerestart") {
+        const target = args[0]?.toLowerCase();
+        if (target && target !== "core") return false;
+        if (!target) {
+            await message.reply("❌ Usage: `d!forcerestart <core|ops|shield>` (core = NorthGate OS, ops = Staff Management, shield = North Shield)");
+            return true;
+        }
+    }
+
     // d!impersonate only checks permissions. Say so in the log, or it reads as if
     // the impersonated command had really been run.
     await logCommand(message, config, `d!${command}`, command === "impersonate" ? "Impersonation check (nothing was run)" : "Developer command", args);
@@ -314,7 +326,11 @@ module.exports = async function handleDeveloperCommand(message, config) {
     );
     const powerAction = command === "power" ? args.shift()?.toLowerCase() : null;
     if (command === "forcerestart") {
-        await message.reply("🔄 Restarting the bot...");
+        if (!isDeveloper) {
+            await message.reply("❌ This command is developer only - Please contact a member of the IT team to have them run it");
+            return true;
+        }
+        await message.reply("🔄 Restarting **NorthGate OS**...");
         await message.client.destroy();
         process.exit(0);
         return true;
