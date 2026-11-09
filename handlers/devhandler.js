@@ -301,7 +301,9 @@ module.exports = async function handleDeveloperCommand(message, config) {
     const command = args.shift()?.toLowerCase();
     if (!["addgroup", "delgroup", "showgroup", "forceclose", "impersonate", "power", "forcerestart"].includes(command)) return false;
 
-    await logCommand(message, config, `d!${command}`, "Developer command", args);
+    // d!impersonate only checks permissions. Say so in the log, or it reads as if
+    // the impersonated command had really been run.
+    await logCommand(message, config, `d!${command}`, command === "impersonate" ? "Impersonation check (nothing was run)" : "Developer command", args);
 
     const isDeveloper = config.developers?.includes(message.author.id);
     const ownershipRoles = Array.isArray(config.ownershiprole)
