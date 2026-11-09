@@ -301,14 +301,14 @@ module.exports = async function handleDeveloperCommand(message, config) {
     const command = args.shift()?.toLowerCase();
     if (!["addgroup", "delgroup", "showgroup", "forceclose", "impersonate", "power", "forcerestart"].includes(command)) return false;
 
-    // d!forcerestart names the bot: core (this one), ops (Staff Management) or
-    // shield (North Shield). Another bot's name is left to that bot. With no
+    // d!forcerestart names the bot: core (this one), ops (Staff Management),
+    // shield (North Shield) or frontier (Frontier OS). Another bot's name is left to that bot. With no
     // name, only this bot answers, with the usage.
     if (command === "forcerestart") {
         const target = args[0]?.toLowerCase();
         if (target && target !== "core") return false;
         if (!target) {
-            await message.reply("❌ Usage: `d!forcerestart <core|ops|shield>` (core = NorthGate OS, ops = Staff Management, shield = North Shield)");
+            await message.reply("❌ Usage: `d!forcerestart <core|ops|shield|frontier>` (core = NorthGate OS, ops = Staff Management, shield = North Shield, frontier = Frontier OS)");
             return true;
         }
     }
