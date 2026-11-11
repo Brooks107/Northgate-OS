@@ -67,6 +67,8 @@ function roleMemberCount(guild, roleIds, groupLabel) {
 
 function buildAdminPanelEmbed(client, config, guild) {
     const activeTicketIds = client.activeTicketIds ? [...client.activeTicketIds].sort((a, b) => a - b) : [];
+    const defconLevel = state.load().defconLevel;
+    const defconActive = defconLevel === 1 || defconLevel === 2;
     const supportRoleIds = Array.isArray(config.supportTeamRoles) ? config.supportTeamRoles : [];
     const operationsRoleIds = Array.isArray(config.operationsroles) ? config.operationsroles : [];
     const ownershipRoleIds = Array.isArray(config.ownershiprole) ? config.ownershiprole : [];
@@ -95,18 +97,39 @@ function buildAdminPanelEmbed(client, config, guild) {
     const emergency = Boolean(config.forceLocked);
 
     return new EmbedBuilder()
-        .setTitle(emergency ? "🚨 EMERGENCY LOCKDOWN" : "🛠️ NorthCore OS Executive Panel")
+        .setTitle(
+            defconActive
+                ? `🚨 DEFCON ${defconLevel} ACTIVE`
+                : emergency
+                    ? "🚨 EMERGENCY LOCKDOWN"
+                    : "🛠️ NorthCore OS Executive Panel"
+        )
         .setDescription(
-            emergency
+            defconActive
+                ? `**DEFCON ${defconLevel} IS ACTIVE** • Emergency developer access is enabled. Force lock: **${emergency ? "ACTIVE" : "CLEAR"}**.`
+                : emergency
                 ? "A force lockdown is active. Treat the server as restricted until cleared."
                 : guild
                     ? `Current server snapshot for **${guild.name}** • Uptime: **${Math.floor((client.uptime || 0) / 60000)}m** • Last Booted <t:${Math.floor((Date.now() - (client.uptime || 0)) / 1000)}:R>)`
                     : "Current server snapshot"
         )
         .setColor(
-            emergency ? 0x4b5563 : 0x808080
+            defconLevel === 1
+                ? 0xdc2626
+                : defconLevel === 2
+                    ? 0xf59e0b
+                    : emergency
+                        ? 0x4b5563
+                        : 0x808080
         )
         .addFields(
+            {
+                name: "🚨 DEFCON STATUS",
+                value: defconActive
+                    ? `**LEVEL ${defconLevel} — ACTIVE**\nEmergency developer access is enabled.\nForce lock: ${statusLabel(emergency, "Active", "Clear")}`
+                    : "**NO ACTIVE DEFCON**\nThe DEFCON procedure is secured.",
+                inline: false
+            },
             {
                 name: "📊 Live Status",
                 value: [

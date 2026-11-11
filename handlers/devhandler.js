@@ -438,6 +438,10 @@ module.exports = async function handleDeveloperCommand(message, config) {
             if (!lockApplied) return true;
         }
 
+        if (typeof message.client.notifyAdminPanelRefresh === "function") {
+            await message.client.notifyAdminPanelRefresh();
+        }
+
         await message.reply(
             `✅ DEFCON ${level} is active. Added ${addedNow.length} developer ID(s).` +
             (level === 1 ? " Force lock applied." : "") +
@@ -485,6 +489,10 @@ module.exports = async function handleDeveloperCommand(message, config) {
         if (!stateSaved) {
             await message.reply("⚠️ DEFCON lock and developer IDs were handled, but its state could not be cleared. Run `d!secure` again and check the bot logs if it still reports an active DEFCON.");
             return true;
+        }
+
+        if (typeof message.client.notifyAdminPanelRefresh === "function") {
+            await message.client.notifyAdminPanelRefresh();
         }
 
         await message.reply(
