@@ -108,10 +108,10 @@ function buildAdminPanelEmbed(client, config, guild) {
             defconActive
                 ? `**DEFCON ${defconLevel} IS ACTIVE** • Emergency developer access is enabled. Force lock: **${emergency ? "ACTIVE" : "CLEAR"}**.`
                 : emergency
-                ? "A force lockdown is active. Treat the server as restricted until cleared."
-                : guild
-                    ? `Current server snapshot for **${guild.name}** • Uptime: **${Math.floor((client.uptime || 0) / 60000)}m** • Last Booted <t:${Math.floor((Date.now() - (client.uptime || 0)) / 1000)}:R>)`
-                    : "Current server snapshot"
+                    ? "A force lockdown is active. Treat the server as restricted until cleared."
+                    : guild
+                        ? `Current server snapshot for **${guild.name}** • Uptime: **${Math.floor((client.uptime || 0) / 60000)}m** • Last Booted <t:${Math.floor((Date.now() - (client.uptime || 0)) / 1000)}:R>)`
+                        : "Current server snapshot"
         )
         .setColor(
             defconLevel === 1
