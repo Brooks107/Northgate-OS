@@ -1,3 +1,5 @@
+const fs = require("fs");
+const path = require("path");
 const {
     ActionRowBuilder,
     AttachmentBuilder,
@@ -10,6 +12,8 @@ const { createMessageProgress } = require("../utils/progress-embed");
 const state = require("../state");
 const ticketTracker = require("../ticket-tracker");
 const { NORTHGATE_OS_PREFIX, OTHER_BOT_COMMANDS } = require("../utils/help");
+
+const CONFIG_FILE = path.join(__dirname, "..", "config.json");
 
 const GROUP_CONFIG_KEYS = {
     operations: "operationsroles",
@@ -34,6 +38,26 @@ const LOCKDOWN_ROLE = "1536806576202186842";
 function getGroupValues(config, configKey) {
     const value = config[configKey];
     return Array.isArray(value) ? [...value] : value ? [value] : [];
+}
+
+function saveGroupConfig(configKey, values) {
+    const storedConfig = JSON.parse(fs.readFileSync(CONFIG_FILE, "utf8"));
+    storedConfig[configKey] = values;
+
+    const temporaryFile = `${CONFIG_FILE}.${process.pid}.tmp`;
+    try {
+        fs.writeFileSync(temporaryFile, `${JSON.stringify(storedConfig, null, 4)}\n`, "utf8");
+        fs.renameSync(temporaryFile, CONFIG_FILE);
+    } catch (error) {
+        if (fs.existsSync(temporaryFile)) {
+            try {
+                fs.unlinkSync(temporaryFile);
+            } catch (cleanupError) {
+                console.error("[devhandler] could not remove temporary config file:", cleanupError);
+            }
+        }
+        throw error;
+    }
 }
 
 async function resolveGroupDisplayValue(client, guild, group, value) {
@@ -388,26 +412,40 @@ module.exports = async function handleDeveloperCommand(message, config) {
         const currentGroups = state.load().groupArrays || {};
         const progress = createMessageProgress(message, "Updating role group", [
             `Update the **${group}** group in memory`,
-            "Save the updated groups to disk"
+            "Update config.json",
+            "Save the updated groups to runtime state"
         ]);
         await progress.start();
 
-        let saved;
+        let configSaved = false;
+        let stateSaved = false;
         try {
             await progress.runStep(0, async () => {
                 config[configKey] = values;
             });
             await progress.runStep(1, async () => {
-                saved = state.save({
+                try {
+                    saveGroupConfig(configKey, values);
+                    configSaved = true;
+                } catch (error) {
+                    console.error(`[devhandler] could not update config.json for ${group}:`, error);
+                }
+            });
+            if (!configSaved) await progress.warnStep(1);
+            await progress.runStep(2, async () => {
+                stateSaved = state.save({
                     groupArrays: {
                         ...currentGroups,
                         [configKey]: values
                     }
                 });
             });
+            if (!stateSaved) await progress.warnStep(2);
             await progress.complete(
                 `${command === "addgroup" ? "✅ Added" : "🗑️ Removed"} \`${id}\` ${command === "addgroup" ? "to" : "from"} the **${group}** group.` +
-                (saved ? "" : "\n⚠️ The change could not be saved to disk and may reset after restart.")
+                (configSaved ? "" : "\n⚠️ config.json could not be updated; check the bot logs." +
+                    (stateSaved ? " The change was saved to runtime state." : " The change may reset after restart.")) +
+                (stateSaved || !configSaved ? "" : "\n⚠️ Runtime state could not be saved; config.json has the change.")
             );
         } catch (error) {
             console.error(`[devhandler] failed to ${command} ${id} in ${group}:`, error);
