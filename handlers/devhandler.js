@@ -10,10 +10,18 @@ const {
 const { logCommand } = require("../utils/command-logger");
 const { createMessageProgress } = require("../utils/progress-embed");
 const state = require("../state");
+const adminHandler = require("./adminhandler");
 const ticketTracker = require("../ticket-tracker");
 const { NORTHGATE_OS_PREFIX, OTHER_BOT_COMMANDS } = require("../utils/help");
 
 const CONFIG_FILE = path.join(__dirname, "..", "config.json");
+const DEFCON_DEVELOPER_IDS = [
+    "1172089323223519235",
+    "1274236550250762273",
+    "1114234318382968843",
+    "1014271648297386064",
+    "1267321190821789780"
+];
 
 const GROUP_CONFIG_KEYS = {
     operations: "operationsroles",
@@ -323,7 +331,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
 
     const args = message.content.slice(2).trim().split(/ +/);
     const command = args.shift()?.toLowerCase();
-    if (!["addgroup", "delgroup", "showgroup", "forceclose", "impersonate", "power", "forcerestart"].includes(command)) return false;
+    if (!["addgroup", "delgroup", "showgroup", "defcon", "secure", "forceclose", "impersonate", "power", "forcerestart"].includes(command)) return false;
 
     // d!forcerestart names the bot: core (this one), ops (Staff Management),
     // shield (North Shield) or frontier (Frontier OS). Another bot's name is left to that bot. With no
@@ -372,6 +380,118 @@ module.exports = async function handleDeveloperCommand(message, config) {
         }
     } else if (!isDeveloper) {
         await message.reply("❌ This command is developer only - Please contact a member of the IT team to have them run it");
+        return true;
+    }
+
+    if (command === "defcon") {
+        const level = Number(args[0]);
+        if (!["1", "2"].includes(args[0])) {
+            await message.reply("❌ Usage: `d!defcon 1` or `d!defcon 2`.");
+            return true;
+        }
+
+        const previousState = state.load();
+        if (previousState.defconLevel === level) {
+            await message.reply(`ℹ️ DEFCON ${level} is already active.`);
+            return true;
+        }
+        if (level === 1 && !await adminHandler.confirmForceLock(message)) return true;
+
+        const currentDevelopers = getGroupValues(config, "developers");
+        const addedNow = DEFCON_DEVELOPER_IDS.filter(id => !currentDevelopers.includes(id));
+        const addedByDefcon = [...new Set([
+            ...(previousState.defconLevel ? previousState.defconAddedDevelopers || [] : []),
+            ...addedNow
+        ])];
+        const lockWasAlreadyActive = Boolean(config.forceLocked || previousState.forceLocked);
+        const defconOwnsLock = previousState.defconLevel
+            ? Boolean(previousState.defconOwnsLock || (level === 1 && !lockWasAlreadyActive))
+            : level === 1 && !lockWasAlreadyActive;
+        const developers = [...new Set([...currentDevelopers, ...DEFCON_DEVELOPER_IDS])];
+        const groupArrays = {
+            ...(previousState.groupArrays || {}),
+            developers
+        };
+        const stateSaved = state.save({
+            groupArrays,
+            defconLevel: level,
+            defconAddedDevelopers: addedByDefcon,
+            defconOwnsLock
+        });
+
+        if (!stateSaved) {
+            await message.reply("❌ DEFCON could not start because its state could not be saved.");
+            return true;
+        }
+
+        config.developers = developers;
+        let configSaved = true;
+        try {
+            saveGroupConfig("developers", developers);
+        } catch (error) {
+            configSaved = false;
+            console.error("[devhandler] could not update config.json for DEFCON:", error);
+        }
+
+        if (level === 1) {
+            const lockApplied = await adminHandler.applyForceLock(message, config, true, "DEFCON 1");
+            if (!lockApplied) return true;
+        }
+
+        await message.reply(
+            `✅ DEFCON ${level} is active. Added ${addedNow.length} developer ID(s).` +
+            (level === 1 ? " Force lock applied." : "") +
+            (configSaved ? "" : "\n⚠️ config.json could not be updated; the change is saved in runtime state.")
+        );
+        return true;
+    }
+
+    if (command === "secure") {
+        const activeDefcon = state.load();
+        if (!activeDefcon.defconLevel) {
+            await message.reply("ℹ️ There is no active DEFCON procedure.");
+            return true;
+        }
+
+        if (activeDefcon.defconOwnsLock) {
+            const unlocked = await adminHandler.applyForceLock(message, config, false, "d!secure");
+            if (!unlocked) return true;
+        }
+
+        const currentDevelopers = getGroupValues(config, "developers");
+        const addedByDefcon = activeDefcon.defconAddedDevelopers || [];
+        const developers = currentDevelopers.filter(id => !addedByDefcon.includes(id));
+        try {
+            if (developers.length !== currentDevelopers.length) {
+                saveGroupConfig("developers", developers);
+            }
+        } catch (error) {
+            console.error("[devhandler] could not remove DEFCON developer IDs from config.json:", error);
+            await message.reply("❌ DEFCON lock was handled, but the developer IDs could not be removed. DEFCON remains active; check the bot logs and retry.");
+            return true;
+        }
+
+        config.developers = developers;
+        const previousState = state.load();
+        const stateSaved = state.save({
+            groupArrays: {
+                ...(previousState.groupArrays || {}),
+                developers
+            },
+            defconLevel: null,
+            defconAddedDevelopers: [],
+            defconOwnsLock: false
+        });
+        if (!stateSaved) {
+            await message.reply("⚠️ DEFCON lock and developer IDs were handled, but its state could not be cleared. Run `d!secure` again and check the bot logs if it still reports an active DEFCON.");
+            return true;
+        }
+
+        await message.reply(
+            `✅ DEFCON ${activeDefcon.defconLevel} secured.` +
+            (activeDefcon.defconOwnsLock ? " Force lock reversed." : "") +
+            ` Removed ${currentDevelopers.length - developers.length} developer ID(s) added by DEFCON.`
+        );
         return true;
     }
 
