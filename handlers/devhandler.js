@@ -438,7 +438,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
             if (!lockApplied) return true;
         }
 
-        if (typeof message.client.notifyAdminPanelRefresh === "function") {
+        if (level === 2 && typeof message.client.notifyAdminPanelRefresh === "function") {
             await message.client.notifyAdminPanelRefresh();
         }
 
