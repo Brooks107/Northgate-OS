@@ -19,21 +19,35 @@ const VOICE_LOCK_CHANNEL_IDS = new Set([
 ]);
 
 async function confirmForceLock(message) {
-    const confirmation = await message.reply({
-        content: "⚠️ Are you sure you want to activate the force lock?",
-        components: [
-            new ActionRowBuilder().addComponents(
-                new ButtonBuilder()
-                    .setCustomId(`force_lock_proceed_${message.id}`)
-                    .setLabel("Proceed")
-                    .setStyle(ButtonStyle.Success),
-                new ButtonBuilder()
-                    .setCustomId(`force_lock_abort_${message.id}`)
-                    .setLabel("Abort")
-                    .setStyle(ButtonStyle.Danger)
-            )
-        ]
-    });
+    const confirmationIds = `${message.author.id}_${message.id}`;
+    const proceedId = `force_lock_proceed_${confirmationIds}`;
+    const abortId = `force_lock_abort_${confirmationIds}`;
+    if (!message.client.activeForceLockConfirmations) {
+        message.client.activeForceLockConfirmations = new Set();
+    }
+    message.client.activeForceLockConfirmations.add(message.id);
+
+    let confirmation;
+    try {
+        confirmation = await message.reply({
+            content: "⚠️ Are you sure you want to activate the force lock?",
+            components: [
+                new ActionRowBuilder().addComponents(
+                    new ButtonBuilder()
+                        .setCustomId(proceedId)
+                        .setLabel("Proceed")
+                        .setStyle(ButtonStyle.Success),
+                    new ButtonBuilder()
+                        .setCustomId(abortId)
+                        .setLabel("Abort")
+                        .setStyle(ButtonStyle.Danger)
+                )
+            ]
+        });
+    } catch (error) {
+        message.client.activeForceLockConfirmations.delete(message.id);
+        throw error;
+    }
 
     try {
         const choice = await confirmation.awaitMessageComponent({
@@ -41,7 +55,7 @@ async function confirmForceLock(message) {
             time: 30_000
         });
 
-        if (choice.customId === `force_lock_abort_${message.id}`) {
+        if (choice.customId === abortId) {
             await choice.update({
                 content: "🛑 Force lock aborted.",
                 components: []
@@ -60,6 +74,8 @@ async function confirmForceLock(message) {
             components: []
         });
         return false;
+    } finally {
+        message.client.activeForceLockConfirmations.delete(message.id);
     }
 }
 
