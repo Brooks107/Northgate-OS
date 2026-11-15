@@ -15,6 +15,12 @@ const defconAccess = require("../utils/defcon-access");
 const ticketTracker = require("../ticket-tracker");
 const { NORTHGATE_OS_PREFIX, OTHER_BOT_COMMANDS } = require("../utils/help");
 const { createServerBackup } = require("../utils/server-backup");
+const {
+    findAdministratorRolesToRemove,
+    getWhitelistedRoleIds,
+    removeAdministratorFromRoles,
+    restoreAdministratorToRoles
+} = require("../utils/defcon-role-security");
 
 const CONFIG_FILE = path.join(__dirname, "..", "config.json");
 const DEFCON_DEVELOPER_IDS = [
@@ -512,6 +518,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
                 `Command access: **${accessLabel}**`,
                 `Force lock: **${config.forceLocked ? "Active" : "Clear"}**`,
                 `Emergency developer IDs added: **${activeState.defconAddedDevelopers?.length || 0}**`,
+                `DEFCON 1 Administrator role changes tracked: **${activeState.defconAdminRoleIds?.length || 0}**`,
                 `Activated: ${activated}${activeState.defconStartedBy ? ` by <@${activeState.defconStartedBy}>` : ""}`
             ];
             if (activeState.defconIssue) fields.push(`⚠️ Last issue: ${activeState.defconIssue}`);
@@ -563,6 +570,33 @@ module.exports = async function handleDeveloperCommand(message, config) {
             }
         }
 
+        let adminRoleScan = { roleIds: [], skippedRoleIds: [] };
+        if (level === 1) {
+            const guild = message.guild || (config.guildId ? message.client.guilds.cache.get(config.guildId) : null);
+            if (!guild) {
+                await message.reply("❌ DEFCON 1 was not activated because the server could not be resolved.");
+                return true;
+            }
+            try {
+                adminRoleScan = await findAdministratorRolesToRemove(
+                    guild,
+                    getWhitelistedRoleIds(previousState.defconWhitelistedRoleIds || [])
+                );
+            } catch (error) {
+                console.error("[devhandler] DEFCON 1 could not inspect role permissions:", error);
+                await message.reply(`❌ DEFCON 1 was not activated because role permissions could not be inspected: ${error.message}`);
+                return true;
+            }
+        }
+
+        const defconAdminRoleIds = level === 1
+            ? [...new Set([
+                ...(previousState.defconLevel ? previousState.defconAdminRoleIds || [] : []),
+                ...adminRoleScan.roleIds
+            ])]
+            : previousState.defconLevel
+                ? previousState.defconAdminRoleIds || []
+                : [];
         const currentDevelopers = getGroupValues(config, "developers");
         const addedNow = DEFCON_DEVELOPER_IDS.filter(id => !currentDevelopers.includes(id));
         const addedByDefcon = [...new Set([
@@ -581,6 +615,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
             groupArrays,
             defconLevel: level,
             defconAddedDevelopers: addedByDefcon,
+            defconAdminRoleIds,
             defconOwnsLock,
             defconStartedAt: new Date().toISOString(),
             defconStartedBy: message.author.id,
@@ -604,11 +639,28 @@ module.exports = async function handleDeveloperCommand(message, config) {
             console.error("[devhandler] could not update config.json for DEFCON:", error);
         }
 
+        let adminRoleFailures = [];
+        if (level === 1 && defconAdminRoleIds.length) {
+            const guild = message.guild || message.client.guilds.cache.get(config.guildId);
+            adminRoleFailures = await removeAdministratorFromRoles(
+                guild,
+                defconAdminRoleIds,
+                "DEFCON 1: remove Administrator permission"
+            );
+        }
+
         let lockAction = "";
         if (shouldForceLock && !lockWasAlreadyActive) {
             const lockApplied = await adminHandler.applyForceLock(message, config, true, `DEFCON ${level}`);
             if (!lockApplied) {
-                state.save({ defconIssue: "Force lock could not be fully applied; check the progress notice and bot logs." });
+                state.save({
+                    defconIssue: [
+                        "Force lock could not be fully applied; check the progress notice and bot logs.",
+                        adminRoleFailures.length
+                            ? `Administrator permission removal failed for ${adminRoleFailures.length} role(s).`
+                            : null
+                    ].filter(Boolean).join(" ")
+                });
                 if (backupReceipt) {
                     await message.reply(
                         `⚠️ DEFCON ${level} restrictions and the server backup are in place, but the force lock was not fully applied. ` +
@@ -635,6 +687,11 @@ module.exports = async function handleDeveloperCommand(message, config) {
         if (!configSaved) {
             state.save({ defconIssue: "Emergency developer IDs could not be written to config.json; check the bot logs." });
         }
+        if (adminRoleFailures.length) {
+            state.save({
+                defconIssue: `Administrator permission removal failed for ${adminRoleFailures.length} role(s); check the bot logs.`
+            });
+        }
 
         if (typeof message.client.notifyAdminPanelRefresh === "function") {
             await message.client.notifyAdminPanelRefresh();
@@ -647,6 +704,15 @@ module.exports = async function handleDeveloperCommand(message, config) {
                 : "Normal command permissions remain in effect.";
         await message.reply(
             `✅ DEFCON ${level} is active. Added ${addedNow.length} developer ID(s). ${accessMode}${lockAction}` +
+            (level === 1
+                ? ` Removed Administrator from ${adminRoleScan.roleIds.length - adminRoleFailures.length} role(s).` +
+                    (adminRoleScan.skippedRoleIds.length
+                        ? ` ${adminRoleScan.skippedRoleIds.length} role(s) with Administrator could not be edited due to role hierarchy or managed-role restrictions.`
+                        : "") +
+                    (adminRoleFailures.length
+                        ? ` ⚠️ Could not remove Administrator from ${adminRoleFailures.length} role(s); DEFCON remains active and the bot logs have details.`
+                        : "")
+                : "") +
             (backupReceipt
                 ? ` Server configuration backup (${backupReceipt.roleCount} roles, ${backupReceipt.channelCount} channels) uploaded to <#${config.defconBackupChannelId}>.` +
                     (backupReceipt.unsupportedChannelCount || backupReceipt.excludedThreadCount
@@ -662,6 +728,35 @@ module.exports = async function handleDeveloperCommand(message, config) {
         const activeDefcon = state.load();
         if (!activeDefcon.defconLevel) {
             await message.reply("ℹ️ There is no active DEFCON procedure.");
+            return true;
+        }
+
+        const activeGuild = message.guild || (config.guildId ? message.client.guilds.cache.get(config.guildId) : null);
+        const adminRestore = activeDefcon.defconAdminRoleIds?.length
+            ? await restoreAdministratorToRoles(
+                activeGuild,
+                activeDefcon.defconAdminRoleIds,
+                "DEFCON secure: restore Administrator permission"
+            )
+            : { failedRoleIds: [], restoredRoleIds: [], existingRoleIds: [] };
+        if (adminRestore.failedRoleIds.length) {
+            const rollbackFailures = await removeAdministratorFromRoles(
+                activeGuild,
+                adminRestore.restoredRoleIds,
+                "DEFCON secure rollback: retain Administrator restriction"
+            );
+            state.save({
+                defconIssue:
+                    `Administrator permission restoration failed for ${adminRestore.failedRoleIds.length} role(s); ` +
+                    `rollback failed for ${rollbackFailures.length} role(s).`
+            });
+            await message.reply(
+                `❌ DEFCON remains active because Administrator could not be restored to ${adminRestore.failedRoleIds.length} role(s). ` +
+                (rollbackFailures.length
+                    ? `⚠️ Administrator rollback also failed for ${rollbackFailures.length} role(s). `
+                    : "") +
+                "The force lock and emergency developer IDs were left unchanged; check the bot logs and retry `d!secure`."
+            );
             return true;
         }
 
@@ -692,6 +787,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
             },
             defconLevel: null,
             defconAddedDevelopers: [],
+            defconAdminRoleIds: [],
             defconOwnsLock: false,
             defconStartedAt: null,
             defconStartedBy: null,
@@ -708,6 +804,9 @@ module.exports = async function handleDeveloperCommand(message, config) {
 
         await message.reply(
             `✅ DEFCON ${activeDefcon.defconLevel} secured.` +
+            (activeDefcon.defconAdminRoleIds?.length
+                ? ` Administrator is present on ${adminRestore.existingRoleIds.length} tracked role(s) that still exist.`
+                : "") +
             (activeDefcon.defconOwnsLock ? " Force lock reversed." : "") +
             ` Removed ${currentDevelopers.length - developers.length} developer ID(s) added by DEFCON.`
         );

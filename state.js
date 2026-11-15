@@ -30,6 +30,16 @@ function load() {
                 id => typeof id === "string" && /^\d{17,20}$/.test(id)
             );
         }
+        if (Array.isArray(raw.defconAdminRoleIds)) {
+            state.defconAdminRoleIds = raw.defconAdminRoleIds.filter(
+                id => typeof id === "string" && /^\d{17,20}$/.test(id)
+            );
+        }
+        if (Array.isArray(raw.defconWhitelistedRoleIds)) {
+            state.defconWhitelistedRoleIds = [...new Set(raw.defconWhitelistedRoleIds.filter(
+                id => typeof id === "string" && /^\d{17,20}$/.test(id)
+            ))];
+        }
         if ("defconOwnsLock" in raw) {
             state.defconOwnsLock = Boolean(raw.defconOwnsLock);
         }
