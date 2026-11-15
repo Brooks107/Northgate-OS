@@ -82,8 +82,9 @@ with active ticket channels periodically.
   levels 2 and 5 allow commands to the configured staff role only; levels 4
   and 6 leave normal command permissions in place. Levels 1, 2, and 4 apply
   the force lock; switching to a level without a force lock removes an active
-  force lock. Developers can always run `d!secure`; staff-role members can
-  also run it at levels 2 and 5. `d!defcon status` shows the active level,
+  force lock. Only developers can activate DEFCON. Developers and members
+  with a configured ownership role can run `d!secure` at any level.
+  `d!defcon status` shows the active level,
   command access, force-lock state, activation time, and any recorded issue.
   `/defconguide` posts the level guide.
 - `d!power off`, `d!power on`, and `d!power status` manage or report maintenance

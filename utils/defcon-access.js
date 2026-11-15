@@ -18,16 +18,23 @@ function hasDeveloperId(userId, config) {
         .some(id => String(id) === String(userId));
 }
 
+function hasOwnershipAccess(member, config) {
+    return hasRole(member, config.ownershiprole);
+}
+
 function hasDefconCommandAccess(userId, member, config, commandName, level = state.load().defconLevel) {
     const restriction = getDefconRestriction(level);
     if (!restriction) return true;
 
-    if (restriction === "developers") {
-        return hasDeveloperId(userId, config);
+    if (
+        commandName === "d!secure" &&
+        (hasDeveloperId(userId, config) || hasOwnershipAccess(member, config))
+    ) {
+        return true;
     }
 
-    if (commandName === "d!secure" && hasDeveloperId(userId, config)) {
-        return true;
+    if (restriction === "developers") {
+        return hasDeveloperId(userId, config);
     }
 
     return hasRole(member, config.staffrole);
@@ -35,5 +42,6 @@ function hasDefconCommandAccess(userId, member, config, commandName, level = sta
 
 module.exports = {
     getDefconRestriction,
+    hasOwnershipAccess,
     hasDefconCommandAccess
 };

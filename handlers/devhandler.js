@@ -388,7 +388,9 @@ module.exports = async function handleDeveloperCommand(message, config) {
         }
     } else if (
         !isDeveloper &&
-        !((command === "secure" || (command === "defcon" && args[0]?.toLowerCase() === "status")) &&
+        !(command === "secure" && defconAccess.hasOwnershipAccess(message.member, config)) &&
+        !(command === "defcon" &&
+            args[0]?.toLowerCase() === "status" &&
             [2, 5].includes(state.load().defconLevel) &&
             (Array.isArray(config.staffrole) ? config.staffrole : [config.staffrole])
                 .filter(Boolean)
@@ -410,7 +412,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
             const accessLabel = restriction === "developers"
                 ? "Developers only"
                 : restriction === "staff"
-                    ? "Configured staff role only (developers can secure)"
+                    ? "Configured staff role only (developers and ownership can secure)"
                     : "Normal command permissions";
             const activatedAt = Date.parse(activeState.defconStartedAt || "");
             const activated = Number.isFinite(activatedAt)

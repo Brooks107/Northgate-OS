@@ -22,7 +22,7 @@ module.exports = {
                 "`d!defcon status` shows the active level, command access, lock state, activation time, and any recorded issue. " +
                 "Changing to a level without force lock removes an active force lock. " +
                 "`d!secure` ends DEFCON, restores a lock it owns, and removes only emergency developer IDs added by DEFCON. " +
-                "Developers can always run `d!secure`; at DEFCON 2 and 5, staff-role members can also run it."
+                "Only developers can activate DEFCON. Developers and members with a configured ownership role can always run `d!secure`."
             )
             .setColor(0xdc2626)
             .addFields(LEVELS.map(([name, value]) => ({ name, value, inline: false })))

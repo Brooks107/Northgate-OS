@@ -58,7 +58,7 @@ const NORTHGATE_OS_PREFIX = [
 	["d!delgroup <group> <role/user ID>", "Remove an ID from a configured role group.", "Developers"],
 	["d!showgroup <group>", "Show the configured IDs in a group.", "Developers"],
 	["d!defcon <1-6|status>", "Activate a DEFCON level or view the active DEFCON status.", "Developers, subject to active DEFCON restrictions"],
-	["d!secure", "End DEFCON, restore its force lock, and remove only IDs it added.", "Developers; staff role also at DEFCON 2 or 5"],
+	["d!secure", "End DEFCON, restore its force lock, and remove only IDs it added.", "Developers or configured ownership"],
 	["d!forceclose", "Force-close a ticket and save its transcript.", "Developers, inside a ticket"],
 	["d!impersonate <user> <command>", "Check whether someone could run a command, without running it; use `d!impersonate list` to show slash and prefix commands.", "Developers"],
 	["d!power <on|off|status>", "Turn the bot on or off, or see its power status.", "Developers; ownership can turn it off"],
