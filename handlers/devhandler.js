@@ -112,6 +112,69 @@ async function resolveGroupDisplayValue(client, guild, group, value) {
     return `${rawValue} → (not found / not a user)`;
 }
 
+function buildAllGroupEmbeds(config) {
+    const fields = [];
+    for (const group of Object.keys(GROUP_CONFIG_KEYS)) {
+        const values = getGroupValues(config, GROUP_CONFIG_KEYS[group]);
+        if (!values.length) {
+            fields.push({ name: group, value: "(empty)", inline: false });
+            continue;
+        }
+
+        let lines = [];
+        let valueText = "";
+        for (const value of values) {
+            const line = `• \`${String(value)}\``;
+            if (valueText && valueText.length + line.length + 1 > 1024) {
+                fields.push({
+                    name: lines.length ? `${group} (continued)` : group,
+                    value: valueText,
+                    inline: false
+                });
+                lines = [];
+                valueText = "";
+            }
+            lines.push(line);
+            valueText = lines.join("\n");
+        }
+        fields.push({
+            name: fields.some(field => field.name === group || field.name.startsWith(`${group} (continued)`))
+                ? `${group} (continued)`
+                : group,
+            value: valueText,
+            inline: false
+        });
+    }
+
+    const title = "NorthGate OS • Configured Groups";
+    const description = "All configured values are shown as role or user IDs.";
+    const pages = [];
+    let pageFields = [];
+    let pageCharacters = title.length + description.length + 100;
+    for (const field of fields) {
+        const fieldCharacters = field.name.length + field.value.length;
+        if (
+            pageFields.length &&
+            (pageFields.length >= 25 || pageCharacters + fieldCharacters > 5900)
+        ) {
+            pages.push(pageFields);
+            pageFields = [];
+            pageCharacters = title.length + description.length + 100;
+        }
+        pageFields.push(field);
+        pageCharacters += fieldCharacters;
+    }
+    if (pageFields.length) pages.push(pageFields);
+
+    return pages.map((pageFields, index) => new EmbedBuilder()
+        .setTitle(title)
+        .setDescription(description)
+        .setColor(0x2b6cb0)
+        .addFields(pageFields)
+        .setFooter({ text: `Page ${index + 1} of ${pages.length}` })
+        .setTimestamp());
+}
+
 async function confirmRoleGroupChange(message, action, group, id) {
     const warning = new EmbedBuilder()
         .setTitle("⚠️ Role group change warning")
