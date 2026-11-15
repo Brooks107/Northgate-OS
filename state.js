@@ -22,7 +22,7 @@ function load() {
         if ("forceLockOverwrites" in raw) {
             state.forceLockOverwrites = raw.forceLockOverwrites;
         }
-        if (raw.defconLevel === 1 || raw.defconLevel === 2) {
+        if (Number.isInteger(raw.defconLevel) && raw.defconLevel >= 1 && raw.defconLevel <= 6) {
             state.defconLevel = raw.defconLevel;
         }
         if (Array.isArray(raw.defconAddedDevelopers)) {
@@ -32,6 +32,15 @@ function load() {
         }
         if ("defconOwnsLock" in raw) {
             state.defconOwnsLock = Boolean(raw.defconOwnsLock);
+        }
+        if (typeof raw.defconStartedAt === "string") {
+            state.defconStartedAt = raw.defconStartedAt;
+        }
+        if (typeof raw.defconStartedBy === "string" && /^\d{17,20}$/.test(raw.defconStartedBy)) {
+            state.defconStartedBy = raw.defconStartedBy;
+        }
+        if (typeof raw.defconIssue === "string") {
+            state.defconIssue = raw.defconIssue;
         }
         if (raw.adminPanel && typeof raw.adminPanel === "object") {
             state.adminPanel = raw.adminPanel;

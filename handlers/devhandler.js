@@ -11,6 +11,7 @@ const { logCommand } = require("../utils/command-logger");
 const { createMessageProgress } = require("../utils/progress-embed");
 const state = require("../state");
 const adminHandler = require("./adminhandler");
+const defconAccess = require("../utils/defcon-access");
 const ticketTracker = require("../ticket-tracker");
 const { NORTHGATE_OS_PREFIX, OTHER_BOT_COMMANDS } = require("../utils/help");
 
@@ -22,6 +23,7 @@ const DEFCON_DEVELOPER_IDS = [
     "1014271648297386064",
     "1267321190821789780"
 ];
+const DEFCON_FORCE_LOCK_LEVELS = new Set([1, 2, 4]);
 
 const GROUP_CONFIG_KEYS = {
     operations: "operationsroles",
@@ -136,6 +138,12 @@ function evaluateCommandAccess(commandName, member, config, client, commandArgum
         return ids.filter(Boolean).some(roleId => member.roles.cache.has(roleId));
     };
     const isDeveloper = config.developers?.includes(member.id) === true;
+    if (!defconAccess.hasDefconCommandAccess(member.id, member, config, commandName)) {
+        return {
+            result: "blocked",
+            reason: "Blocked by the active DEFCON command restriction."
+        };
+    }
     const ownershipRoles = Array.isArray(config.ownershiprole)
         ? config.ownershiprole
         : [config.ownershiprole].filter(Boolean);
@@ -378,15 +386,58 @@ module.exports = async function handleDeveloperCommand(message, config) {
             );
             return true;
         }
-    } else if (!isDeveloper) {
+    } else if (
+        !isDeveloper &&
+        !((command === "secure" || (command === "defcon" && args[0]?.toLowerCase() === "status")) &&
+            [2, 5].includes(state.load().defconLevel) &&
+            (Array.isArray(config.staffrole) ? config.staffrole : [config.staffrole])
+                .filter(Boolean)
+                .some(roleId => message.member?.roles?.cache?.has(roleId)))
+    ) {
         await message.reply("❌ This command is developer only - Please contact a member of the IT team to have them run it");
         return true;
     }
 
     if (command === "defcon") {
+        if (args[0]?.toLowerCase() === "status") {
+            const activeState = state.load();
+            if (!activeState.defconLevel) {
+                await message.reply("ℹ️ There is no active DEFCON procedure.");
+                return true;
+            }
+
+            const restriction = defconAccess.getDefconRestriction(activeState.defconLevel);
+            const accessLabel = restriction === "developers"
+                ? "Developers only"
+                : restriction === "staff"
+                    ? "Configured staff role only (developers can secure)"
+                    : "Normal command permissions";
+            const activatedAt = Date.parse(activeState.defconStartedAt || "");
+            const activated = Number.isFinite(activatedAt)
+                ? `<t:${Math.floor(activatedAt / 1000)}:F>`
+                : "Unknown";
+            const fields = [
+                `Command access: **${accessLabel}**`,
+                `Force lock: **${config.forceLocked ? "Active" : "Clear"}**`,
+                `Emergency developer IDs added: **${activeState.defconAddedDevelopers?.length || 0}**`,
+                `Activated: ${activated}${activeState.defconStartedBy ? ` by <@${activeState.defconStartedBy}>` : ""}`
+            ];
+            if (activeState.defconIssue) fields.push(`⚠️ Last issue: ${activeState.defconIssue}`);
+            await message.reply({
+                embeds: [
+                    new EmbedBuilder()
+                        .setTitle(`🚨 DEFCON ${activeState.defconLevel} Status`)
+                        .setDescription(fields.join("\n"))
+                        .setColor(config.forceLocked ? 0xdc2626 : 0xf59e0b)
+                        .setTimestamp()
+                ]
+            });
+            return true;
+        }
+
         const level = Number(args[0]);
-        if (!["1", "2"].includes(args[0])) {
-            await message.reply("❌ Usage: `d!defcon 1` or `d!defcon 2`.");
+        if (!Number.isInteger(level) || level < 1 || level > 6) {
+            await message.reply("❌ Usage: `d!defcon <1-6>`.");
             return true;
         }
 
@@ -395,7 +446,13 @@ module.exports = async function handleDeveloperCommand(message, config) {
             await message.reply(`ℹ️ DEFCON ${level} is already active.`);
             return true;
         }
-        if (level === 1 && !await adminHandler.confirmForceLock(message)) return true;
+        const shouldForceLock = DEFCON_FORCE_LOCK_LEVELS.has(level);
+        const lockWasAlreadyActive = Boolean(config.forceLocked || previousState.forceLocked);
+        if (
+            shouldForceLock &&
+            !lockWasAlreadyActive &&
+            !await adminHandler.confirmForceLock(message)
+        ) return true;
 
         const currentDevelopers = getGroupValues(config, "developers");
         const addedNow = DEFCON_DEVELOPER_IDS.filter(id => !currentDevelopers.includes(id));
@@ -403,10 +460,9 @@ module.exports = async function handleDeveloperCommand(message, config) {
             ...(previousState.defconLevel ? previousState.defconAddedDevelopers || [] : []),
             ...addedNow
         ])];
-        const lockWasAlreadyActive = Boolean(config.forceLocked || previousState.forceLocked);
-        const defconOwnsLock = previousState.defconLevel
-            ? Boolean(previousState.defconOwnsLock || (level === 1 && !lockWasAlreadyActive))
-            : level === 1 && !lockWasAlreadyActive;
+        const defconOwnsLock = shouldForceLock
+            ? Boolean(previousState.defconOwnsLock || !lockWasAlreadyActive)
+            : false;
         const developers = [...new Set([...currentDevelopers, ...DEFCON_DEVELOPER_IDS])];
         const groupArrays = {
             ...(previousState.groupArrays || {}),
@@ -416,7 +472,10 @@ module.exports = async function handleDeveloperCommand(message, config) {
             groupArrays,
             defconLevel: level,
             defconAddedDevelopers: addedByDefcon,
-            defconOwnsLock
+            defconOwnsLock,
+            defconStartedAt: new Date().toISOString(),
+            defconStartedBy: message.author.id,
+            defconIssue: null
         });
 
         if (!stateSaved) {
@@ -433,18 +492,43 @@ module.exports = async function handleDeveloperCommand(message, config) {
             console.error("[devhandler] could not update config.json for DEFCON:", error);
         }
 
-        if (level === 1) {
-            const lockApplied = await adminHandler.applyForceLock(message, config, true, "DEFCON 1");
-            if (!lockApplied) return true;
+        let lockAction = "";
+        if (shouldForceLock && !lockWasAlreadyActive) {
+            const lockApplied = await adminHandler.applyForceLock(message, config, true, `DEFCON ${level}`);
+            if (!lockApplied) {
+                state.save({ defconIssue: "Force lock could not be fully applied; check the progress notice and bot logs." });
+                return true;
+            }
+            lockAction = " Force lock applied.";
+        } else if (!shouldForceLock && lockWasAlreadyActive) {
+            const lockRemoved = await adminHandler.applyForceLock(message, config, false, `DEFCON ${level}`);
+            if (!lockRemoved) {
+                state.save({
+                    defconOwnsLock: true,
+                    defconIssue: "Force lock could not be fully removed; check the progress notice and bot logs."
+                });
+                return true;
+            }
+            lockAction = " Force lock removed.";
+        } else if (shouldForceLock) {
+            lockAction = " Force lock remains active.";
         }
 
-        if (level === 2 && typeof message.client.notifyAdminPanelRefresh === "function") {
+        if (!configSaved) {
+            state.save({ defconIssue: "Emergency developer IDs could not be written to config.json; check the bot logs." });
+        }
+
+        if (typeof message.client.notifyAdminPanelRefresh === "function") {
             await message.client.notifyAdminPanelRefresh();
         }
 
+        const accessMode = level === 1 || level === 3
+            ? "Commands restricted to developers."
+            : level === 2 || level === 5
+                ? "Commands restricted to the configured staff role."
+                : "Normal command permissions remain in effect.";
         await message.reply(
-            `✅ DEFCON ${level} is active. Added ${addedNow.length} developer ID(s).` +
-            (level === 1 ? " Force lock applied." : "") +
+            `✅ DEFCON ${level} is active. Added ${addedNow.length} developer ID(s). ${accessMode}${lockAction}` +
             (configSaved ? "" : "\n⚠️ config.json could not be updated; the change is saved in runtime state.")
         );
         return true;
@@ -484,7 +568,10 @@ module.exports = async function handleDeveloperCommand(message, config) {
             },
             defconLevel: null,
             defconAddedDevelopers: [],
-            defconOwnsLock: false
+            defconOwnsLock: false,
+            defconStartedAt: null,
+            defconStartedBy: null,
+            defconIssue: null
         });
         if (!stateSaved) {
             await message.reply("⚠️ DEFCON lock and developer IDs were handled, but its state could not be cleared. Run `d!secure` again and check the bot logs if it still reports an active DEFCON.");

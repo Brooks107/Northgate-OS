@@ -77,11 +77,15 @@ with active ticket channels periodically.
   The force lock updates configured channel and voice-channel permissions and
   disables ticket-creation buttons; the unlock restores the saved permissions.
   Activating it requires confirmation.
-- `d!defcon 1` ensures the emergency developer IDs are in the `dev` group and
-  applies the force lock. `d!defcon 2` ensures those IDs are in `dev` without
-  applying a new force lock. If a force lock was already active, DEFCON 2
-  leaves it in place. `d!secure` ends the active DEFCON, reverses a lock started
-  by it, and removes only IDs that the procedure itself added.
+- `d!defcon <1-6>` adds the emergency developer IDs and applies the selected
+  command-access policy. Levels 1 and 3 allow commands to developers only;
+  levels 2 and 5 allow commands to the configured staff role only; levels 4
+  and 6 leave normal command permissions in place. Levels 1, 2, and 4 apply
+  the force lock; switching to a level without a force lock removes an active
+  force lock. Developers can always run `d!secure`; staff-role members can
+  also run it at levels 2 and 5. `d!defcon status` shows the active level,
+  command access, force-lock state, activation time, and any recorded issue.
+  `/defconguide` posts the level guide.
 - `d!power off`, `d!power on`, and `d!power status` manage or report maintenance
   mode. Maintenance mode makes the bot appear offline and restricts normal
   command use to developers.
@@ -104,7 +108,7 @@ minute or ten different slash commands in two minutes.
 | `n!links`, `n!rules`, `n!ticketrules` | Posts the corresponding server information. |
 | `d!forceclaim <ticket id>` | Developer override to claim a ticket. |
 | `d!addgroup`, `d!delgroup`, `d!showgroup` | Manage or view configured staff and access groups. |
-| `d!defcon 1`, `d!defcon 2`, `d!secure` | Start or end the tracked DEFCON procedure. |
+| `d!defcon <1-6|status>`, `d!secure` | Start, inspect, or end the tracked DEFCON procedure. |
 | `d!forceclose` | Developer override to close a ticket and save its transcript. |
 | `d!impersonate <user> <command>` | Checks whether a member would be allowed to use a command; it does not run it. `d!impersonate list` shows known commands. |
 | `d!power <action>` | Use `off`, `on`, or `status` to manage maintenance mode. |
@@ -114,11 +118,12 @@ minute or ten different slash commands in two minutes.
 
 ### Slash commands
 
-The bot also registers slash commands for ticket panels and actions, feature
-requests, IT reports, management voice access, developer availability, the
-admin panel, and global command locking. Their exact options appear in
-Discord's command picker. Access depends on the command and the configured
-staff roles or Discord permissions.
+`/defconguide` posts the DEFCON level guide. The bot also registers slash
+commands for ticket panels and actions, feature requests, IT reports,
+management voice access, developer availability, the admin panel, and global
+command locking. Their exact options appear in Discord's command picker.
+Access depends on the command and the configured staff roles or Discord
+permissions, as well as any active DEFCON restriction.
 
 ## Background operations
 

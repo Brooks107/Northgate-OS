@@ -18,6 +18,7 @@ const joinHandler = require("./handlers/joinhandler");
 const gitSync = require("./git-sync");
 const commandRegistry = require("./command-registry");
 const state = require("./state");
+const { hasDefconCommandAccess } = require("./utils/defcon-access");
 const ticketTracker = require("./ticket-tracker");
 const {
     setTicketPanelsLocked,
@@ -258,6 +259,18 @@ client.on("interactionCreate", async interaction => {
 
         if (interaction.isChatInputCommand()) {
             const cmd = client.commands.get(interaction.commandName);
+
+            if (!hasDefconCommandAccess(
+                interaction.user.id,
+                interaction.member,
+                config,
+                `/${interaction.commandName}`
+            )) {
+                return interaction.reply({
+                    content: "🚫 Commands are restricted by the active DEFCON level.",
+                    flags: MessageFlags.Ephemeral
+                });
+            }
 
             if (!cmd) {
                 console.warn(`[interaction] no handler loaded for /${interaction.commandName}`);
@@ -502,13 +515,31 @@ process.on("uncaughtException", err => {
 });
 
 client.on("messageCreate", async message => {
+    if (message.author.bot) return;
+
+    const content = message.content.trimStart();
+    const prefixedCommand = content.match(/^(d!|n!|a!)(\S+)/i);
+    const standaloneCommand = content.match(/^(!(?:help|msg))\b/i);
+    const commandName = prefixedCommand
+        ? `${prefixedCommand[1].toLowerCase()}${prefixedCommand[2].toLowerCase()}`
+        : standaloneCommand?.[1].toLowerCase();
+
+    if (commandName && !hasDefconCommandAccess(
+        message.author.id,
+        message.member,
+        config,
+        commandName
+    )) {
+        await message.reply("🚫 Commands are restricted by the active DEFCON level.");
+        return;
+    }
+
     if (await adminHandler(message, config)) return;
     if (await developerHandler(message, config)) return;
 
     const handledByPrefix = await prefixHandler(message, config);
     if (handledByPrefix) return;
 
-    if (message.author.bot) return;
 });
 
 async function main() {
