@@ -67,6 +67,8 @@ function roleMemberCount(guild, roleIds, groupLabel) {
 
 function buildAdminPanelEmbed(client, config, guild) {
     const activeTicketIds = client.activeTicketIds ? [...client.activeTicketIds].sort((a, b) => a - b) : [];
+    const uptimeMinutes = Math.floor((client.uptime || 0) / 60000);
+    const lastBooted = Math.floor((Date.now() - (client.uptime || 0)) / 1000);
     const defconLevel = state.load().defconLevel;
     const defconActive = Number.isInteger(defconLevel) && defconLevel >= 1 && defconLevel <= 6;
     const defconAccess = defconLevel === 1 || defconLevel === 3
@@ -122,12 +124,15 @@ function buildAdminPanelEmbed(client, config, guild) {
                 ? `**DEFCON ${defconLevel} IS ACTIVE** • Command access: **${defconAccess}**. Force lock: **${emergency ? "ACTIVE" : "CLEAR"}**.`
                 : emergency
                     ? "A force lockdown is active. Treat the server as restricted until cleared."
-                    : guild
-                        ? `Current server snapshot for **${guild.name}** • Uptime: **${Math.floor((client.uptime || 0) / 60000)}m** • Last Booted <t:${Math.floor((Date.now() - (client.uptime || 0)) / 1000)}:R>)`
-                        : "Current server snapshot"
+                    : `Current server snapshot${guild ? ` for **${guild.name}**` : ""}`
         )
         .setColor(defconColor)
         .addFields(
+            {
+                name: "⏱️ Uptime",
+                value: `**${uptimeMinutes}m** • Last booted <t:${lastBooted}:R>`,
+                inline: true
+            },
             {
                 name: "🚨 DEFCON STATUS",
                 value: defconActive

@@ -69,9 +69,10 @@ with active ticket channels periodically.
 
 ## Administration and emergency controls
 
-- `/adminpanel` posts a live status panel with ticket-slot usage, lock states,
-  configured access-role counts, and items needing attention. Active DEFCON
-  status is highlighted at the top, and the panel refreshes automatically.
+- `/adminpanel` posts a live status panel with bot uptime, ticket-slot usage,
+  lock states, configured access-role counts, and items needing attention.
+  Active DEFCON status is highlighted at the top, and the panel refreshes
+  automatically.
 - `/cmdlock` and `/cmdunlock` set or clear the global command-lock state.
 - `a!forcelock` and `a!forceunlock` apply or reverse an emergency lockdown.
   The force lock updates configured channel and voice-channel permissions and
