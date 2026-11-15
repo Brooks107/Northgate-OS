@@ -52,6 +52,12 @@ function getStoredBackupId(message) {
     return match?.[1] || null;
 }
 
+function getStoredBackupSourceGuildId(message) {
+    return message.embeds?.flatMap(embed => embed.fields || [])
+        .find(field => field.name === "Source Guild ID")
+        ?.value || null;
+}
+
 function getStoredBackupAttachment(message) {
     return message.attachments?.find(attachment =>
         attachment.name?.startsWith("northgate-server-backup-") &&
@@ -69,10 +75,23 @@ async function fetchStoredBackupMessages(client, guild, channelId) {
     if (
         !channel ||
         ![ChannelType.GuildText, ChannelType.GuildAnnouncement].includes(channel.type) ||
-        channel.guildId !== guild.id ||
+        !channel.guildId ||
         !channel.messages?.fetch
     ) {
-        throw new Error("The configured backup destination must be a readable text channel in this server.");
+        throw new Error("The configured backup destination must be a readable text channel in a server where the bot is present.");
+    }
+    const storageGuild = channel.guild ||
+        client.guilds.cache.get(channel.guildId) ||
+        await client.guilds.fetch(channel.guildId).catch(error => {
+            throw new Error(`Could not access the backup-storage server: ${error.message}`);
+        });
+    const botMember = storageGuild.members.me || await storageGuild.members.fetchMe();
+    const channelPermissions = channel.permissionsFor(botMember);
+    if (!channelPermissions?.has([
+        PermissionFlagsBits.ViewChannel,
+        PermissionFlagsBits.ReadMessageHistory
+    ])) {
+        throw new Error("The bot needs View Channel and Read Message History in the backup channel.");
     }
 
     const messages = [];
@@ -197,19 +216,25 @@ async function createServerBackup(guild, client, channelId) {
     if (
         ![ChannelType.GuildText, ChannelType.GuildAnnouncement].includes(backupChannel?.type) ||
         typeof backupChannel.send !== "function" ||
-        backupChannel.guildId !== guild.id
+        !backupChannel.guildId
     ) {
-        throw new Error("The configured backup destination must be a text channel in this server.");
+        throw new Error("The configured backup destination must be a text channel in a server where the bot is present.");
     }
 
-    const botMember = guild.members.me || await guild.members.fetchMe();
+    const storageGuild = backupChannel.guild ||
+        client.guilds.cache.get(backupChannel.guildId) ||
+        await client.guilds.fetch(backupChannel.guildId).catch(error => {
+            throw new Error(`Could not access the backup-storage server: ${error.message}`);
+        });
+    const botMember = storageGuild.members.me || await storageGuild.members.fetchMe();
     const channelPermissions = backupChannel.permissionsFor(botMember);
     if (!channelPermissions?.has([
         PermissionFlagsBits.ViewChannel,
+        PermissionFlagsBits.ReadMessageHistory,
         PermissionFlagsBits.SendMessages,
         PermissionFlagsBits.AttachFiles
     ])) {
-        throw new Error("The bot needs View Channel, Send Messages, and Attach Files in the backup channel.");
+        throw new Error("The bot needs View Channel, Read Message History, Send Messages, and Attach Files in the backup channel.");
     }
 
     await Promise.all([guild.roles.fetch(), guild.channels.fetch()]);
@@ -256,7 +281,8 @@ async function createServerBackup(guild, client, channelId) {
             { name: "Backup ID", value: backupId, inline: true },
             { name: "Roles", value: String(backup.roles.length), inline: true },
             { name: "Channels", value: String(backup.channels.length), inline: true },
-            { name: "Excluded", value: `${excludedThreadCount} thread(s), ${unsupportedChannels.length} unsupported channel(s)`, inline: false }
+            { name: "Excluded", value: `${excludedThreadCount} thread(s), ${unsupportedChannels.length} unsupported channel(s)`, inline: false },
+            { name: "Source Guild ID", value: guild.id, inline: false }
         )
         .setTimestamp(new Date(backup.createdAt));
     const backupMessage = await backupChannel.send({
@@ -289,10 +315,11 @@ async function listStoredServerBackups(client, guild, channelId) {
     return messages
         .map(message => ({
             id: getStoredBackupId(message),
+            sourceGuildId: getStoredBackupSourceGuildId(message),
             message,
             attachment: getStoredBackupAttachment(message)
         }))
-        .filter(backup => backup.id && backup.attachment)
+        .filter(backup => backup.id && backup.sourceGuildId === guild.id && backup.attachment)
         .sort((left, right) => Number(right.id) - Number(left.id));
 }
 
@@ -328,14 +355,16 @@ async function loadStoredServerBackup(client, guild, channelId, requestedBackupI
     );
 }
 
-function isStoredServerBackupMessage(message, backupId) {
-    return getStoredBackupId(message) === String(backupId);
+function isStoredServerBackupMessage(message, backupId, sourceGuildId) {
+    return getStoredBackupId(message) === String(backupId) &&
+        getStoredBackupSourceGuildId(message) === String(sourceGuildId);
 }
 
 async function deleteStoredServerBackup(client, guild, channelId, backupId) {
     const messages = await fetchStoredBackupMessages(client, guild, channelId);
     const message = messages.find(candidate =>
-        getStoredBackupId(candidate) === String(backupId)
+        getStoredBackupId(candidate) === String(backupId) &&
+        getStoredBackupSourceGuildId(candidate) === guild.id
     );
     if (!message) throw new Error(`Backup ID ${backupId} was not found in the storage channel.`);
 

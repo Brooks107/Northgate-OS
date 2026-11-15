@@ -351,26 +351,44 @@ client.on("interactionCreate", async interaction => {
                     flags: MessageFlags.Ephemeral
                 });
             }
+            if (
+                !match ||
+                !interaction.guild ||
+                interaction.channelId !== config.defconBackupChannelId ||
+                interaction.message.author.id !== client.user.id ||
+                !isStoredServerBackupMessage(interaction.message, match[1], config.guildId)
+            ) {
+                return interaction.reply({
+                    content: "❌ This is not a valid stored server-backup message.",
+                    flags: MessageFlags.Ephemeral
+                });
+            }
+
+            const sourceGuild = client.guilds.cache.get(config.guildId);
+            if (!sourceGuild) {
+                return interaction.reply({
+                    content: "❌ The source server is unavailable; backup deletion was blocked.",
+                    flags: MessageFlags.Ephemeral
+                });
+            }
+            let sourceMember;
+            try {
+                sourceMember = await sourceGuild.members.fetch(interaction.user.id);
+            } catch (error) {
+                console.error("[backup-delete] could not verify the developer in the source server:", error);
+                return interaction.reply({
+                    content: "❌ Could not verify your source-server membership; backup deletion was blocked.",
+                    flags: MessageFlags.Ephemeral
+                });
+            }
             if (!hasDefconCommandAccess(
                 interaction.user.id,
-                interaction.member,
+                sourceMember,
                 config,
                 "d!delbackup"
             )) {
                 return interaction.reply({
                     content: "🚫 Backup deletion is restricted by the active DEFCON level.",
-                    flags: MessageFlags.Ephemeral
-                });
-            }
-            if (
-                !match ||
-                interaction.guild?.id !== config.guildId ||
-                interaction.channelId !== config.defconBackupChannelId ||
-                interaction.message.author.id !== client.user.id ||
-                !isStoredServerBackupMessage(interaction.message, match[1])
-            ) {
-                return interaction.reply({
-                    content: "❌ This is not a valid stored server-backup message.",
                     flags: MessageFlags.Ephemeral
                 });
             }
