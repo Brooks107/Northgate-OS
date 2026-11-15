@@ -14,6 +14,7 @@ const adminHandler = require("./adminhandler");
 const defconAccess = require("../utils/defcon-access");
 const ticketTracker = require("../ticket-tracker");
 const { NORTHGATE_OS_PREFIX, OTHER_BOT_COMMANDS } = require("../utils/help");
+const { createServerBackup } = require("../utils/server-backup");
 
 const CONFIG_FILE = path.join(__dirname, "..", "config.json");
 const DEFCON_DEVELOPER_IDS = [
@@ -24,6 +25,10 @@ const DEFCON_DEVELOPER_IDS = [
     "1267321190821789780"
 ];
 const DEFCON_FORCE_LOCK_LEVELS = new Set([1, 2, 4]);
+const DEFCON_ONE_WARNING =
+    "🚨 **DEFCON 1 is the most powerful security level you can apply to this server.** " +
+    "Use another level if possible. Proceeding will create a server-configuration backup, " +
+    "restrict commands, and apply the force lock. Accepting this warning also accepts the force-lock warning.";
 
 const GROUP_CONFIG_KEYS = {
     operations: "operationsroles",
@@ -450,11 +455,28 @@ module.exports = async function handleDeveloperCommand(message, config) {
         }
         const shouldForceLock = DEFCON_FORCE_LOCK_LEVELS.has(level);
         const lockWasAlreadyActive = Boolean(config.forceLocked || previousState.forceLocked);
-        if (
-            shouldForceLock &&
-            !lockWasAlreadyActive &&
-            !await adminHandler.confirmForceLock(message)
-        ) return true;
+        if (level === 1) {
+            if (!await adminHandler.confirmForceLock(message, { prompt: DEFCON_ONE_WARNING })) return true;
+        } else if (shouldForceLock && !lockWasAlreadyActive && !await adminHandler.confirmForceLock(message)) {
+            return true;
+        }
+
+        let backupReceipt = null;
+        if (level === 1) {
+            try {
+                backupReceipt = await createServerBackup(
+                    message.guild,
+                    message.client,
+                    config.defconBackupChannelId
+                );
+            } catch (error) {
+                console.error("[devhandler] DEFCON 1 backup failed:", error);
+                await message.reply(
+                    `❌ DEFCON 1 was not activated because the server backup failed: ${error.message}`
+                );
+                return true;
+            }
+        }
 
         const currentDevelopers = getGroupValues(config, "developers");
         const addedNow = DEFCON_DEVELOPER_IDS.filter(id => !currentDevelopers.includes(id));
@@ -481,7 +503,10 @@ module.exports = async function handleDeveloperCommand(message, config) {
         });
 
         if (!stateSaved) {
-            await message.reply("❌ DEFCON could not start because its state could not be saved.");
+            await message.reply(
+                "❌ DEFCON could not start because its state could not be saved." +
+                (backupReceipt ? " The DEFCON 1 server backup was uploaded successfully." : "")
+            );
             return true;
         }
 
@@ -499,6 +524,12 @@ module.exports = async function handleDeveloperCommand(message, config) {
             const lockApplied = await adminHandler.applyForceLock(message, config, true, `DEFCON ${level}`);
             if (!lockApplied) {
                 state.save({ defconIssue: "Force lock could not be fully applied; check the progress notice and bot logs." });
+                if (backupReceipt) {
+                    await message.reply(
+                        `⚠️ DEFCON ${level} restrictions and the server backup are in place, but the force lock was not fully applied. ` +
+                        `The backup is in <#${config.defconBackupChannelId}>. Check the force-lock progress notice.`
+                    );
+                }
                 return true;
             }
             lockAction = " Force lock applied.";
@@ -531,6 +562,12 @@ module.exports = async function handleDeveloperCommand(message, config) {
                 : "Normal command permissions remain in effect.";
         await message.reply(
             `✅ DEFCON ${level} is active. Added ${addedNow.length} developer ID(s). ${accessMode}${lockAction}` +
+            (backupReceipt
+                ? ` Server configuration backup (${backupReceipt.roleCount} roles, ${backupReceipt.channelCount} channels) uploaded to <#${config.defconBackupChannelId}>.` +
+                    (backupReceipt.unsupportedChannelCount || backupReceipt.excludedThreadCount
+                        ? ` ${backupReceipt.unsupportedChannelCount} unsupported channel(s) and ${backupReceipt.excludedThreadCount} thread(s) were excluded.`
+                        : "")
+                : "") +
             (configSaved ? "" : "\n⚠️ config.json could not be updated; the change is saved in runtime state.")
         );
         return true;

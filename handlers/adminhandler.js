@@ -18,7 +18,7 @@ const VOICE_LOCK_CHANNEL_IDS = new Set([
     "1533079884639768717"
 ]);
 
-async function confirmForceLock(message) {
+async function confirmForceLock(message, options = {}) {
     const confirmationIds = `${message.author.id}_${message.id}`;
     const proceedId = `force_lock_proceed_${confirmationIds}`;
     const abortId = `force_lock_abort_${confirmationIds}`;
@@ -30,7 +30,7 @@ async function confirmForceLock(message) {
     let confirmation;
     try {
         confirmation = await message.reply({
-            content: "⚠️ Are you sure you want to activate the force lock?",
+            content: options.prompt || "⚠️ Are you sure you want to activate the force lock?",
             components: [
                 new ActionRowBuilder().addComponents(
                     new ButtonBuilder()

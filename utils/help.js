@@ -33,6 +33,7 @@ const SLASH_COMMAND_ACCESS = {
 	unclaim: "Support access",
 	managementvclock: "Developers, ownership, or HR directors",
 	defconguide: "Everyone (subject to active DEFCON restrictions)",
+	backupload: "Developers or ownership (subject to active DEFCON restrictions)",
 	close: "Ticket users and staff, subject to ticket access",
 	autoclose: "Members with Manage Channels",
 	autocloseabort: "Members with Manage Channels",

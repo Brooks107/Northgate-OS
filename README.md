@@ -87,7 +87,17 @@ with active ticket channels periodically.
   with a configured ownership role can run `d!secure` at any level.
   `d!defcon status` shows the active level,
   command access, force-lock state, activation time, and any recorded issue.
+  DEFCON 1 requires one strong warning confirmation, then uploads a
+  server-configuration backup to the private channel configured by
+  `defconBackupChannelId` before applying the level. This confirmation also
+  acknowledges the force-lock warning.
   `/defconguide` posts the level guide.
+- `/backupload` restores a JSON backup for the current server. It updates
+  matching roles and channels, recreates missing resources, leaves extras
+  untouched, and restores supported server settings and channel overwrites.
+  Messages, member lists, and member-role assignments are not included.
+  Only developers or configured ownership can use it, and an active force
+  lock must be ended first.
 - `d!power off`, `d!power on`, and `d!power status` manage or report maintenance
   mode. Maintenance mode makes the bot appear offline and restricts normal
   command use to developers.
@@ -120,10 +130,12 @@ minute or ten different slash commands in two minutes.
 
 ### Slash commands
 
-`/defconguide` posts the DEFCON level guide. The bot also registers slash
-commands for ticket panels and actions, feature requests, IT reports,
-management voice access, developer availability, the admin panel, and global
-command locking. Their exact options appear in Discord's command picker.
+`/defconguide` posts the DEFCON level guide. `/backupload` accepts a
+NorthGate server backup JSON attachment and requires an explicit confirmation.
+The bot also registers slash commands for ticket panels and actions, feature
+requests, IT reports, management voice access, developer availability, the
+admin panel, and global command locking. Their exact options appear in
+Discord's command picker.
 Access depends on the command and the configured staff roles or Discord
 permissions, as well as any active DEFCON restriction.
 

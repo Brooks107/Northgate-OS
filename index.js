@@ -236,6 +236,30 @@ async function reportInteractionFailure(interaction, err) {
 
 client.on("interactionCreate", async interaction => {
     try {
+        if (interaction.isButton() && interaction.customId.startsWith("backupload_")) {
+            const match = interaction.customId.match(
+                /^backupload_(?:confirm|cancel)_(\d{17,20})_(\d{17,20})$/
+            );
+            const isActive = match &&
+                client.activeBackupRestoreConfirmations?.has(match[2]);
+
+            if (!isActive) {
+                return interaction.reply({
+                    content: "⌛ This backup restore confirmation is no longer active. Run `/backupload` again.",
+                    flags: MessageFlags.Ephemeral
+                });
+            }
+
+            if (interaction.user.id !== match[1]) {
+                return interaction.reply({
+                    content: "❌ Only the person who started this backup restore can respond.",
+                    flags: MessageFlags.Ephemeral
+                });
+            }
+
+            return;
+        }
+
         if (interaction.isButton() && interaction.customId.startsWith("force_lock_")) {
             const match = interaction.customId.match(
                 /^force_lock_(?:proceed|abort)_(\d{17,20})_(\d{17,20})$/
