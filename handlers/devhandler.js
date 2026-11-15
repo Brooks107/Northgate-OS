@@ -112,7 +112,7 @@ async function resolveGroupDisplayValue(client, guild, group, value) {
     return `${rawValue} → (not found / not a user)`;
 }
 
-function buildAllGroupEmbeds(config) {
+async function buildAllGroupEmbeds(config, client, guild) {
     const fields = [];
     for (const group of Object.keys(GROUP_CONFIG_KEYS)) {
         const values = getGroupValues(config, GROUP_CONFIG_KEYS[group]);
@@ -121,11 +121,14 @@ function buildAllGroupEmbeds(config) {
             continue;
         }
 
+        const resolvedValues = await Promise.all(values.map(value =>
+            resolveGroupDisplayValue(client, guild, group, value)
+        ));
         const chunks = [];
         let lines = [];
         let valueLength = 0;
-        for (const value of values) {
-            const line = `• \`${String(value)}\``;
+        for (const value of resolvedValues) {
+            const line = `• ${value}`;
             if (lines.length && valueLength + line.length + 1 > 1024) {
                 chunks.push(lines.join("\n"));
                 lines = [];
@@ -145,7 +148,7 @@ function buildAllGroupEmbeds(config) {
     }
 
     const title = "NorthGate OS • Configured Groups";
-    const description = "All configured values are shown as role or user IDs.";
+    const description = "IDs are shown with their matching role names or user tags when available.";
     const pages = [];
     let pageFields = [];
     let pageCharacters = title.length + description.length + 100;
@@ -801,7 +804,9 @@ module.exports = async function handleDeveloperCommand(message, config) {
     if (command === "showgroup") {
         const group = args.shift()?.toLowerCase();
         if (group === "all") {
-            for (const embed of buildAllGroupEmbeds(config)) {
+            const guild = message.guild || (config.guildId ? message.client.guilds.cache.get(config.guildId) : null);
+            const embeds = await buildAllGroupEmbeds(config, message.client, guild);
+            for (const embed of embeds) {
                 await message.reply({ embeds: [embed] });
             }
             return true;

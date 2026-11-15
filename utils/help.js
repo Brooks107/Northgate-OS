@@ -57,7 +57,7 @@ const NORTHGATE_OS_PREFIX = [
 	["d!forceclaim <ticket id>", "Force-claim a ticket for yourself.", "Developers"],
 	["d!addgroup <group> <role/user ID>", "Add an ID to a configured role group. Board groups: `hrdir`, `techdir`, `prdir`, `devdir`, and `comdir`.", "Developers"],
 	["d!delgroup <group> <role/user ID>", "Remove an ID from a configured role group.", "Developers"],
-	["d!showgroup <group|all>", "Show configured IDs for one group, or every group in an embed with `all`.", "Developers"],
+	["d!showgroup <group|all>", "Show IDs with resolved role names or user tags for one group, or every group with `all`.", "Developers"],
 	["d!defcon <1-6|status>", "Activate a DEFCON level or view the active DEFCON status.", "Developers, subject to active DEFCON restrictions"],
 	["d!secure", "End DEFCON, restore its force lock, and remove only IDs it added.", "Developers or configured ownership"],
 	["d!forceclose", "Force-close a ticket and save its transcript.", "Developers, inside a ticket"],
