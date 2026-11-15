@@ -15,6 +15,7 @@ const defconAccess = require("../utils/defcon-access");
 const ticketTracker = require("../ticket-tracker");
 const { NORTHGATE_OS_PREFIX, OTHER_BOT_COMMANDS } = require("../utils/help");
 const { createServerBackup } = require("../utils/server-backup");
+const { confirmMessage: confirmOwnerDefconUse } = require("../utils/defcon-owner-confirmation");
 const {
     findAdministratorRolesToRemove,
     getWhitelistedRoleIds,
@@ -35,7 +36,6 @@ const DEFCON_ONE_WARNING =
     "🚨 **DEFCON 1 is the most powerful security level you can apply to this server.** " +
     "Use another level if possible. Proceeding will create a server-configuration backup, " +
     "restrict commands, and apply the force lock. Accepting this warning also accepts the force-lock warning.";
-
 const GROUP_CONFIG_KEYS = {
     operations: "operationsroles",
     support: "supportTeamRoles",
@@ -486,6 +486,11 @@ module.exports = async function handleDeveloperCommand(message, config) {
         !isDeveloper &&
         !(command === "secure" && defconAccess.hasOwnershipAccess(message.member, config)) &&
         !(command === "defcon" &&
+            Number.isInteger(Number(args[0])) &&
+            Number(args[0]) >= 1 &&
+            Number(args[0]) <= 6 &&
+            defconAccess.hasOwnershipAccess(message.member, config)) &&
+        !(command === "defcon" &&
             args[0]?.toLowerCase() === "status" &&
             [2, 5].includes(state.load().defconLevel) &&
             (Array.isArray(config.staffrole) ? config.staffrole : [config.staffrole])
@@ -494,6 +499,13 @@ module.exports = async function handleDeveloperCommand(message, config) {
     ) {
         await message.reply("❌ This command is developer only - Please contact a member of the IT team to have them run it");
         return true;
+    }
+
+    if (isOwner && command === "defcon" &&
+        Number.isInteger(Number(args[0])) &&
+        Number(args[0]) >= 1 &&
+        Number(args[0]) <= 6) {
+        if (!await confirmOwnerDefconUse(message)) return true;
     }
 
     if (command === "defcon") {

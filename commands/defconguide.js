@@ -18,12 +18,12 @@ module.exports = {
         const embed = new EmbedBuilder()
             .setTitle("NorthGate OS • DEFCON Guide")
             .setDescription(
-                "A developer can activate a level with `d!defcon <1-6>`. " +
+                "A developer or configured ownership member can activate a level with `d!defcon <1-6>`; ownership members must acknowledge the emergency-use warning first. " +
                 "`d!defcon status` shows the active level, command access, lock state, activation time, and any recorded issue. " +
                 "Changing to a level without force lock removes an active force lock. " +
                 "`d!secure` ends DEFCON, restores a lock it owns, and removes only emergency developer IDs added by DEFCON. " +
                 "`/defconwl <role>` lets developers exempt roles from DEFCON 1's Administrator removal; NorthShield, NorthOps, and Honeypot are pre-whitelisted. " +
-                "Only developers can activate DEFCON. Developers and members with a configured ownership role can always run `d!secure`. " +
+                "Developers and members with a configured ownership role can activate DEFCON. Developers and members with a configured ownership role can always run `d!secure`; ownership members are warned when activating, not when securing. " +
                 "`/backupload` restores a same-server JSON backup non-destructively: matching roles and channels are updated, missing ones recreated, and extra resources left in place. " +
                 "It aborts when at least 75% of the backup's combined roles and channels already match; only a developer can explicitly override that safeguard. " +
                 "Messages, member lists, and member-role assignments are not backed up."

@@ -24,6 +24,9 @@ function hasOwnershipAccess(member, config) {
 
 function hasDefconCommandAccess(userId, member, config, commandName, level = state.load().defconLevel) {
     const restriction = getDefconRestriction(level);
+    if (commandName === "d!defcon" && hasOwnershipAccess(member, config)) {
+        return true;
+    }
     if (commandName === "d!secure" && restriction) {
         return hasDeveloperId(userId, config) || hasOwnershipAccess(member, config);
     }
