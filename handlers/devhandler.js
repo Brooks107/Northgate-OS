@@ -287,8 +287,8 @@ function evaluateCommandAccess(commandName, member, config, client, commandArgum
     if (commandName === "managementvclock") {
         const boardOfDirectors = config.boardOfDirectors || {};
         return isOwner || hasAnyRole(boardOfDirectors.hrdir) || hasAnyRole(boardOfDirectors.techdir)
-            ? { result: "allowed", reason: "Developer, ownership, HR director, or TechDir access." }
-            : { result: "blocked", reason: "Requires developer, ownership, HR director, or TechDir access." };
+            ? { result: "allowed", reason: "Ownership, HRDIR, or TechDir access." }
+            : { result: "blocked", reason: "Requires ownership, HRDIR, or TechDir access." };
     }
 
     return {

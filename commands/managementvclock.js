@@ -12,13 +12,25 @@ module.exports = {
 
     async execute(interaction, client, config) {
         const toArray = value => Array.isArray(value) ? value : value ? [value] : [];
-        const allowedRoleIds = [
-            ...toArray(config.hrdirectorrole),
-            ...toArray(config.hrmanagerrole),
-            ...toArray(config.techdirrole),
+        const board = config.boardOfDirectors || {};
+        const boardRoleIds = [
+            ...toArray(board.hrdir),
+            ...toArray(board.techdir),
+            ...toArray(board.prdir),
+            ...toArray(board.devdir),
+            ...toArray(board.comdir)
+        ];
+        const commandRoleIds = [
+            ...toArray(board.hrdir),
+            ...toArray(board.techdir),
             ...toArray(config.ownershiprole)
         ].filter(Boolean);
-        const isAuthorized = allowedRoleIds.some(roleId =>
+        const allowedRoleIds = [
+            ...boardRoleIds,
+            ...toArray(config.hrmanagerrole),
+            ...toArray(config.ownershiprole)
+        ].filter(Boolean);
+        const isAuthorized = commandRoleIds.some(roleId =>
             interaction.member?.roles?.cache?.has(roleId)
         );
 
