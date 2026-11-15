@@ -121,28 +121,26 @@ function buildAllGroupEmbeds(config) {
             continue;
         }
 
+        const chunks = [];
         let lines = [];
-        let valueText = "";
+        let valueLength = 0;
         for (const value of values) {
             const line = `• \`${String(value)}\``;
-            if (valueText && valueText.length + line.length + 1 > 1024) {
-                fields.push({
-                    name: lines.length ? `${group} (continued)` : group,
-                    value: valueText,
-                    inline: false
-                });
+            if (lines.length && valueLength + line.length + 1 > 1024) {
+                chunks.push(lines.join("\n"));
                 lines = [];
-                valueText = "";
+                valueLength = 0;
             }
             lines.push(line);
-            valueText = lines.join("\n");
+            valueLength += line.length + (lines.length > 1 ? 1 : 0);
         }
-        fields.push({
-            name: fields.some(field => field.name === group || field.name.startsWith(`${group} (continued)`))
-                ? `${group} (continued)`
-                : group,
-            value: valueText,
-            inline: false
+        if (lines.length) chunks.push(lines.join("\n"));
+        chunks.forEach((valueText, index) => {
+            fields.push({
+                name: index ? `${group} (continued)` : group,
+                value: valueText,
+                inline: false
+            });
         });
     }
 
@@ -802,11 +800,18 @@ module.exports = async function handleDeveloperCommand(message, config) {
 
     if (command === "showgroup") {
         const group = args.shift()?.toLowerCase();
+        if (group === "all") {
+            for (const embed of buildAllGroupEmbeds(config)) {
+                await message.reply({ embeds: [embed] });
+            }
+            return true;
+        }
+
         const configKey = GROUP_CONFIG_KEYS[group];
 
         if (!configKey) {
             await message.reply([
-                "❌ Usage: `d!showgroup <group>`",
+                "❌ Usage: `d!showgroup <group|all>`",
                 `Groups: ${Object.keys(GROUP_CONFIG_KEYS).join(", ")}`
             ].join("\n"));
             return true;
