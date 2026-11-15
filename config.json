@@ -85,8 +85,14 @@
     "handbook link": "https://docs.google.com/document/d/1vZx8tigurY7glO708EA4MByUBj-mORu_FrLJ_tTajAY/edit?usp=drivesdk",
     "staffrepingtime": "24",
     "clientrepingtime": "24",
-    "hrdirectorrole": "1535764413422899210",
     "hrmanagerrole": "895312798211534888",
+    "boardOfDirectors": {
+        "hrdir": "1535764413422899210",
+        "techdir": [],
+        "prdir": [],
+        "devdir": [],
+        "comdir": []
+    },
     "ownershiprole": [
         "1517982021782339684",
         "1517978929661612233",

@@ -42,22 +42,42 @@ const GROUP_CONFIG_KEYS = {
     community: "communityrole",
     developergame: "devrole",
     staff: "staffrole",
-    hrdir: "hrdirectorrole",
+    hrdir: "boardOfDirectors.hrdir",
     hrman: "hrmanagerrole",
+    techdir: "boardOfDirectors.techdir",
+    prdir: "boardOfDirectors.prdir",
+    devdir: "boardOfDirectors.devdir",
+    comdir: "boardOfDirectors.comdir",
     ownership: "ownershiprole"
 };
 
 const ROLE_GROUPS = new Set(Object.keys(GROUP_CONFIG_KEYS).filter(group => group !== "dev"));
 const LOCKDOWN_ROLE = "1536806576202186842";
 
+function getConfigPathValue(config, configPath) {
+    return configPath.split(".").reduce((value, key) => value?.[key], config);
+}
+
+function setConfigPathValue(config, configPath, value) {
+    const parts = configPath.split(".");
+    let target = config;
+    for (const part of parts.slice(0, -1)) {
+        if (!target[part] || typeof target[part] !== "object" || Array.isArray(target[part])) {
+            target[part] = {};
+        }
+        target = target[part];
+    }
+    target[parts[parts.length - 1]] = value;
+}
+
 function getGroupValues(config, configKey) {
-    const value = config[configKey];
+    const value = getConfigPathValue(config, configKey);
     return Array.isArray(value) ? [...value] : value ? [value] : [];
 }
 
 function saveGroupConfig(configKey, values) {
     const storedConfig = JSON.parse(fs.readFileSync(CONFIG_FILE, "utf8"));
-    storedConfig[configKey] = values;
+    setConfigPathValue(storedConfig, configKey, values);
 
     const temporaryFile = `${CONFIG_FILE}.${process.pid}.tmp`;
     try {
@@ -265,9 +285,10 @@ function evaluateCommandAccess(commandName, member, config, client, commandArgum
     }
 
     if (commandName === "managementvclock") {
-        return isDeveloper || isOwner || hasAnyRole(config.hrdirectorrole)
-            ? { result: "allowed", reason: "Developer, ownership, or HR director access." }
-            : { result: "blocked", reason: "Requires developer, ownership, or HR director access." };
+        const boardOfDirectors = config.boardOfDirectors || {};
+        return isOwner || hasAnyRole(boardOfDirectors.hrdir) || hasAnyRole(boardOfDirectors.techdir)
+            ? { result: "allowed", reason: "Developer, ownership, HR director, or TechDir access." }
+            : { result: "blocked", reason: "Requires developer, ownership, HR director, or TechDir access." };
     }
 
     return {
@@ -664,6 +685,15 @@ module.exports = async function handleDeveloperCommand(message, config) {
         }
 
         const currentGroups = state.load().groupArrays || {};
+        const stateGroupKey = configKey.startsWith("boardOfDirectors.")
+            ? "boardOfDirectors"
+            : configKey;
+        const stateGroupValue = stateGroupKey === "boardOfDirectors"
+            ? {
+                ...(config.boardOfDirectors || {}),
+                [configKey.split(".")[1]]: values
+            }
+            : values;
         const progress = createMessageProgress(message, "Updating role group", [
             `Update the **${group}** group in memory`,
             "Update config.json",
@@ -675,7 +705,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
         let stateSaved = false;
         try {
             await progress.runStep(0, async () => {
-                config[configKey] = values;
+                setConfigPathValue(config, configKey, values);
             });
             await progress.runStep(1, async () => {
                 try {
@@ -690,7 +720,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
                 stateSaved = state.save({
                     groupArrays: {
                         ...currentGroups,
-                        [configKey]: values
+                        [stateGroupKey]: stateGroupValue
                     }
                 });
             });

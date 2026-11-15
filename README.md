@@ -57,6 +57,7 @@ with active ticket channels periodically.
   channel can accept the request. `/managementvclock` restricts or restores
   voice access, and the bot disconnects members without permitted access while
   the channel is locked.
+  add role IDs with `d!addgroup techdir <role ID>`.
 - **Notification roles:** `/reactionpanel` posts opt-in roles for announcements,
   events, giveaways, game nights, questions of the day, development, and
   important notices. Reacting adds or removes the matching role.

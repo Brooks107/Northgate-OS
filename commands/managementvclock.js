@@ -15,6 +15,7 @@ module.exports = {
         const allowedRoleIds = [
             ...toArray(config.hrdirectorrole),
             ...toArray(config.hrmanagerrole),
+            ...toArray(config.techdirrole),
             ...toArray(config.ownershiprole)
         ].filter(Boolean);
         const isAuthorized = allowedRoleIds.some(roleId =>

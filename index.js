@@ -67,8 +67,29 @@ function trackDistinctCommand(commandName) {
 
 const runtimeState = state.load();
 Object.assign(config, runtimeState);
-for (const [key, values] of Object.entries(runtimeState.groupArrays || {})) {
-    if (Array.isArray(values)) config[key] = values;
+const runtimeGroups = runtimeState.groupArrays || {};
+const boardOfDirectors = { ...(config.boardOfDirectors || {}) };
+for (const [legacyKey, boardKey] of [
+    ["hrdirectorrole", "hrdir"],
+    ["techdirrole", "techdir"]
+]) {
+    if (runtimeGroups[legacyKey] !== undefined) {
+        boardOfDirectors[boardKey] = runtimeGroups[legacyKey];
+    }
+}
+if (
+    runtimeGroups.boardOfDirectors &&
+    typeof runtimeGroups.boardOfDirectors === "object" &&
+    !Array.isArray(runtimeGroups.boardOfDirectors)
+) {
+    Object.assign(boardOfDirectors, runtimeGroups.boardOfDirectors);
+}
+config.boardOfDirectors = boardOfDirectors;
+
+for (const [key, values] of Object.entries(runtimeGroups)) {
+    if (key !== "boardOfDirectors" && key !== "hrdirectorrole" && key !== "techdirrole" && Array.isArray(values)) {
+        config[key] = values;
+    }
 }
 
 const client = new Client({
@@ -533,6 +554,7 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
     const allowedRoleIds = [
         ...toArray(config.hrdirectorrole),
         ...toArray(config.hrmanagerrole),
+        ...toArray(config.techdirrole),
         ...toArray(config.ownershiprole)
     ].filter(Boolean);
 
