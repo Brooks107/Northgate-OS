@@ -79,11 +79,48 @@ async function confirmForceLock(message) {
     }
 }
 
+function updateForceLockOverwrites(overwrites, everyoneId, permission, shouldLock) {
+    const updated = new Map(overwrites);
+    if (shouldLock && !updated.has(everyoneId)) {
+        if (updated.size >= 100) {
+            throw new Error(
+                "This channel already has 100 permission overwrites and no @everyone overwrite; Discord cannot add the force-lock overwrite."
+            );
+        }
+        updated.set(everyoneId, {
+            id: everyoneId,
+            type: 0,
+            allow: 0n,
+            deny: 0n
+        });
+    }
+    if (updated.size > 100) {
+        throw new Error("This channel has more than Discord's 100 permission-overwrite limit.");
+    }
+
+    for (const [id, overwrite] of updated) {
+        let allow = overwrite.allow;
+        let deny = overwrite.deny;
+
+        if (shouldLock) {
+            allow &= ~permission;
+            deny |= permission;
+        } else {
+            allow &= ~permission;
+            deny &= ~permission;
+        }
+
+        updated.set(id, { ...overwrite, allow, deny });
+    }
+
+    return [...updated.values()];
+}
+
 async function applyForceLock(message, config, shouldLock, command) {
     const startedAt = process.hrtime.bigint();
     const savedForceLockOverwrites = state.load().forceLockOverwrites;
     const stepLabels = [
-        "Find all lock channels and server roles",
+        "Find lock channels and validate permission capacity",
         ...(shouldLock ? ["Lock ticket panel buttons"] : []),
         ...LOCKED_CHANNEL_IDS.map(id => `Update permissions in <#${id}>`),
         ...(!shouldLock && savedForceLockOverwrites ? ["Restore saved channel permissions"] : []),
@@ -99,7 +136,7 @@ async function applyForceLock(message, config, shouldLock, command) {
     await progress.start();
 
     let channels = [];
-    let roles = [];
+    const lockOverwritesByChannel = new Map();
     let step = 0;
     let stateSaved = true;
     const originalOverwrites = shouldLock && savedForceLockOverwrites
@@ -115,7 +152,31 @@ async function applyForceLock(message, config, shouldLock, command) {
             if (missingChannels.length > 0) {
                 throw new Error(`Could not find all lock channels. Missing: ${missingChannels.join(", ")}`);
             }
-            roles = [...(await message.guild.roles.fetch()).values()];
+
+            for (const channel of channels) {
+                const permission = PermissionFlagsBits.ViewChannel | (
+                    VOICE_LOCK_CHANNEL_IDS.has(channel.id)
+                        ? PermissionFlagsBits.Connect
+                        : PermissionFlagsBits.SendMessages
+                );
+                const overwrites = new Map(
+                    channel.permissionOverwrites.cache.map(overwrite => [overwrite.id, {
+                        id: overwrite.id,
+                        type: overwrite.type,
+                        allow: BigInt(overwrite.allow.bitfield),
+                        deny: BigInt(overwrite.deny.bitfield)
+                    }])
+                );
+                lockOverwritesByChannel.set(
+                    channel.id,
+                    updateForceLockOverwrites(
+                        overwrites,
+                            channel.guild.id,
+                        BigInt(permission),
+                        shouldLock
+                    )
+                );
+            }
         });
 
         if (shouldLock) {
@@ -127,12 +188,6 @@ async function applyForceLock(message, config, shouldLock, command) {
 
         for (const channel of channels) {
             await progress.runStep(step++, async () => {
-                const permission = PermissionFlagsBits.ViewChannel | (
-                    VOICE_LOCK_CHANNEL_IDS.has(channel.id)
-                        ? PermissionFlagsBits.Connect
-                        : PermissionFlagsBits.SendMessages
-                );
-
                 const overwrites = new Map(
                     channel.permissionOverwrites.cache.map(overwrite => [overwrite.id, {
                         id: overwrite.id,
@@ -153,23 +208,7 @@ async function applyForceLock(message, config, shouldLock, command) {
                     }
                 }
 
-                for (const role of roles) {
-                    const existing = overwrites.get(role.id);
-                    let allow = existing?.allow ?? 0n;
-                    let deny = existing?.deny ?? 0n;
-
-                    if (shouldLock) {
-                        allow &= ~permission;
-                        deny |= permission;
-                    } else {
-                        allow &= ~permission;
-                        deny &= ~permission;
-                    }
-
-                    overwrites.set(role.id, { id: role.id, type: 0, allow, deny });
-                }
-
-                await channel.permissionOverwrites.set([...overwrites.values()]);
+                await channel.permissionOverwrites.set(lockOverwritesByChannel.get(channel.id));
             });
         }
 
@@ -260,3 +299,4 @@ module.exports = async function handleAdminCommand(message, config) {
 
 module.exports.applyForceLock = applyForceLock;
 module.exports.confirmForceLock = confirmForceLock;
+module.exports.updateForceLockOverwrites = updateForceLockOverwrites;
