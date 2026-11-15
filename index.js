@@ -27,6 +27,7 @@ const {
 const autocloseScheduler = require("./autoclose-scheduler");
 const { startHeartbeat } = require("./heartbeat");
 const { logCommand } = require("./utils/command-logger");
+const { isStoredServerBackupMessage } = require("./utils/server-backup");
 const featureRequestHandler = require("./handlers/feature-request-handler");
 const {
     ProgressFailure,
@@ -338,6 +339,50 @@ client.on("interactionCreate", async interaction => {
             }
 
             return;
+        }
+
+        if (interaction.isButton() && interaction.customId.startsWith("backup_delete_")) {
+            const match = interaction.customId.match(/^backup_delete_(\d+)$/);
+            const isDeveloper = (Array.isArray(config.developers) ? config.developers : [])
+                .some(id => String(id) === interaction.user.id);
+            if (!isDeveloper) {
+                return interaction.reply({
+                    content: "❌ Only configured developers can delete server backups.",
+                    flags: MessageFlags.Ephemeral
+                });
+            }
+            if (!hasDefconCommandAccess(
+                interaction.user.id,
+                interaction.member,
+                config,
+                "d!delbackup"
+            )) {
+                return interaction.reply({
+                    content: "🚫 Backup deletion is restricted by the active DEFCON level.",
+                    flags: MessageFlags.Ephemeral
+                });
+            }
+            if (
+                !match ||
+                interaction.guild?.id !== config.guildId ||
+                interaction.channelId !== config.defconBackupChannelId ||
+                interaction.message.author.id !== client.user.id ||
+                !isStoredServerBackupMessage(interaction.message, match[1])
+            ) {
+                return interaction.reply({
+                    content: "❌ This is not a valid stored server-backup message.",
+                    flags: MessageFlags.Ephemeral
+                });
+            }
+
+            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+            try {
+                await interaction.message.delete();
+                return interaction.editReply(`✅ Deleted server backup **#${match[1]}**.`);
+            } catch (error) {
+                console.error(`[backup-delete] failed to delete backup ${match[1]}:`, error);
+                return interaction.editReply(`❌ Could not delete backup **#${match[1]}**: ${error.message}`);
+            }
         }
 
         if (interaction.isButton() && (

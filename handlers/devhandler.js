@@ -14,7 +14,10 @@ const adminHandler = require("./adminhandler");
 const defconAccess = require("../utils/defcon-access");
 const ticketTracker = require("../ticket-tracker");
 const { NORTHGATE_OS_PREFIX, OTHER_BOT_COMMANDS } = require("../utils/help");
-const { createServerBackup } = require("../utils/server-backup");
+const {
+    createServerBackup,
+    deleteStoredServerBackup
+} = require("../utils/server-backup");
 const { confirmMessage: confirmOwnerDefconUse } = require("../utils/defcon-owner-confirmation");
 const {
     findAdministratorRolesToRemove,
@@ -253,7 +256,7 @@ function evaluateCommandAccess(commandName, member, config, client, commandArgum
             : { result: "blocked", reason: powerAction === "on" ? "Only developers can power the bot on." : "Requires developer or ownership access." };
     }
 
-    if (["d!addgroup", "d!delgroup", "d!forceclose", "d!forceclaim", "!msg"].includes(commandName)) {
+    if (["d!addgroup", "d!delgroup", "d!delbackup", "d!forceclose", "d!forceclaim", "!msg"].includes(commandName)) {
         return isDeveloper
             ? { result: "allowed", reason: "Developer-only command." }
             : { result: "blocked", reason: "Developer-only command." };
@@ -282,7 +285,7 @@ function evaluateCommandAccess(commandName, member, config, client, commandArgum
             : { result: "blocked", reason: "Requires a support access role or developer access." };
     }
 
-    if (["d!addgroup", "d!delgroup", "d!showgroup", "d!forceclaim", "d!forceclose", "d!forcerestart", "d!impersonate"].includes(commandName)) {
+    if (["d!addgroup", "d!delgroup", "d!delbackup", "d!showgroup", "d!forceclaim", "d!forceclose", "d!forcerestart", "d!impersonate"].includes(commandName)) {
         return isDeveloper
             ? { result: "allowed", reason: "Developer-only command; other context requirements may also apply." }
             : { result: "blocked", reason: "Developer-only command." };
@@ -435,7 +438,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
 
     const args = message.content.slice(2).trim().split(/ +/);
     const command = args.shift()?.toLowerCase();
-    if (!["addgroup", "delgroup", "showgroup", "defcon", "secure", "forceclose", "impersonate", "power", "forcerestart"].includes(command)) return false;
+    if (!["addgroup", "delgroup", "showgroup", "defcon", "secure", "delbackup", "forceclose", "impersonate", "power", "forcerestart"].includes(command)) return false;
 
     // d!forcerestart names the bot: core (this one), ops (Staff Management),
     // shield (North Shield) or frontier (Frontier OS). Another bot's name is left to that bot. With no
@@ -726,7 +729,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
                         : "")
                 : "") +
             (backupReceipt
-                ? ` Server configuration backup (${backupReceipt.roleCount} roles, ${backupReceipt.channelCount} channels) uploaded to <#${config.defconBackupChannelId}>.` +
+                ? ` Server configuration backup #${backupReceipt.backupId} (${backupReceipt.roleCount} roles, ${backupReceipt.channelCount} channels) uploaded to <#${config.defconBackupChannelId}>.` +
                     (backupReceipt.unsupportedChannelCount || backupReceipt.excludedThreadCount
                         ? ` ${backupReceipt.unsupportedChannelCount} unsupported channel(s) and ${backupReceipt.excludedThreadCount} thread(s) were excluded.`
                         : "")
@@ -822,6 +825,34 @@ module.exports = async function handleDeveloperCommand(message, config) {
             (activeDefcon.defconOwnsLock ? " Force lock reversed." : "") +
             ` Removed ${currentDevelopers.length - developers.length} developer ID(s) added by DEFCON.`
         );
+        return true;
+    }
+
+    if (command === "delbackup") {
+        const backupId = args.shift();
+        if (!/^\d+$/.test(backupId || "")) {
+            await message.reply("❌ Usage: `d!delbackup <backup ID>`.");
+            return true;
+        }
+
+        const guild = message.guild || (config.guildId ? message.client.guilds.cache.get(config.guildId) : null);
+        if (!guild) {
+            await message.reply("❌ The server could not be resolved; no backup was deleted.");
+            return true;
+        }
+
+        try {
+            await deleteStoredServerBackup(
+                message.client,
+                guild,
+                config.defconBackupChannelId,
+                backupId
+            );
+            await message.reply(`✅ Deleted server backup **#${backupId}**.`);
+        } catch (error) {
+            console.error(`[devhandler] failed to delete backup ${backupId}:`, error);
+            await message.reply(`❌ Could not delete backup **#${backupId}**: ${error.message}`);
+        }
         return true;
     }
 

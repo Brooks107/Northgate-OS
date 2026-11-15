@@ -10,6 +10,7 @@ const { hasOwnershipAccess } = require("../utils/defcon-access");
 const {
     calculateBackupSimilarity,
     downloadServerBackup,
+    loadStoredServerBackup,
     restoreServerBackup,
     SIMILARITY_ABORT_PERCENT
 } = require("../utils/server-backup");
@@ -22,7 +23,13 @@ module.exports = {
             option
                 .setName("backup")
                 .setDescription("The server backup JSON file.")
-                .setRequired(true)
+                .setRequired(false)
+        )
+        .addStringOption(option =>
+            option
+                .setName("backup_id")
+                .setDescription("A stored backup ID. Omit this and the attachment to use the newest available backup.")
+                .setRequired(false)
         ),
 
     async execute(interaction, client, config) {
@@ -46,18 +53,37 @@ module.exports = {
                 flags: MessageFlags.Ephemeral
             });
         }
+        const attachment = interaction.options.getAttachment("backup");
+        const requestedBackupId = interaction.options.getString("backup_id");
+        if (attachment && requestedBackupId) {
+            return interaction.reply({
+                content: "❌ Choose either an attached backup or a stored backup ID, not both.",
+                flags: MessageFlags.Ephemeral
+            });
+        }
 
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         let backup;
+        let selectedBackupId = null;
+        let unavailableBackupIds = [];
         try {
-            backup = await downloadServerBackup(
-                interaction.options.getAttachment("backup", true),
-                interaction.guild
-            );
+            if (attachment) {
+                backup = await downloadServerBackup(attachment, interaction.guild);
+            } else {
+                const storedBackup = await loadStoredServerBackup(
+                    client,
+                    interaction.guild,
+                    config.defconBackupChannelId,
+                    requestedBackupId
+                );
+                backup = storedBackup.backup;
+                selectedBackupId = storedBackup.backupId;
+                unavailableBackupIds = storedBackup.fallbackBackupIds;
+            }
         } catch (error) {
             return interaction.editReply({
-                content: `❌ Backup validation failed: ${error.message}`,
+                content: `❌ Backup could not be loaded: ${error.message}`,
             });
         }
 
@@ -92,6 +118,12 @@ module.exports = {
             await interaction.editReply({
                 content:
                     `⚠️ **Restore server configuration from this backup?**\n` +
+                    (selectedBackupId
+                        ? `Backup ID: **#${selectedBackupId}**.\n`
+                        : "Source: uploaded JSON attachment.\n") +
+                    (unavailableBackupIds.length
+                        ? `⚠️ Newer backup(s) unavailable: ${unavailableBackupIds.map(id => `#${id}`).join(", ")}. Using the next available backup.\n`
+                        : "") +
                     `It contains ${backup.roles.length} roles and ${backup.channels.length} channels.\n` +
                     `Current server similarity: ${similarity.percentage.toFixed(1)}% ` +
                     `(${similarity.matchedCount}/${similarity.totalCount} backup roles and channels match).\n` +

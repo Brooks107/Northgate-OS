@@ -40,6 +40,9 @@ function load() {
                 id => typeof id === "string" && /^\d{17,20}$/.test(id)
             ))];
         }
+        if (Number.isSafeInteger(raw.nextServerBackupId) && raw.nextServerBackupId > 0) {
+            state.nextServerBackupId = raw.nextServerBackupId;
+        }
         if ("defconOwnsLock" in raw) {
             state.defconOwnsLock = Boolean(raw.defconOwnsLock);
         }

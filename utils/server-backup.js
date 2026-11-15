@@ -1,8 +1,13 @@
 const {
+    ActionRowBuilder,
     AttachmentBuilder,
+    ButtonBuilder,
+    ButtonStyle,
     ChannelType,
+    EmbedBuilder,
     PermissionFlagsBits
 } = require("discord.js");
+const state = require("../state");
 
 const BACKUP_FORMAT = "northgate-server-config";
 const BACKUP_VERSION = 1;
@@ -27,6 +32,64 @@ const VOICE_CHANNEL_TYPES = new Set([
     ChannelType.GuildVoice,
     ChannelType.GuildStageVoice
 ]);
+
+function allocateServerBackupId() {
+    const backupId = state.load().nextServerBackupId || 1;
+    if (!Number.isSafeInteger(backupId) || backupId <= 0 || backupId >= Number.MAX_SAFE_INTEGER) {
+        throw new Error("The next server backup ID is invalid.");
+    }
+    if (!state.save({ nextServerBackupId: backupId + 1 })) {
+        throw new Error("The next server backup ID could not be saved.");
+    }
+    return String(backupId);
+}
+
+function getStoredBackupId(message) {
+    const match = message.embeds?.find(embed =>
+        typeof embed.title === "string" &&
+        embed.title.startsWith("NorthGate OS Server Backup #")
+    )?.title?.match(/^NorthGate OS Server Backup #(\d+)$/);
+    return match?.[1] || null;
+}
+
+function getStoredBackupAttachment(message) {
+    return message.attachments?.find(attachment =>
+        attachment.name?.startsWith("northgate-server-backup-") &&
+        attachment.name.toLowerCase().endsWith(".json")
+    ) || null;
+}
+
+async function fetchStoredBackupMessages(client, guild, channelId) {
+    if (!/^\d{17,20}$/.test(String(channelId || ""))) {
+        throw new Error("The DEFCON backup channel ID is missing or invalid.");
+    }
+    const channel = await client.channels.fetch(channelId).catch(error => {
+        throw new Error(`Could not fetch the configured backup channel: ${error.message}`);
+    });
+    if (
+        !channel ||
+        ![ChannelType.GuildText, ChannelType.GuildAnnouncement].includes(channel.type) ||
+        channel.guildId !== guild.id ||
+        !channel.messages?.fetch
+    ) {
+        throw new Error("The configured backup destination must be a readable text channel in this server.");
+    }
+
+    const messages = [];
+    let before;
+    while (true) {
+        const page = await channel.messages.fetch({
+            limit: 100,
+            ...(before ? { before } : {})
+        });
+        if (page.size === 0) break;
+        messages.push(...page.values());
+        if (page.size < 100) break;
+        before = page.last()?.id;
+        if (!before) break;
+    }
+    return messages;
+}
 
 function serializeOverwrite(overwrite) {
     return {
@@ -177,23 +240,41 @@ async function createServerBackup(guild, client, channelId) {
         unsupportedChannels,
         excludedThreadCount
     };
+    const backupId = allocateServerBackupId();
+    backup.backupId = backupId;
     const json = Buffer.from(JSON.stringify(backup, null, 2), "utf8");
     if (json.length > MAX_BACKUP_BYTES) {
         throw new Error("The server configuration backup exceeds the 20 MB attachment limit.");
     }
 
     const filename = `northgate-server-backup-${backup.createdAt.replace(/[:.]/g, "-")}.json`;
+    const embed = new EmbedBuilder()
+        .setTitle(`NorthGate OS Server Backup #${backupId}`)
+        .setColor(0x2b6cb0)
+        .setDescription(`Server configuration backup for **${guild.name}**.`)
+        .addFields(
+            { name: "Backup ID", value: backupId, inline: true },
+            { name: "Roles", value: String(backup.roles.length), inline: true },
+            { name: "Channels", value: String(backup.channels.length), inline: true },
+            { name: "Excluded", value: `${excludedThreadCount} thread(s), ${unsupportedChannels.length} unsupported channel(s)`, inline: false }
+        )
+        .setTimestamp(new Date(backup.createdAt));
     const backupMessage = await backupChannel.send({
-        content: [
-            `DEFCON 1 server configuration backup for **${guild.name}**.`,
-            `Roles: ${backup.roles.length} • Channels: ${backup.channels.length}.`,
-            `Threads excluded: ${excludedThreadCount}. Messages and member lists are not included.`
-        ].join("\n"),
+        embeds: [embed],
+        components: [
+            new ActionRowBuilder().addComponents(
+                new ButtonBuilder()
+                    .setCustomId(`backup_delete_${backupId}`)
+                    .setLabel(`Delete backup #${backupId}`)
+                    .setStyle(ButtonStyle.Danger)
+            )
+        ],
         files: [new AttachmentBuilder(json, { name: filename })],
         allowedMentions: { parse: [] }
     });
 
     return {
+        backupId,
         filename,
         url: backupMessage.url,
         roleCount: backup.roles.length,
@@ -201,6 +282,65 @@ async function createServerBackup(guild, client, channelId) {
         unsupportedChannelCount: unsupportedChannels.length,
         excludedThreadCount
     };
+}
+
+async function listStoredServerBackups(client, guild, channelId) {
+    const messages = await fetchStoredBackupMessages(client, guild, channelId);
+    return messages
+        .map(message => ({
+            id: getStoredBackupId(message),
+            message,
+            attachment: getStoredBackupAttachment(message)
+        }))
+        .filter(backup => backup.id && backup.attachment)
+        .sort((left, right) => Number(right.id) - Number(left.id));
+}
+
+async function loadStoredServerBackup(client, guild, channelId, requestedBackupId) {
+    const backups = await listStoredServerBackups(client, guild, channelId);
+    const candidates = requestedBackupId
+        ? backups.filter(backup => backup.id === String(requestedBackupId))
+        : backups;
+    if (!candidates.length) {
+        throw new Error(requestedBackupId
+            ? `Backup ID ${requestedBackupId} was not found or has no available backup file.`
+            : "No available ID-based server backups were found in the backup channel.");
+    }
+
+    const failures = [];
+    for (const candidate of candidates) {
+        try {
+            const backup = await downloadServerBackup(candidate.attachment, guild);
+            return {
+                backup,
+                backupId: candidate.id,
+                fallbackBackupIds: failures.map(failure => failure.id)
+            };
+        } catch (error) {
+            failures.push({ id: candidate.id, error });
+            console.warn(`[server-backup] backup ${candidate.id} is unavailable:`, error.message);
+            if (requestedBackupId) throw error;
+        }
+    }
+
+    throw new Error(
+        `No stored backup could be downloaded. Tried IDs: ${failures.map(failure => failure.id).join(", ")}.`
+    );
+}
+
+function isStoredServerBackupMessage(message, backupId) {
+    return getStoredBackupId(message) === String(backupId);
+}
+
+async function deleteStoredServerBackup(client, guild, channelId, backupId) {
+    const messages = await fetchStoredBackupMessages(client, guild, channelId);
+    const message = messages.find(candidate =>
+        getStoredBackupId(candidate) === String(backupId)
+    );
+    if (!message) throw new Error(`Backup ID ${backupId} was not found in the storage channel.`);
+
+    await message.delete();
+    return { backupId: String(backupId) };
 }
 
 function isSnowflake(value) {
@@ -216,6 +356,14 @@ function validateServerBackup(backup, guild) {
     }
     if (backup.guildId !== guild.id) {
         throw new Error("This backup belongs to a different server.");
+    }
+    if (
+        backup.backupId !== undefined &&
+        (!/^\d+$/.test(String(backup.backupId)) ||
+            !Number.isSafeInteger(Number(backup.backupId)) ||
+            Number(backup.backupId) <= 0)
+    ) {
+        throw new Error("The backup contains an invalid backup ID.");
     }
     if (
         !Array.isArray(backup.roles) ||
@@ -700,7 +848,11 @@ module.exports = {
     SIMILARITY_ABORT_PERCENT,
     calculateBackupSimilarity,
     createServerBackup,
+    deleteStoredServerBackup,
     downloadServerBackup,
+    isStoredServerBackupMessage,
+    listStoredServerBackups,
+    loadStoredServerBackup,
     restoreServerBackup,
     validateServerBackup
 };
