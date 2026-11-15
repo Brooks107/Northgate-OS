@@ -7,12 +7,17 @@ const {
 } = require("discord.js");
 const state = require("../state");
 const { hasOwnershipAccess } = require("../utils/defcon-access");
-const { downloadServerBackup, restoreServerBackup } = require("../utils/server-backup");
+const {
+    calculateBackupSimilarity,
+    downloadServerBackup,
+    restoreServerBackup,
+    SIMILARITY_ABORT_PERCENT
+} = require("../utils/server-backup");
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("backupload")
-        .setDescription("Restore server configuration from a NorthGate JSON backup.")
+        .setDescription("Restore a NorthGate server backup with a similarity safeguard.")
         .addAttachmentOption(option =>
             option
                 .setName("backup")
@@ -42,6 +47,8 @@ module.exports = {
             });
         }
 
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
         let backup;
         try {
             backup = await downloadServerBackup(
@@ -49,41 +56,63 @@ module.exports = {
                 interaction.guild
             );
         } catch (error) {
-            return interaction.reply({
+            return interaction.editReply({
                 content: `❌ Backup validation failed: ${error.message}`,
-                flags: MessageFlags.Ephemeral
+            });
+        }
+
+        let similarity;
+        try {
+            similarity = await calculateBackupSimilarity(interaction.guild, backup);
+        } catch (error) {
+            console.error("[backupload] could not calculate server similarity:", error);
+            return interaction.editReply({
+                content: "❌ The current server could not be safely compared with this backup. No changes were made.",
+            });
+        }
+        if (similarity.isSimilar && !isDeveloper) {
+            return interaction.editReply({
+                content:
+                    `🛑 Restore aborted: ${similarity.percentage.toFixed(1)}% of the backup's roles and channels ` +
+                    `already match this server. At least ${SIMILARITY_ABORT_PERCENT}% requires an explicit developer override.`
             });
         }
 
         const token = interaction.id;
         const confirmId = `backupload_confirm_${interaction.user.id}_${token}`;
+        const overrideId = `backupload_override_${interaction.user.id}_${token}`;
         const cancelId = `backupload_cancel_${interaction.user.id}_${token}`;
+        const restoreActionId = similarity.isSimilar ? overrideId : confirmId;
         if (!client.activeBackupRestoreConfirmations) {
             client.activeBackupRestoreConfirmations = new Set();
         }
         client.activeBackupRestoreConfirmations.add(token);
 
         try {
-            await interaction.reply({
+            await interaction.editReply({
                 content:
                     `⚠️ **Restore server configuration from this backup?**\n` +
                     `It contains ${backup.roles.length} roles and ${backup.channels.length} channels.\n` +
+                    `Current server similarity: ${similarity.percentage.toFixed(1)}% ` +
+                    `(${similarity.matchedCount}/${similarity.totalCount} backup roles and channels match).\n` +
+                    (similarity.isSimilar
+                        ? `🛑 This reaches the ${SIMILARITY_ABORT_PERCENT}% protection threshold. Clicking below is an explicit developer override.\n`
+                        : `Similarity is below the ${SIMILARITY_ABORT_PERCENT}% protection threshold.\n`) +
                     "Matching resources will be updated, missing ones recreated, and extra resources left untouched. " +
                     "Channel permission overwrites and supported server settings will be restored. " +
                     `Threads excluded: ${backup.excludedThreadCount || 0}. Messages, member lists, and member-role assignments are not included.`,
                 components: [
                     new ActionRowBuilder().addComponents(
                         new ButtonBuilder()
-                            .setCustomId(confirmId)
-                            .setLabel("Restore backup")
-                            .setStyle(ButtonStyle.Danger),
+                            .setCustomId(restoreActionId)
+                            .setLabel(similarity.isSimilar ? "Developer override" : "Restore backup")
+                            .setStyle(similarity.isSimilar ? ButtonStyle.Danger : ButtonStyle.Primary),
                         new ButtonBuilder()
                             .setCustomId(cancelId)
                             .setLabel("Cancel")
                             .setStyle(ButtonStyle.Secondary)
                     )
-                ],
-                flags: MessageFlags.Ephemeral
+                ]
             });
 
             const confirmation = await interaction.fetchReply();
@@ -108,11 +137,41 @@ module.exports = {
                 });
                 return;
             }
+            if (choice.customId !== restoreActionId) {
+                await choice.update({
+                    content: "❌ This restore confirmation is invalid. No changes were made.",
+                    components: []
+                });
+                return;
+            }
 
             await choice.update({
-                content: "⏳ Restoring server configuration. Extra resources will not be deleted.",
+                content: "⏳ Rechecking similarity before restoring. Extra resources will not be deleted.",
                 components: []
             });
+
+            let latestSimilarity;
+            try {
+                latestSimilarity = await calculateBackupSimilarity(interaction.guild, backup);
+            } catch (error) {
+                console.error("[backupload] could not recheck server similarity:", error);
+                await interaction.editReply({
+                    content: "❌ The current server could not be safely rechecked. No restore was started.",
+                    components: []
+                });
+                return;
+            }
+            const overrideRequested = choice.customId === overrideId;
+            if (latestSimilarity.isSimilar && (!overrideRequested || !isDeveloper)) {
+                await interaction.editReply({
+                    content:
+                        `🛑 Restore aborted: current server similarity is ${latestSimilarity.percentage.toFixed(1)}%, ` +
+                        `at or above the ${SIMILARITY_ABORT_PERCENT}% threshold. ` +
+                        "A developer must explicitly override this protection.",
+                    components: []
+                });
+                return;
+            }
 
             if (config.forceLocked || state.load().forceLocked) {
                 await interaction.editReply({
@@ -121,6 +180,13 @@ module.exports = {
                 });
                 return;
             }
+
+            await interaction.editReply({
+                content:
+                    `${overrideRequested ? "⚠️ Developer override accepted. " : ""}` +
+                    "⏳ Restoring server configuration. Extra resources will not be deleted.",
+                components: []
+            });
 
             let result;
             try {

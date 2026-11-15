@@ -96,8 +96,10 @@ with active ticket channels periodically.
   matching roles and channels, recreates missing resources, leaves extras
   untouched, and restores supported server settings and channel overwrites.
   Messages, member lists, and member-role assignments are not included.
-  Only developers or configured ownership can use it, and an active force
-  lock must be ended first.
+  If at least 75% of the backup's combined roles and channels already match
+  the server, restore aborts unless a developer explicitly overrides the
+  safeguard. Only developers or configured ownership can use it, and an
+  active force lock must be ended first.
 - `d!power off`, `d!power on`, and `d!power status` manage or report maintenance
   mode. Maintenance mode makes the bot appear offline and restricts normal
   command use to developers.

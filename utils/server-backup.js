@@ -7,6 +7,7 @@ const {
 const BACKUP_FORMAT = "northgate-server-config";
 const BACKUP_VERSION = 1;
 const MAX_BACKUP_BYTES = 20 * 1024 * 1024;
+const SIMILARITY_ABORT_PERCENT = 75;
 const SUPPORTED_CHANNEL_TYPES = new Set([
     ChannelType.GuildText,
     ChannelType.GuildVoice,
@@ -441,6 +442,73 @@ function channelEditOptions(record, parentId, overwrites) {
     return options;
 }
 
+function findMatchingRole(record, roles, guildId) {
+    let role = roles.get(record.id);
+    if (!role && !record.managed) {
+        const sameName = [...roles.values()].filter(candidate =>
+            candidate.name === record.name &&
+            !candidate.managed &&
+            candidate.id !== guildId
+        );
+        if (sameName.length === 1) role = sameName[0];
+    }
+    return role;
+}
+
+function findMatchingChannel(record, channels, parentId) {
+    let channel = channels.get(record.id);
+    if (channel?.type !== record.type) channel = null;
+    if (!channel && (!record.parentId || parentId)) {
+        const matching = [...channels.values()].filter(candidate =>
+            !candidate.isThread?.() &&
+            candidate.type === record.type &&
+            candidate.name === record.name &&
+            candidate.parentId === parentId
+        );
+        if (matching.length === 1) channel = matching[0];
+    }
+    return channel;
+}
+
+async function calculateBackupSimilarity(guild, backup) {
+    const [roles, channels] = await Promise.all([
+        guild.roles.fetch(),
+        guild.channels.fetch()
+    ]);
+
+    const matchingRoleCount = backup.roles.filter(record =>
+        Boolean(findMatchingRole(record, roles, guild.id))
+    ).length;
+    const channelIds = new Map();
+    let matchingChannelCount = 0;
+    const channelRecords = [...backup.channels].sort((a, b) =>
+        Number(b.type === ChannelType.GuildCategory) - Number(a.type === ChannelType.GuildCategory) ||
+        a.position - b.position
+    );
+    for (const record of channelRecords) {
+        const parentId = record.parentId ? channelIds.get(record.parentId) : null;
+        const channel = findMatchingChannel(record, channels, parentId);
+        if (channel) {
+            matchingChannelCount++;
+            channelIds.set(record.id, channel.id);
+        }
+    }
+
+    const matchedCount = matchingRoleCount + matchingChannelCount;
+    const totalCount = backup.roles.length + backup.channels.length;
+    const percentage = totalCount ? matchedCount / totalCount * 100 : 0;
+    return {
+        matchingRoleCount,
+        totalRoleCount: backup.roles.length,
+        matchingChannelCount,
+        totalChannelCount: backup.channels.length,
+        matchedCount,
+        totalCount,
+        percentage,
+        isSimilar: percentage >= SIMILARITY_ABORT_PERCENT
+    };
+}
+
 async function restoreRoles(guild, backup, warnings) {
     const rolesById = await guild.roles.fetch();
     const roleIds = new Map([[backup.guildId, guild.id]]);
@@ -458,15 +526,7 @@ async function restoreRoles(guild, backup, warnings) {
             continue;
         }
 
-        let role = rolesById.get(record.id);
-        if (!role) {
-            const sameName = [...rolesById.values()].filter(candidate =>
-                candidate.name === record.name &&
-                !candidate.managed &&
-                candidate.id !== guild.id
-            );
-            if (sameName.length === 1) role = sameName[0];
-        }
+        let role = findMatchingRole(record, rolesById, guild.id);
         if (record.managed) {
             if (!role) warnings.push(`Managed role "${record.name}" no longer exists and cannot be recreated.`);
             else roleIds.set(record.id, role.id);
@@ -542,17 +602,7 @@ async function restoreChannels(guild, backup, roleIds, warnings) {
             warnings.push(`Channel "${record.name}" has a category that could not be restored.`);
         }
         const overwrites = mapPermissionOverwrites(record.permissionOverwrites, roleIds, warnings);
-        let channel = currentChannels.get(record.id);
-        if (channel?.type !== record.type) channel = null;
-        if (!channel) {
-            const matching = [...currentChannels.values()].filter(candidate =>
-                !candidate.isThread?.() &&
-                candidate.type === record.type &&
-                candidate.name === record.name &&
-                candidate.parentId === parentId
-            );
-            if (matching.length === 1) channel = matching[0];
-        }
+        let channel = findMatchingChannel(record, currentChannels, parentId);
 
         const options = channelEditOptions(record, parentId, overwrites);
         if (!channel) {
@@ -647,6 +697,8 @@ module.exports = {
     BACKUP_FORMAT,
     BACKUP_VERSION,
     MAX_BACKUP_BYTES,
+    SIMILARITY_ABORT_PERCENT,
+    calculateBackupSimilarity,
     createServerBackup,
     downloadServerBackup,
     restoreServerBackup,

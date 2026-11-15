@@ -23,7 +23,9 @@ module.exports = {
                 "Changing to a level without force lock removes an active force lock. " +
                 "`d!secure` ends DEFCON, restores a lock it owns, and removes only emergency developer IDs added by DEFCON. " +
                 "Only developers can activate DEFCON. Developers and members with a configured ownership role can always run `d!secure`. " +
-                "`/backupload` restores a same-server JSON backup non-destructively: matching roles and channels are updated, missing ones recreated, and extra resources left in place. Messages, member lists, and member-role assignments are not backed up."
+                "`/backupload` restores a same-server JSON backup non-destructively: matching roles and channels are updated, missing ones recreated, and extra resources left in place. " +
+                "It aborts when at least 75% of the backup's combined roles and channels already match; only a developer can explicitly override that safeguard. " +
+                "Messages, member lists, and member-role assignments are not backed up."
             )
             .setColor(0xdc2626)
             .addFields(LEVELS.map(([name, value]) => ({ name, value, inline: false })))

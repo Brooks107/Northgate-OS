@@ -238,10 +238,10 @@ client.on("interactionCreate", async interaction => {
     try {
         if (interaction.isButton() && interaction.customId.startsWith("backupload_")) {
             const match = interaction.customId.match(
-                /^backupload_(?:confirm|cancel)_(\d{17,20})_(\d{17,20})$/
+                /^backupload_(confirm|override|cancel)_(\d{17,20})_(\d{17,20})$/
             );
             const isActive = match &&
-                client.activeBackupRestoreConfirmations?.has(match[2]);
+                client.activeBackupRestoreConfirmations?.has(match[3]);
 
             if (!isActive) {
                 return interaction.reply({
@@ -250,9 +250,20 @@ client.on("interactionCreate", async interaction => {
                 });
             }
 
-            if (interaction.user.id !== match[1]) {
+            if (interaction.user.id !== match[2]) {
                 return interaction.reply({
                     content: "❌ Only the person who started this backup restore can respond.",
+                    flags: MessageFlags.Ephemeral
+                });
+            }
+
+            if (
+                match[1] === "override" &&
+                !(Array.isArray(config.developers) ? config.developers : [])
+                    .some(id => String(id) === interaction.user.id)
+            ) {
+                return interaction.reply({
+                    content: "❌ Only a configured developer can override the backup similarity protection.",
                     flags: MessageFlags.Ephemeral
                 });
             }
