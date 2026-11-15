@@ -121,9 +121,12 @@ async function applyForceLock(message, config, shouldLock, command) {
     const savedForceLockOverwrites = state.load().forceLockOverwrites;
     const stepLabels = [
         "Find lock channels and validate permission capacity",
-        ...(shouldLock ? ["Lock ticket panel buttons"] : []),
-        ...LOCKED_CHANNEL_IDS.map(id => `Update permissions in <#${id}>`),
-        ...(!shouldLock && savedForceLockOverwrites ? ["Restore saved channel permissions"] : []),
+        ...(shouldLock ? ["Save original channel permissions", "Lock ticket panel buttons"] : []),
+        ...(shouldLock
+            ? LOCKED_CHANNEL_IDS.map(id => `Update permissions in <#${id}>`)
+            : savedForceLockOverwrites
+                ? ["Restore saved channel permissions"]
+                : []),
         ...(!shouldLock ? ["Unlock ticket panel buttons"] : []),
         "Save the lock state",
         "Refresh the admin panel"
@@ -167,52 +170,54 @@ async function applyForceLock(message, config, shouldLock, command) {
                         deny: BigInt(overwrite.deny.bitfield)
                     }])
                 );
-                lockOverwritesByChannel.set(
-                    channel.id,
-                    updateForceLockOverwrites(
-                        overwrites,
-                            channel.guild.id,
-                        BigInt(permission),
-                        shouldLock
-                    )
-                );
+                if (shouldLock) {
+                    if (!originalOverwrites[channel.id]) {
+                            originalOverwrites[channel.id] = [...overwrites.values()].map(overwrite => ({
+                                id: overwrite.id,
+                                type: overwrite.type,
+                                allow: overwrite.allow.toString(),
+                                deny: overwrite.deny.toString()
+                            }));
+                    }
+                    lockOverwritesByChannel.set(
+                            channel.id,
+                            updateForceLockOverwrites(
+                                overwrites,
+                                channel.guild.id,
+                                BigInt(permission),
+                                true
+                            )
+                    );
+                }
             }
         });
 
         if (shouldLock) {
+            await progress.runStep(step++, async () => {
+                stateSaved = state.save({
+                    locked: true,
+                    forceLocked: true,
+                    forceLockOverwrites: originalOverwrites
+                });
+                if (!stateSaved) {
+                    throw new Error("Could not save original channel permissions; force lock was not applied.");
+                }
+            });
+
             config.forceLocked = true;
+            config.locked = true;
             await progress.runStep(step++, () =>
                 setTicketPanelsLocked(message.client, config.channels.ticketchannelid, true)
             );
         }
 
-        for (const channel of channels) {
-            await progress.runStep(step++, async () => {
-                const overwrites = new Map(
-                    channel.permissionOverwrites.cache.map(overwrite => [overwrite.id, {
-                        id: overwrite.id,
-                        type: overwrite.type,
-                        allow: BigInt(overwrite.allow.bitfield),
-                        deny: BigInt(overwrite.deny.bitfield)
-                    }])
+        if (shouldLock) {
+            for (const channel of channels) {
+                await progress.runStep(step++, () =>
+                    channel.permissionOverwrites.set(lockOverwritesByChannel.get(channel.id))
                 );
-
-                if (shouldLock) {
-                    if (!originalOverwrites[channel.id]) {
-                        originalOverwrites[channel.id] = [...overwrites.values()].map(overwrite => ({
-                            id: overwrite.id,
-                            type: overwrite.type,
-                            allow: overwrite.allow.toString(),
-                            deny: overwrite.deny.toString()
-                        }));
-                    }
-                }
-
-                await channel.permissionOverwrites.set(lockOverwritesByChannel.get(channel.id));
-            });
-        }
-
-        if (!shouldLock && savedForceLockOverwrites) {
+            }
+        } else if (savedForceLockOverwrites) {
             await progress.runStep(step++, async () => {
                 for (const channel of channels) {
                     const original = savedForceLockOverwrites[channel.id];
@@ -260,6 +265,9 @@ async function applyForceLock(message, config, shouldLock, command) {
             (shouldLock
                 ? `🔒 Force lock completed in ${(elapsedMilliseconds / 1000).toFixed(2)} seconds.`
                 : `🔓 Force unlock completed in ${(elapsedMilliseconds / 1000).toFixed(2)} seconds.`) +
+            (!shouldLock && !savedForceLockOverwrites
+                ? "\n⚠️ No saved channel permissions were found, so channel permissions were left unchanged."
+                : "") +
             (stateSaved ? "" : "\n⚠️ Channel permissions changed, but the lock state could not be saved.")
         );
         return true;
