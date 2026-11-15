@@ -551,10 +551,14 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
     if (!channelIsLocked) return;
 
     const toArray = value => Array.isArray(value) ? value : value ? [value] : [];
+    const board = config.boardOfDirectors || {};
     const allowedRoleIds = [
-        ...toArray(config.hrdirectorrole),
         ...toArray(config.hrmanagerrole),
-        ...toArray(config.techdirrole),
+        ...toArray(board.hrdir),
+        ...toArray(board.techdir),
+        ...toArray(board.prdir),
+        ...toArray(board.devdir),
+        ...toArray(board.comdir),
         ...toArray(config.ownershiprole)
     ].filter(Boolean);
 
