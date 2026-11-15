@@ -68,11 +68,20 @@ async function confirmMessage(message) {
         message.author.id,
         message.id
     );
-    const response = await message.reply({
-        content: OWNERSHIP_DEFCON_WARNING,
-        components
-    });
-    return waitForConfirmation(response, message.author.id, agreeId, cancelId);
+    if (!message.client.activeDefconOwnerConfirmations) {
+        message.client.activeDefconOwnerConfirmations = new Set();
+    }
+    message.client.activeDefconOwnerConfirmations.add(message.id);
+
+    try {
+        const response = await message.reply({
+            content: OWNERSHIP_DEFCON_WARNING,
+            components
+        });
+        return await waitForConfirmation(response, message.author.id, agreeId, cancelId);
+    } finally {
+        message.client.activeDefconOwnerConfirmations.delete(message.id);
+    }
 }
 
 module.exports = {

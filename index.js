@@ -316,6 +316,30 @@ client.on("interactionCreate", async interaction => {
             return;
         }
 
+        if (interaction.isButton() && interaction.customId.startsWith("defcon_owner_")) {
+            const match = interaction.customId.match(
+                /^defcon_owner_(?:agree|cancel)_(\d{17,20})_(\d{17,20})$/
+            );
+            const isActive = match &&
+                client.activeDefconOwnerConfirmations?.has(match[2]);
+
+            if (!isActive) {
+                return interaction.reply({
+                    content: "⌛ This DEFCON confirmation is no longer active. Run the command again.",
+                    flags: MessageFlags.Ephemeral
+                });
+            }
+
+            if (interaction.user.id !== match[1]) {
+                return interaction.reply({
+                    content: "❌ Only the ownership member who started this DEFCON command can respond.",
+                    flags: MessageFlags.Ephemeral
+                });
+            }
+
+            return;
+        }
+
         if (interaction.isButton() && (
             interaction.customId.startsWith("group_confirm_") ||
             interaction.customId.startsWith("group_cancel_")
