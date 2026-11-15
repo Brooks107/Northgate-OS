@@ -34,6 +34,7 @@ const SLASH_COMMAND_ACCESS = {
 	managementvclock: "Ownership, HRDIR, or TechDir",
 	defconguide: "Everyone (subject to active DEFCON restrictions)",
 	defconwl: "Developers only (subject to active DEFCON restrictions)",
+	backupcreate: "Developers only (subject to active DEFCON restrictions)",
 	backupload: "Developers or ownership; developer-only override if the 75% similarity guard triggers",
 	close: "Ticket users and staff, subject to ticket access",
 	autoclose: "Members with Manage Channels",

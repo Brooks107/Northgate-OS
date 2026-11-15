@@ -22,6 +22,7 @@ module.exports = {
                 "`d!defcon status` shows the active level, command access, lock state, activation time, and any recorded issue. " +
                 "Changing to a level without force lock removes an active force lock. " +
                 "`d!secure` ends DEFCON, restores a lock it owns, and removes only emergency developer IDs added by DEFCON. " +
+                "`/backupcreate` lets developers manually create a server-configuration backup in the configured backup channel. " +
                 "`/defconwl <role>` lets developers exempt roles from DEFCON 1's Administrator removal; NorthShield, NorthOps, and Honeypot are pre-whitelisted. " +
                 "Developers and members with a configured ownership role can activate DEFCON. Developers and members with a configured ownership role can always run `d!secure`; ownership members are warned when activating, not when securing. " +
                 "`/backupload` restores a same-server JSON backup non-destructively: matching roles and channels are updated, missing ones recreated, and extra resources left in place. " +
