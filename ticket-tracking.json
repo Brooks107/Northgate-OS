@@ -328,9 +328,9 @@
       "• Ticket created"
     ],
     "status": "🟡 Claimed",
-    "updatedAt": "2026-11-19T00:46:25.716Z",
-    "lastEvent": "transferred",
-    "assignedTo": "1267321190821789780"
+    "updatedAt": "2026-11-19T01:04:54.787Z",
+    "lastEvent": "claimed",
+    "assignedTo": "1419379683455271034"
   },
 
   "_scanDiagnostics": {
