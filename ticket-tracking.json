@@ -308,6 +308,30 @@
     "closedAt": "2026-11-01T21:51:39.510Z"
   },
 
+  "_comment_1572773610542862551": "---------------- Ticket #1: hiring-1 ----------------",
+
+  "1572773610542862551": {
+    "ticketName": "hiring-1",
+    "ticketTitle": "Hiring Application",
+    "userId": "1211700740444131378",
+    "messageId": "1572773629903765537",
+    "channelId": "1539010556701188206",
+    "ticketId": 1,
+    "originalInfo": {
+      "id": 1,
+      "title": "Hiring Application",
+      "userId": "1211700740444131378",
+      "description": "Role: Human Resources, Experience: I have experience with Human Resources within the midtown genre and its general moderation, I was sort of Every Zombie Game Evr as Military Police (before it shut down), and I have been apart of many small groups special investigations or special operations.",
+      "createdAt": "11/18/2026, 5:40:54 PM"
+    },
+    "notes": [
+      "• Ticket created"
+    ],
+    "status": "🟢 Open",
+    "updatedAt": "2026-11-19T00:40:54.297Z",
+    "lastEvent": "created"
+  },
+
   "_scanDiagnostics": {
     "lastRunAt": "2026-11-18T23:53:22.799Z",
     "status": "completed",
