@@ -191,10 +191,11 @@ restart it with only the selected config loaded.
 The bot starts with an immediate Main-to-Vault role/channel mirror, then
 repeats every 24 hours after a successful sync. It mirrors supported channel
 and role settings and removes Vault-only channels and unmanaged roles; it does
-not copy messages or member-role assignments. Main audit-log activity of 10 or more
-channel creations, 5 or more channel deletions, or 5 or more role creations or
-deletions in the previous 24 hours pauses the mirror and DMs `brooksy246` with
-**Confirm abort** and **Sync anyway** buttons. The bot needs View Channels on
+not copy messages, threads, or member-role assignments. Main audit-log activity
+of 10 or more channel creations, 5 or more channel deletions, or 5 or more role
+creations or deletions in the previous 24 hours pauses the mirror and DMs
+`brooksy246` with **Confirm abort** and **Sync anyway** buttons. The bot needs
+View Channels on
 both servers, View Audit Log on Main, and Manage Channels and Manage Roles on
 Vault. Manage Expressions on both servers is needed to map custom emoji
 references. Set `SYNC_ALERT_USER_ID` if

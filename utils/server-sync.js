@@ -29,6 +29,11 @@ const SUPPORTED_CHANNEL_TYPES = new Set([
     ChannelType.GuildForum,
     ChannelType.GuildMedia
 ]);
+const THREAD_CHANNEL_TYPES = new Set([
+    ChannelType.AnnouncementThread,
+    ChannelType.PublicThread,
+    ChannelType.PrivateThread
+]);
 const pendingApprovals = new Map();
 let activeSync = false;
 let scheduleTimer = null;
@@ -444,7 +449,10 @@ function sortedChannels(guild) {
 
 function getUnsupportedChannels(guild) {
     return [...guild.channels.cache.values()].filter(
-        channel => channel.guild && !SUPPORTED_CHANNEL_TYPES.has(channel.type)
+        channel =>
+            channel.guild &&
+            !SUPPORTED_CHANNEL_TYPES.has(channel.type) &&
+            !THREAD_CHANNEL_TYPES.has(channel.type)
     );
 }
 
@@ -640,5 +648,6 @@ module.exports = {
     handleInteraction,
     getRecentChanges,
     getTriggeredThresholds,
+    getUnsupportedChannels,
     THRESHOLDS
 };
