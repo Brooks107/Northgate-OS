@@ -161,6 +161,9 @@ heartbeat for monitoring and checks its configured Git remote for updates.
 
 ### Main and Vault environments
 
+See [MAIN-VAULT-SYSTEM.md](./MAIN-VAULT-SYSTEM.md) for the full failover,
+mirroring, circuit-breaker, and config-sync guide.
+
 The bot uses two tracked environment configs: `main-config.json` contains the
 Main server settings, and `vault-config.json` contains the Vault settings.
 `main-config.json` is required at startup; if `vault-config.json` is missing,
