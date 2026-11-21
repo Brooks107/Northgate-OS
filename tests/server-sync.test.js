@@ -3,6 +3,7 @@ const test = require("node:test");
 const { ChannelType } = require("discord.js");
 const {
     applyChannelOptions,
+    applyRolePositions,
     applyRoleOptions,
     buildRolePositionUpdates,
     channelOptionsWithoutBoostFeatures,
@@ -172,5 +173,63 @@ test("role positions preserve Main hierarchy below the bot role", () => {
     assert.throws(
         () => buildRolePositionUpdates(roles, 3, false),
         /Move the bot's role above the roles being mirrored/
+    );
+});
+
+test("role positioning falls back to individual moves after bulk permission denial", async () => {
+    const calls = [];
+    const updates = [
+        {
+            role: {
+                name: "Member",
+                id: "member-role",
+                setPosition: async position => calls.push(["member-role", position])
+            },
+            position: 1
+        },
+        {
+            role: {
+                name: "Staff",
+                id: "staff-role",
+                setPosition: async position => calls.push(["staff-role", position])
+            },
+            position: 2
+        }
+    ];
+    const target = {
+        roles: {
+            setPositions: async () => {
+                throw Object.assign(new Error("Missing Permissions"), { code: 50013 });
+            }
+        }
+    };
+
+    await applyRolePositions(target, updates);
+
+    assert.deepEqual(calls, [["member-role", 1], ["staff-role", 2]]);
+});
+
+test("individual role-position fallback identifies the role Discord rejects", async () => {
+    const updates = [{
+        role: {
+            name: "Staff",
+            id: "staff-role",
+            setPosition: async () => {
+                throw Object.assign(new Error("Missing Permissions"), { code: 50013 });
+            }
+        },
+        position: 2
+    }];
+    const target = {
+        roles: {
+            setPositions: async () => {
+                throw Object.assign(new Error("Missing Permissions"), { code: 50013 });
+            }
+        }
+    };
+
+    await assert.rejects(
+        applyRolePositions(target, updates),
+        /role "Staff" \(staff-role\) could not be moved to position 2/
     );
 });

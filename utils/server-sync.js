@@ -325,6 +325,32 @@ function buildRolePositionUpdates(rolesInSourceOrder, botHighestPosition, isAdmi
     }));
 }
 
+async function applyRolePositions(target, updates) {
+    try {
+        return await target.roles.setPositions(updates);
+    } catch (bulkError) {
+        if (bulkError?.code !== 50013) throw bulkError;
+
+        for (const { role, position } of updates) {
+            try {
+                await role.setPosition(position, {
+                    reason: "Automated 24-hour main-to-vault server sync"
+                });
+            } catch (roleError) {
+                throw new Error(
+                    `Bulk role ordering was denied, and role "${role.name}" (${role.id}) ` +
+                    `could not be moved to position ${position}: ${describeSyncError(roleError)}. ` +
+                    `Bulk error: ${describeSyncError(bulkError)}`
+                );
+            }
+        }
+
+        console.warn(
+            "[server-sync] Bulk role ordering was denied; individual role updates succeeded."
+        );
+    }
+}
+
 async function ensureVaultManagementAccess(client, target) {
     const botMember = target.members.me || await withSyncContext(
         "Could not verify the bot's Vault membership",
@@ -436,7 +462,7 @@ async function syncRoles(source, target, botMember) {
                 `${botMember.permissions.has(PermissionFlagsBits.ManageRoles)}; ` +
                 `requested positions ${Math.min(...requestedPositions)}-${Math.max(...requestedPositions)}). ` +
                 "Check the bot role hierarchy",
-            () => target.roles.setPositions(orderedUpdates)
+                () => applyRolePositions(target, orderedUpdates)
         );
     }
 
@@ -838,6 +864,7 @@ module.exports = {
     isGuildFeatureRequirementError,
     getMaxVoiceBitrate,
     buildRolePositionUpdates,
+    applyRolePositions,
     roleOptionsWithoutBoostFeatures,
     channelOptionsWithoutBoostFeatures,
     applyRoleOptions,
