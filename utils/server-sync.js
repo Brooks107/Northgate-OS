@@ -7,7 +7,8 @@ const {
     ButtonBuilder,
     ButtonStyle,
     ChannelType,
-    MessageFlags
+    MessageFlags,
+    PermissionFlagsBits
 } = require("discord.js");
 const configManager = require("../configManager");
 
@@ -47,6 +48,14 @@ function isGuildFeatureRequirementError(error) {
 function describeSyncError(error) {
     const message = error?.message || String(error);
     return error?.code ? `${message} (Discord code ${error.code})` : message;
+}
+
+async function withSyncContext(context, operation) {
+    try {
+        return await operation();
+    } catch (error) {
+        throw new Error(`${context}: ${describeSyncError(error)}`);
+    }
 }
 
 function getMaxVoiceBitrate(guild) {
@@ -295,6 +304,53 @@ function sortedRoles(guild) {
         .sort((left, right) => left.position - right.position);
 }
 
+function buildRolePositionUpdates(rolesInSourceOrder, botHighestPosition, isAdministrator) {
+    if (!rolesInSourceOrder.length) return [];
+
+    const highestAssignablePosition = botHighestPosition - 1;
+    if (!isAdministrator && highestAssignablePosition < rolesInSourceOrder.length) {
+        throw new Error(
+            "Vault does not have enough role positions below the bot's highest role. " +
+            "Move the bot's role above the roles being mirrored."
+        );
+    }
+
+    const highestPosition = isAdministrator
+        ? Math.max(rolesInSourceOrder.length, highestAssignablePosition)
+        : highestAssignablePosition;
+    const firstPosition = highestPosition - rolesInSourceOrder.length + 1;
+    return rolesInSourceOrder.map(({ role }, index) => ({
+        role,
+        position: firstPosition + index
+    }));
+}
+
+async function ensureVaultManagementAccess(client, target) {
+    const botMember = target.members.me || await withSyncContext(
+        "Could not verify the bot's Vault membership",
+        () => target.members.fetch(client.user.id)
+    );
+    const missingPermissions = [
+        !botMember.permissions.has(PermissionFlagsBits.ManageRoles) && "Manage Roles",
+        !botMember.permissions.has(PermissionFlagsBits.ManageChannels) && "Manage Channels"
+    ].filter(Boolean);
+
+    if (missingPermissions.length) {
+        throw new Error(`Vault bot is missing required permissions: ${missingPermissions.join(", ")}.`);
+    }
+
+    const unmanageableRoles = sortedRoles(target)
+        .filter(role => !role.editable)
+        .map(role => role.name);
+    if (unmanageableRoles.length) {
+        throw new Error(
+            `Vault bot cannot manage these roles: ${unmanageableRoles.slice(0, 5).join(", ")}. ` +
+            "Move the bot's highest role above them in Server Settings > Roles."
+        );
+    }
+    return botMember;
+}
+
 async function roleOptions(role) {
     const options = {
         name: role.name,
@@ -323,10 +379,10 @@ async function roleOptions(role) {
     return options;
 }
 
-async function syncRoles(source, target) {
-    await Promise.all([source.roles.fetch(), target.roles.fetch()]);
-    const targetIndex = indexByIdentity(sortedRoles(target), roleIdentity);
+async function syncRoles(source, target, botMember) {
+    const targetIndex = indexByIdentity([...sortedRoles(target)].reverse(), roleIdentity);
     const sourceRoles = sortedRoles(source);
+    const sourceOrder = new Map(sourceRoles.map((role, index) => [role.id, index]));
     const roleMap = new Map();
     const retainedTargetIds = new Set();
     const positionUpdates = [];
@@ -336,7 +392,7 @@ async function syncRoles(source, target) {
     let created = 0;
     let updated = 0;
 
-    for (const sourceRole of sourceRoles) {
+    for (const sourceRole of [...sourceRoles].reverse()) {
         let targetRole = takeByIdentity(targetIndex, roleIdentity(sourceRole));
         const options = { ...optionsByRole.get(sourceRole) };
         if (targetRole) {
@@ -355,21 +411,43 @@ async function syncRoles(source, target) {
         }
         roleMap.set(sourceRole.id, targetRole.id);
         retainedTargetIds.add(targetRole.id);
-        positionUpdates.push({ role: targetRole, position: sourceRole.position });
+        positionUpdates.push({
+            role: targetRole,
+            order: sourceOrder.get(sourceRole.id)
+        });
     }
 
     if (positionUpdates.length) {
-        await target.roles.setPositions(positionUpdates);
+        await withSyncContext(
+            "Could not refresh Vault roles before ordering",
+            () => target.roles.fetch()
+        );
+        positionUpdates.sort((left, right) => left.order - right.order);
+        const orderedUpdates = buildRolePositionUpdates(
+            positionUpdates,
+            botMember.roles.highest.position,
+            botMember.permissions.has(PermissionFlagsBits.Administrator)
+        );
+        await withSyncContext(
+            "Could not set Vault role positions; check Manage Roles and ensure the bot's highest role is above the synced roles",
+            () => target.roles.setPositions(orderedUpdates)
+        );
     }
 
     const extraRoles = sortedRoles(target).filter(role => !retainedTargetIds.has(role.id));
     for (const role of extraRoles) {
-        await role.delete("Automated 24-hour main-to-vault server sync");
+        await withSyncContext(
+            `Could not delete extra Vault role "${role.name}"; check Manage Roles and role hierarchy`,
+            () => role.delete("Automated 24-hour main-to-vault server sync")
+        );
     }
 
-    await target.roles.everyone.setPermissions(
-        source.roles.everyone.permissions.bitfield,
-        "Automated 24-hour main-to-vault server sync"
+    await withSyncContext(
+        "Could not sync @everyone role permissions in Vault; check Manage Roles",
+        () => target.roles.everyone.setPermissions(
+            source.roles.everyone.permissions.bitfield,
+            "Automated 24-hour main-to-vault server sync"
+        )
     );
 
     return { roleMap, created, updated, deleted: extraRoles.length };
@@ -559,7 +637,6 @@ function getUnsupportedChannels(guild) {
 }
 
 async function syncChannels(source, target, roleMap) {
-    await Promise.all([source.channels.fetch(), target.channels.fetch()]);
     const sourceChannels = sortedChannels(source);
     const targetChannels = sortedChannels(target);
     const unsupported = getUnsupportedChannels(source);
@@ -618,7 +695,10 @@ async function syncChannels(source, target, roleMap) {
             return leftCategory - rightCategory;
         });
     for (const channel of extraChannels) {
-        await channel.delete("Automated 24-hour main-to-vault server sync");
+        await withSyncContext(
+            `Could not delete extra Vault channel "${channel.name}"; check Manage Channels`,
+            () => channel.delete("Automated 24-hour main-to-vault server sync")
+        );
     }
 
     return { channelMap, created, updated, deleted: extraChannels.length };
@@ -628,13 +708,14 @@ async function performFullMirror(client) {
     const source = await getGuild(client, configManager.getMainGuildId());
     const target = await getGuild(client, configManager.getVaultGuildId());
     await Promise.all([
-        source.roles.fetch(),
-        target.roles.fetch(),
-        source.channels.fetch(),
-        target.channels.fetch(),
-        source.emojis.fetch(),
-        target.emojis.fetch()
+        withSyncContext("Could not fetch Main roles", () => source.roles.fetch()),
+        withSyncContext("Could not fetch Vault roles", () => target.roles.fetch()),
+        withSyncContext("Could not fetch Main channels", () => source.channels.fetch()),
+        withSyncContext("Could not fetch Vault channels", () => target.channels.fetch()),
+        withSyncContext("Could not fetch Main expressions", () => source.emojis.fetch()),
+        withSyncContext("Could not fetch Vault expressions", () => target.emojis.fetch())
     ]);
+    const botMember = await ensureVaultManagementAccess(client, target);
     const unsupported = [
         ...getUnsupportedChannels(source).map(channel => `Main: ${channel.name} (${channel.type})`),
         ...getUnsupportedChannels(target).map(channel => `Vault: ${channel.name} (${channel.type})`)
@@ -644,7 +725,7 @@ async function performFullMirror(client) {
             `Unsupported channel types prevent an exact sync: ${unsupported.join(", ")}`
         );
     }
-    const roles = await syncRoles(source, target);
+    const roles = await syncRoles(source, target, botMember);
     const channels = await syncChannels(source, target, roles.roleMap);
     const syncedAt = new Date().toISOString();
     configManager.updateVaultConfigIds(
@@ -750,9 +831,11 @@ module.exports = {
     getUnsupportedChannels,
     isGuildFeatureRequirementError,
     getMaxVoiceBitrate,
+    buildRolePositionUpdates,
     roleOptionsWithoutBoostFeatures,
     channelOptionsWithoutBoostFeatures,
     applyRoleOptions,
     applyChannelOptions,
+    ensureVaultManagementAccess,
     THRESHOLDS
 };

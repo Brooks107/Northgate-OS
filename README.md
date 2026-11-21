@@ -197,7 +197,8 @@ creations or deletions in the previous 24 hours pauses the mirror and DMs
 `brooksy246` with **Confirm abort** and **Sync anyway** buttons. The bot needs
 View Channels on
 both servers, View Audit Log on Main, and Manage Channels and Manage Roles on
-Vault. Manage Expressions on both servers is needed to map custom emoji
+Vault; the bot's highest Vault role must be above the roles it will edit.
+Manage Expressions on both servers is needed to map custom emoji
 references. Set `SYNC_ALERT_USER_ID` if
 the bot cannot resolve `brooksy246` from its cached users or server memberships.
 Unsupported channel types or inaccessible audit logs prevent an unattended

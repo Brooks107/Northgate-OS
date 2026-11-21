@@ -4,11 +4,13 @@ const { ChannelType } = require("discord.js");
 const {
     applyChannelOptions,
     applyRoleOptions,
+    buildRolePositionUpdates,
     channelOptionsWithoutBoostFeatures,
     getMaxVoiceBitrate,
     getUnsupportedChannels,
     isGuildFeatureRequirementError,
-    roleOptionsWithoutBoostFeatures
+    roleOptionsWithoutBoostFeatures,
+    ensureVaultManagementAccess
 } = require("../utils/server-sync");
 
 test("thread channels are ignored while unsupported guild channels still block sync", () => {
@@ -113,4 +115,62 @@ test("channel sync retries without boost-restricted video quality", async () => 
     assert.equal(channel.id, "vault-channel");
     assert.equal(calls.length, 2);
     assert.equal(Object.hasOwn(calls[1], "videoQualityMode"), false);
+});
+
+test("sync preflight reports missing Vault management permissions", async () => {
+    const target = {
+        members: {
+            me: { permissions: { has: () => false } }
+        },
+        roles: { cache: new Map() }
+    };
+
+    await assert.rejects(
+        ensureVaultManagementAccess({ user: { id: "bot-id" } }, target),
+        /Manage Roles, Manage Channels/
+    );
+});
+
+test("sync preflight reports Vault roles above the bot's hierarchy", async () => {
+    const target = {
+        id: "vault-guild",
+        members: {
+            me: { permissions: { has: () => true } }
+        },
+        roles: {
+            cache: new Map([
+                ["higher-role", {
+                    id: "higher-role",
+                    name: "Staff",
+                    managed: false,
+                    editable: false,
+                    position: 5
+                }]
+            ])
+        }
+    };
+
+    await assert.rejects(
+        ensureVaultManagementAccess({ user: { id: "bot-id" } }, target),
+        /Move the bot's highest role above them/
+    );
+});
+
+test("role positions preserve Main hierarchy below the bot role", () => {
+    const roles = [
+        { role: { id: "lowest" } },
+        { role: { id: "middle" } },
+        { role: { id: "highest" } }
+    ];
+
+    const positions = buildRolePositionUpdates(roles, 8, false);
+
+    assert.deepEqual(
+        positions.map(({ role, position }) => [role.id, position]),
+        [["lowest", 5], ["middle", 6], ["highest", 7]]
+    );
+    assert.throws(
+        () => buildRolePositionUpdates(roles, 3, false),
+        /Move the bot's role above the roles being mirrored/
+    );
 });
