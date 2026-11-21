@@ -20,6 +20,8 @@ const commandRegistry = require("./command-registry");
 const state = require("./state");
 const { hasDefconCommandAccess } = require("./utils/defcon-access");
 const ticketTracker = require("./ticket-tracker");
+const ticketReservations = require("./utils/ticket-reservations");
+const { parseTicketChannelName } = require("./utils/ticket-channel");
 const {
     setTicketPanelsLocked,
     TICKET_CREATION_INTERACTION_IDS
@@ -136,28 +138,36 @@ startHeartbeat(client);
 
 client.activeTicketIds = new Set();
 
-// Channel pattern matching support-1, hiring-4, partnership-2, etc.
-const TICKET_CHANNEL_PATTERN = /(?:support|appeal|hiring|partnership|interrogation)[^\d]*(\d+)/i;
-
 client.refreshActiveTicketIds = async function () {
     const seen = new Set();
+    const liveChannels = [];
+    let scanComplete = true;
 
     for (const guild of client.guilds.cache.values()) {
         try {
             const channels = await guild.channels.fetch();
             for (const channel of channels.values()) {
+                if (channel?.id) liveChannels.push(channel);
                 if (!channel || !channel.name) continue;
 
-                const match = channel.name.match(TICKET_CHANNEL_PATTERN);
-                if (match) {
-                    const ticketId = Number(match[1]);
-                    seen.add(ticketId);
-                    console.log(`[tickets] Found active ticket: #${channel.name} (ID: ${ticketId}) in ${guild.name}`);
+                const ticket = parseTicketChannelName(channel.name);
+                if (ticket) {
+                    console.log(`[tickets] Found active ticket: #${channel.name} (ID: ${ticket.ticketId}) in ${guild.name}`);
                 }
             }
         } catch (error) {
+            scanComplete = false;
             console.error(`[tickets] Failed to fetch channels for guild ${guild.name}:`, error);
         }
+    }
+
+    const mainGuildId = configManager.getMainGuildId();
+    liveChannels.sort((left, right) =>
+        Number(right.guildId === mainGuildId) - Number(left.guildId === mainGuildId)
+    );
+    ticketReservations.reconcile(liveChannels, scanComplete);
+    for (const ticketId of ticketReservations.getActiveTicketIds()) {
+        seen.add(ticketId);
     }
 
     client.activeTicketIds = seen;
@@ -179,12 +189,13 @@ client.once(Events.ClientReady, async () => {
     });
     console.log(`[presence] bot is ${config.maintenanceMode ? "invisible" : "online"}.`);
     nightlyBackup.start(client);
-    await serverSync.start(client);
+    ticketTracker.init();
+    ticketReservations.init(ticketTracker.getActiveTicketRecords());
 
     // Fetch and aggregate active ticket IDs across all guilds
     await client.refreshActiveTicketIds();
 
-    ticketTracker.init();
+    await serverSync.start(client);
     await ticketTracker.reconcileActiveTickets(client, config);
     ticketTracker.startHourlyReconciliation(client, config);
     autocloseScheduler.init(client, config);
@@ -210,7 +221,12 @@ client.once(Events.ClientReady, async () => {
 client.on(Events.ChannelCreate, async channel => {
     if (!channel.guild) return;
 
-    if (TICKET_CHANNEL_PATTERN.test(channel.name)) {
+    if (parseTicketChannelName(channel.name)) {
+        try {
+            ticketReservations.register(channel);
+        } catch (error) {
+            console.error(`[tickets] Could not reserve newly created ticket ${channel.name}:`, error);
+        }
         await client.refreshActiveTicketIds();
         if (typeof client.notifyAdminPanelRefresh === "function") {
             await client.notifyAdminPanelRefresh();
@@ -221,10 +237,15 @@ client.on(Events.ChannelCreate, async channel => {
 client.on(Events.ChannelDelete, async channel => {
     if (!channel.guild) return;
 
-    if (TICKET_CHANNEL_PATTERN.test(channel.name)) {
-        const trackedTicket = ticketTracker.getTracking(channel.id);
-        if (trackedTicket && trackedTicket.status !== "🔴 Closed") {
-            await ticketTracker.removeTracking(channel);
+    if (parseTicketChannelName(channel.name)) {
+        try {
+            if (ticketReservations.markChannelDeleted(channel.id)) {
+                console.warn(
+                    `[tickets] Preserved active ticket #${channel.name} in the archive after channel deletion.`
+                );
+            }
+        } catch (error) {
+            console.error(`[tickets] Could not preserve deleted ticket ${channel.name}:`, error);
         }
 
         await client.refreshActiveTicketIds();
@@ -237,8 +258,8 @@ client.on(Events.ChannelDelete, async channel => {
 client.on(Events.ChannelUpdate, async (oldChannel, newChannel) => {
     if (!newChannel.guild) return;
 
-    const oldMatches = TICKET_CHANNEL_PATTERN.test(oldChannel.name);
-    const newMatches = TICKET_CHANNEL_PATTERN.test(newChannel.name);
+    const oldMatches = Boolean(parseTicketChannelName(oldChannel.name));
+    const newMatches = Boolean(parseTicketChannelName(newChannel.name));
 
     if (oldMatches || newMatches) {
         await client.refreshActiveTicketIds();

@@ -43,6 +43,7 @@ module.exports = {
             content:
                 `✅ Server backup **#${backupReceipt.backupId}** created: [${backupReceipt.filename}](${backupReceipt.url})\n` +
                 `Roles: ${backupReceipt.roleCount} • Channels: ${backupReceipt.channelCount}. ` +
+                `Ticket channels excluded: ${backupReceipt.excludedTicketCount}. ` +
                 `Threads excluded: ${backupReceipt.excludedThreadCount}. ` +
                 `Unsupported channels excluded: ${backupReceipt.unsupportedChannelCount}.`
         });

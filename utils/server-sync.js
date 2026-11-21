@@ -11,6 +11,7 @@ const {
     PermissionFlagsBits
 } = require("discord.js");
 const configManager = require("../configManager");
+const { parseTicketChannelName } = require("./ticket-channel");
 
 const STATE_FILE = path.join(__dirname, "..", "server-sync-state.json");
 const SYNC_INTERVAL_MS = 24 * 60 * 60 * 1000;
@@ -653,7 +654,11 @@ async function applyChannelOptions(targetGuild, targetChannel, sourceChannel, op
 
 function sortedChannels(guild) {
     return [...guild.channels.cache.values()]
-        .filter(channel => channel.guild && SUPPORTED_CHANNEL_TYPES.has(channel.type))
+        .filter(channel =>
+            channel.guild &&
+            SUPPORTED_CHANNEL_TYPES.has(channel.type) &&
+            !parseTicketChannelName(channel.name)
+        )
         .sort((left, right) => {
             const leftCategory = left.type === ChannelType.GuildCategory ? 0 : 1;
             const rightCategory = right.type === ChannelType.GuildCategory ? 0 : 1;
@@ -879,6 +884,7 @@ module.exports = {
     getRecentChanges,
     getTriggeredThresholds,
     getUnsupportedChannels,
+    sortedChannels,
     ensureStageChannelSupport,
     isGuildFeatureRequirementError,
     getMaxVoiceBitrate,

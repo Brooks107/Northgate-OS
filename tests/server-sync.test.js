@@ -10,11 +10,36 @@ const {
     channelOptionsWithoutBoostFeatures,
     getMaxVoiceBitrate,
     getUnsupportedChannels,
+    sortedChannels,
     ensureStageChannelSupport,
     isGuildFeatureRequirementError,
     roleOptionsWithoutBoostFeatures,
     ensureVaultManagementAccess
 } = require("../utils/server-sync");
+
+test("ticket channels are excluded from the Main-to-Vault channel mirror", () => {
+    const channel = (name, type) => ({
+        name,
+        type,
+        guild: {},
+        position: 0
+    });
+    const guild = {
+        channels: {
+            cache: new Map([
+                ["ticket", channel("support-7", ChannelType.GuildText)],
+                ["ticket-suffix", channel("interrogation-3-user", ChannelType.GuildText)],
+                ["category", channel("Support Tickets", ChannelType.GuildCategory)],
+                ["general", channel("general", ChannelType.GuildText)]
+            ])
+        }
+    };
+
+    assert.deepEqual(
+        sortedChannels(guild).map(candidate => candidate.name),
+        ["Support Tickets", "general"]
+    );
+});
 
 test("thread channels are ignored while unsupported guild channels still block sync", () => {
     const channel = (name, type) => ({ name, type, guild: {} });

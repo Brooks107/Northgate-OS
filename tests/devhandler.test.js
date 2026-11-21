@@ -1,6 +1,7 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
 const {
+    closeArchivedTicket,
     confirmEnvironmentSwitch,
     getEnvironmentSwitchConfirmationOwner,
     handleForceSyncCommand
@@ -86,6 +87,45 @@ test("manual sync reports when safety approval is required", async () => {
     }));
 
     assert.match(edits[0], /paused for safety/);
+});
+
+test("archived ticket can be formally closed after its channel is deleted", async () => {
+    const calls = [];
+    const replies = [];
+    const client = {
+        channels: {
+            fetch: async () => {
+                throw Object.assign(new Error("Unknown Channel"), { code: 10003 });
+            }
+        },
+        activeTicketIds: new Set([7]),
+        notifyAdminPanelRefresh: async () => calls.push("refresh")
+    };
+    const message = {
+        client,
+        reply: async content => replies.push(content)
+    };
+    const reservations = {
+        findActiveByTicketId: () => ({
+            status: "orphaned",
+            channelId: "11111111111111111"
+        }),
+        markChannelDeleted: channelId => calls.push(`missing:${channelId}`),
+        closeByChannelId: channelId => calls.push(`close:${channelId}`)
+    };
+    const tracker = {
+        closeArchivedTicket: async ticketId => calls.push(`archive:${ticketId}`)
+    };
+
+    assert.equal(await closeArchivedTicket(message, 7, reservations, tracker), true);
+    assert.deepEqual(client.activeTicketIds.size, 0);
+    assert.deepEqual(calls, [
+        "missing:11111111111111111",
+        "archive:7",
+        "close:11111111111111111",
+        "refresh"
+    ]);
+    assert.match(replies[0], /ticket number is now available in Vault/);
 });
 
 test("Vault test launch confirmation explains Main is preserved", async () => {

@@ -14,6 +14,7 @@ const adminHandler = require("./adminhandler");
 const defconAccess = require("../utils/defcon-access");
 const ticketTracker = require("../ticket-tracker");
 const { NORTHGATE_OS_PREFIX, OTHER_BOT_COMMANDS } = require("../utils/help");
+const ticketReservations = require("../utils/ticket-reservations");
 const {
     createServerBackup,
     deleteStoredServerBackup
@@ -59,6 +60,62 @@ async function handleForceSyncCommand(message, vaultGuildId, runSync) {
         console.error("[devhandler] manual Vault sync failed:", error);
         await statusMessage.edit(`❌ Manual sync could not complete: ${error.message}`);
     }
+}
+
+async function closeArchivedTicket(
+    message,
+    ticketId,
+    reservations = ticketReservations,
+    tracker = ticketTracker
+) {
+    const activeTicket = reservations.findActiveByTicketId(ticketId);
+    if (activeTicket.status === "not-found") {
+        await message.reply(`❌ No active archived ticket #${ticketId} was found.`);
+        return false;
+    }
+    if (activeTicket.status === "ambiguous") {
+        await message.reply(
+            `❌ More than one active archive record uses ticket #${ticketId}; nothing was closed.`
+        );
+        return false;
+    }
+
+    try {
+        const channel = await message.client.channels.fetch(activeTicket.channelId);
+        if (channel) {
+            await message.reply(
+                `❌ Ticket #${ticketId} still has a live channel. Run \`d!forceclose\` inside that channel.`
+            );
+            return false;
+        }
+    } catch (error) {
+        if (Number(error.code) !== 10003) {
+            console.error(`[devhandler] could not verify archived ticket #${ticketId}:`, error);
+            await message.reply(
+                `❌ Could not verify whether ticket #${ticketId} still has a channel; it remains reserved.`
+            );
+            return false;
+        }
+    }
+
+    try {
+        reservations.markChannelDeleted(activeTicket.channelId);
+        await tracker.closeArchivedTicket(ticketId, message.client);
+        reservations.closeByChannelId(activeTicket.channelId);
+    } catch (error) {
+        console.error(`[devhandler] could not close archived ticket #${ticketId}:`, error);
+        await message.reply(`❌ Could not close archived ticket #${ticketId}: ${error.message}`);
+        return false;
+    }
+
+    message.client.activeTicketIds?.delete(ticketId);
+    if (typeof message.client.notifyAdminPanelRefresh === "function") {
+        await message.client.notifyAdminPanelRefresh();
+    }
+    await message.reply(
+        `🔒 Archived ticket #${ticketId} is closed. Its ticket number is now available in Vault.`
+    );
+    return true;
 }
 
 async function confirmEnvironmentSwitch(message, command, requestedMode) {
@@ -519,15 +576,18 @@ module.exports = async function handleDeveloperCommand(message, config) {
 
     if (
         (command === "launch" && (args.length > 1 || (requestedMode && requestedMode !== "test"))) ||
-        ((command === "land" || command === "forcesync") && args.length > 0)
+        ((command === "land" || command === "forcesync") && args.length > 0) ||
+        (command === "forceclose" && (
+            args.length > 1 ||
+            (args[0] && (!/^\d+$/.test(args[0]) || Number(args[0]) < 1 || Number(args[0]) > 20))
+        ))
     ) {
-        await message.reply("❌ Usage: `d!launch [test]`, `d!land`, or `d!forcesync` (Vault only).");
+        await message.reply(
+            "❌ Usage: `d!launch [test]`, `d!land`, `d!forcesync` (Vault only), or `d!forceclose [ticket ID]`."
+        );
         return true;
     }
 
-    // d!forcerestart names the bot: core (this one), ops (Staff Management),
-    // shield (North Shield) or frontier (Frontier OS). Another bot's name is left to that bot. With no
-    // name, only this bot answers, with the usage.
     if (command === "forcerestart") {
         const target = args[0]?.toLowerCase();
         if (target && target !== "core") return false;
@@ -537,8 +597,6 @@ module.exports = async function handleDeveloperCommand(message, config) {
         }
     }
 
-    // d!impersonate only checks permissions. Say so in the log, or it reads as if
-    // the impersonated command had really been run.
     await logCommand(message, config, `d!${command}`, command === "impersonate" ? "Impersonation check (nothing was run)" : "Developer command", args);
 
     const isDeveloper = config.developers?.includes(message.author.id);
@@ -549,6 +607,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
         message.member?.roles?.cache?.has(roleId)
     );
     const powerAction = command === "power" ? args.shift()?.toLowerCase() : null;
+    
     if (command === "forcerestart") {
         if (!isDeveloper) {
             await message.reply("❌ This command is developer only - Please contact a member of the IT team to have them run it");
@@ -559,6 +618,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
         process.exit(0);
         return true;
     }
+    
     if (command === "power") {
         const canUsePower = isDeveloper || (powerAction === "off" && isOwner);
 
@@ -599,9 +659,51 @@ module.exports = async function handleDeveloperCommand(message, config) {
     }
 
     if (command === "launch" || command === "land") {
-        if (!await confirmEnvironmentSwitch(message, command, requestedMode)) {
+        const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+
+        const confirmBtn = new ButtonBuilder()
+            .setCustomId(`env_confirm_${message.id}`)
+            .setLabel('Confirm Switch')
+            .setStyle(command === 'land' ? ButtonStyle.Primary : ButtonStyle.Danger);
+
+        const cancelBtn = new ButtonBuilder()
+            .setCustomId(`env_cancel_${message.id}`)
+            .setLabel('Cancel')
+            .setStyle(ButtonStyle.Secondary);
+
+        const row = new ActionRowBuilder().addComponents(confirmBtn, cancelBtn);
+
+        const promptMsg = await message.reply({
+            content: `⚠️ **Environment Switch Warning:** You are about to run \`d!${command}${requestedMode ? ' ' + requestedMode : ''}\`. This will restart the bot. Do you want to proceed?`,
+            components: [row]
+        });
+
+        let confirmation;
+        try {
+            confirmation = await promptMsg.awaitMessageComponent({
+                filter: i => i.user.id === message.author.id,
+                time: 30000
+            });
+        } catch (err) {
+            await promptMsg.edit({
+                content: "⏳ Confirmation expired or could not be completed. No environment changes were made.",
+                components: []
+            }).catch(() => {});
             return true;
         }
+
+        if (confirmation.customId.startsWith('env_cancel')) {
+            await confirmation.update({
+                content: "❌ Environment switch cancelled.",
+                components: []
+            });
+            return true;
+        }
+
+        await confirmation.update({
+            content: "✅ Confirmed. Switching environments and restarting...",
+            components: []
+        });
 
         const environment = command === "land" ? "main" : "vault";
         const mode = command === "land"
@@ -668,10 +770,17 @@ module.exports = async function handleDeveloperCommand(message, config) {
             const restartNotice = process.env.pm_id !== undefined
                 ? "\n♻️ PM2 is restarting the bot to load only the selected environment."
                 : "\n⚠️ PM2 was not detected; restart this process to fully reload the selected environment.";
-            await message.reply(result + resetWarning + warning + restartNotice);
+            
+            await promptMsg.edit({
+                content: result + resetWarning + warning + restartNotice,
+                components: []
+            });
         } catch (error) {
             console.error(`[devhandler] failed to switch environment using d!${command}:`, error);
-            await message.reply(`❌ Environment switch failed: ${error.message}`);
+            await promptMsg.edit({
+                content: `❌ Environment switch failed: ${error.message}`,
+                components: []
+            });
         } finally {
             if (restartAfterSwitch && process.env.pm_id !== undefined) {
                 setTimeout(() => {
@@ -682,6 +791,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
         }
         return true;
     }
+
 
     if (isOwner && command === "defcon" &&
         Number.isInteger(Number(args[0])) &&
@@ -1314,28 +1424,44 @@ module.exports = async function handleDeveloperCommand(message, config) {
             return true;
         }
 
+        const requestedTicketId = args[0] ? Number(args[0]) : null;
         const channel = message.channel;
         const ticketCategoryIds = new Set([
             config.generalticketcategory,
             config.appealsticketcategory,
             config.hiringticketcategory,
-            config.partnershipticketcategory
+            config.partnershipticketcategory,
+            config.interrogationticketcategory
         ].filter(Boolean));
 
+        const ticketNameMatch = channel?.name?.match(
+            /^(?:support|appeal|hiring|partnership|interrogation)-(\d+)(?:-|$)/i
+        );
         const isTicketChannel =
             Boolean(channel) &&
             (
-                channel.name.match(/^(?:support|appeal|hiring|partnership)-(\d+)(?:-|$)/) ||
+                ticketNameMatch ||
                 (channel.parentId && ticketCategoryIds.has(channel.parentId))
             );
 
         if (!isTicketChannel) {
-            await message.reply("❌ d!forceclose must be used inside a ticket channel.");
+            if (requestedTicketId === null) {
+                await message.reply(
+                    "❌ Run `d!forceclose` inside a live ticket, or use `d!forceclose <ticket ID>` for an archived ticket whose channel is gone."
+                );
+                return true;
+            }
+            await closeArchivedTicket(message, requestedTicketId);
             return true;
         }
 
-        const match = channel.name.match(/^(?:support|appeal|hiring|partnership)-(\d+)(?:-|$)/);
-        const id = match ? Number(match[1]) : null;
+        const id = ticketNameMatch ? Number(ticketNameMatch[1]) : requestedTicketId;
+        if (requestedTicketId !== null && id !== requestedTicketId) {
+            await message.reply(
+                `❌ This channel is ticket #${id}; use \`d!forceclose ${id}\` here or close the requested archived ticket from another channel.`
+            );
+            return true;
+        }
         const progress = createMessageProgress(message, `Force-closing ${channel.name}`, [
             "Release the ticket slot and refresh the admin panel",
             "Save the ticket transcript",
@@ -1378,3 +1504,4 @@ module.exports = async function handleDeveloperCommand(message, config) {
 module.exports.handleForceSyncCommand = handleForceSyncCommand;
 module.exports.confirmEnvironmentSwitch = confirmEnvironmentSwitch;
 module.exports.getEnvironmentSwitchConfirmationOwner = getEnvironmentSwitchConfirmationOwner;
+module.exports.closeArchivedTicket = closeArchivedTicket;

@@ -1,6 +1,8 @@
 const { EmbedBuilder } = require("discord.js");
 const fs = require("fs");
 const path = require("path");
+const ticketReservations = require("./utils/ticket-reservations");
+const { parseTicketChannelName } = require("./utils/ticket-channel");
 
 /**
  * Ticket tracking system - creates and updates embeds in a private channel
@@ -8,7 +10,6 @@ const path = require("path");
  */
 
 const TRACKING_FILE = path.join(__dirname, "ticket-tracking.json");
-const TICKET_CHANNEL_PATTERN = /^(support|appeal|hiring|partnership|interrogation)-(\d+)(?:-|$)/i;
 
 // In-memory map: ticketChannelId -> { messageId, embeds: [] }
 let trackedTickets = {};
@@ -29,6 +30,22 @@ function hydrateTicketRecord(record) {
     record.status = getTicketStatus(record.status, record.lastEvent);
     delete record.dashboardStatus;
     return record;
+}
+
+function getActiveTicketRecords() {
+    return Object.entries(trackedTickets)
+        .filter(([, record]) => !isClosedStatus(record.status))
+        .map(([channelId, record]) => ({
+            channelId,
+            ticketId: record.ticketId,
+            ticketName: record.ticketName,
+            openerId: record.userId || record.originalInfo?.userId || null,
+            status: record.status
+        }));
+}
+
+function isClosedStatus(status) {
+    return /closed/i.test(String(status || ""));
 }
 
 function loadTracking() {
@@ -85,8 +102,10 @@ function saveTracking() {
         const formattedTracking = entries.length ? `{\n${entries.join(",\n\n")}\n}` : "{}";
         fs.writeFileSync(temporaryFile, formattedTracking);
         fs.renameSync(temporaryFile, TRACKING_FILE);
+        return true;
     } catch (err) {
         console.error("[ticket-tracker] Failed to save tracking:", err.message);
+        return false;
     }
 }
 
@@ -251,9 +270,9 @@ async function runReconciliation(client, config) {
         try {
             const channels = await guild.channels.fetch();
             for (const channel of channels.values()) {
-                const match = channel?.name?.match(TICKET_CHANNEL_PATTERN);
-                if (match && (typeof channel.isTextBased !== "function" || channel.isTextBased())) {
-                    activeChannels.push({ channel, ticketId: Number(match[2]) });
+                const ticket = parseTicketChannelName(channel?.name);
+                if (ticket && (typeof channel.isTextBased !== "function" || channel.isTextBased())) {
+                    activeChannels.push({ channel, ticketId: ticket.ticketId });
                 }
             }
         } catch (error) {
@@ -426,6 +445,7 @@ function startHourlyReconciliation(client, config) {
 
 module.exports = {
     init: loadTracking,
+    getActiveTicketRecords,
     reconcileActiveTickets,
     startHourlyReconciliation,
 
@@ -435,6 +455,7 @@ module.exports = {
      * @param {Object} ticketInfo - { title, user, description, category }
      */
     async createTicketEmbed(ticketChannel, ticketInfo, client, config) {
+        ticketReservations.register(ticketChannel, ticketInfo);
         if (!config.trackerChannelId) {
             console.warn("[ticket-tracker] trackerChannelId is not configured; ticket was not added to the dashboard.");
             return;
@@ -690,6 +711,7 @@ module.exports = {
      * Remove a ticket from tracking (when closed)
      */
     async removeTracking(ticketChannel) {
+        ticketReservations.closeByChannelId(ticketChannel.id);
         let tracked = trackedTickets[ticketChannel.id];
         
         // If not in memory, try to load from file
@@ -726,6 +748,49 @@ module.exports = {
             tracked.lastEvent = "closed";
             saveTracking();
         }
+    },
+
+    async closeArchivedTicket(ticketId, client) {
+        const matchingTickets = Object.entries(trackedTickets)
+            .filter(([, tracked]) =>
+                Number(tracked.ticketId) === Number(ticketId) && !isClosedStatus(tracked.status)
+            );
+        if (!matchingTickets.length) return 0;
+
+        const now = new Date().toISOString();
+        for (const [, tracked] of matchingTickets) {
+            tracked.status = "🔴 Closed";
+            tracked.closedAt = tracked.closedAt || now;
+            tracked.updatedAt = now;
+            tracked.lastEvent = "closed_without_channel";
+        }
+        if (!saveTracking()) {
+            throw new Error("Could not save the closed ticket archive state.");
+        }
+
+        for (const [, tracked] of matchingTickets) {
+            try {
+                const channel = await client.channels.fetch(tracked.channelId);
+                const message = await channel.messages.fetch(tracked.messageId);
+                const embed = message.embeds[0]
+                    ? EmbedBuilder.from(message.embeds[0])
+                    : null;
+                if (!embed) continue;
+
+                const fields = embed.data.fields || [];
+                const statusField = fields.find(field => field.name === "📌 Status");
+                if (statusField) statusField.value = "🔴 Closed (channel unavailable)";
+                embed.data.fields = fields;
+                await message.edit({ embeds: [embed] });
+            } catch (error) {
+                console.error(
+                    `[ticket-tracker] Could not update archived ticket #${ticketId}:`,
+                    error.message
+                );
+            }
+        }
+
+        return matchingTickets.length;
     },
 
     /**

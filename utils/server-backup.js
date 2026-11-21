@@ -8,6 +8,7 @@ const {
     PermissionFlagsBits
 } = require("discord.js");
 const state = require("../state");
+const { parseTicketChannelName } = require("./ticket-channel");
 
 const BACKUP_FORMAT = "northgate-server-config";
 const BACKUP_VERSION = 1;
@@ -32,6 +33,10 @@ const VOICE_CHANNEL_TYPES = new Set([
     ChannelType.GuildVoice,
     ChannelType.GuildStageVoice
 ]);
+
+function getRestorableChannelRecords(channelRecords) {
+    return channelRecords.filter(record => !parseTicketChannelName(record.name));
+}
 
 function allocateServerBackupId() {
     const backupId = state.load().nextServerBackupId || 1;
@@ -242,9 +247,14 @@ async function createServerBackup(guild, client, channelId) {
     const channelRecords = [];
     const unsupportedChannels = [];
     let excludedThreadCount = 0;
+    let excludedTicketCount = 0;
     for (const channel of guild.channels.cache.values()) {
         if (channel.isThread?.()) {
             excludedThreadCount++;
+            continue;
+        }
+        if (parseTicketChannelName(channel.name)) {
+            excludedTicketCount++;
             continue;
         }
         if (!SUPPORTED_CHANNEL_TYPES.has(channel.type)) {
@@ -263,7 +273,8 @@ async function createServerBackup(guild, client, channelId) {
         roles: [...guild.roles.cache.values()].map(serializeRole),
         channels: channelRecords,
         unsupportedChannels,
-        excludedThreadCount
+        excludedThreadCount,
+        excludedTicketCount
     };
     const backupId = allocateServerBackupId();
     backup.backupId = backupId;
@@ -281,7 +292,7 @@ async function createServerBackup(guild, client, channelId) {
             { name: "Backup ID", value: backupId, inline: true },
             { name: "Roles", value: String(backup.roles.length), inline: true },
             { name: "Channels", value: String(backup.channels.length), inline: true },
-            { name: "Excluded", value: `${excludedThreadCount} thread(s), ${unsupportedChannels.length} unsupported channel(s)`, inline: false },
+            { name: "Excluded", value: `${excludedTicketCount} ticket channel(s), ${excludedThreadCount} thread(s), ${unsupportedChannels.length} unsupported channel(s)`, inline: false },
             { name: "Source Guild ID", value: guild.id, inline: false }
         )
         .setTimestamp(new Date(backup.createdAt));
@@ -306,7 +317,8 @@ async function createServerBackup(guild, client, channelId) {
         roleCount: backup.roles.length,
         channelCount: backup.channels.length,
         unsupportedChannelCount: unsupportedChannels.length,
-        excludedThreadCount
+        excludedThreadCount,
+        excludedTicketCount
     };
 }
 
@@ -405,7 +417,10 @@ function validateServerBackup(backup, guild) {
         (backup.unsupportedChannels || []).length > 500 ||
         !Number.isInteger(backup.excludedThreadCount || 0) ||
         backup.excludedThreadCount < 0 ||
-        backup.excludedThreadCount > 10_000
+        backup.excludedThreadCount > 10_000 ||
+        !Number.isInteger(backup.excludedTicketCount || 0) ||
+        backup.excludedTicketCount < 0 ||
+        backup.excludedTicketCount > 10_000
     ) {
         throw new Error("The backup is missing required server configuration data.");
     }
@@ -658,7 +673,7 @@ async function calculateBackupSimilarity(guild, backup) {
     ).length;
     const channelIds = new Map();
     let matchingChannelCount = 0;
-    const channelRecords = [...backup.channels].sort((a, b) =>
+    const channelRecords = [...getRestorableChannelRecords(backup.channels)].sort((a, b) =>
         Number(b.type === ChannelType.GuildCategory) - Number(a.type === ChannelType.GuildCategory) ||
         a.position - b.position
     );
@@ -672,13 +687,13 @@ async function calculateBackupSimilarity(guild, backup) {
     }
 
     const matchedCount = matchingRoleCount + matchingChannelCount;
-    const totalCount = backup.roles.length + backup.channels.length;
+    const totalCount = backup.roles.length + channelRecords.length;
     const percentage = totalCount ? matchedCount / totalCount * 100 : 0;
     return {
         matchingRoleCount,
         totalRoleCount: backup.roles.length,
         matchingChannelCount,
-        totalChannelCount: backup.channels.length,
+        totalChannelCount: channelRecords.length,
         matchedCount,
         totalCount,
         percentage,
@@ -768,7 +783,7 @@ async function restoreChannels(guild, backup, roleIds, warnings) {
     const currentChannels = await guild.channels.fetch();
     const createdIds = new Set();
     const updatedIds = new Set();
-    const records = [...backup.channels].sort((a, b) =>
+    const records = [...getRestorableChannelRecords(backup.channels)].sort((a, b) =>
         Number(b.type === ChannelType.GuildCategory) - Number(a.type === ChannelType.GuildCategory) ||
         a.position - b.position
     );
@@ -850,6 +865,11 @@ async function restoreGuildSettings(guild, settings, channelIds, warnings) {
 
 async function restoreServerBackup(guild, backup) {
     const warnings = [];
+    const excludedTicketCount = (backup.excludedTicketCount || 0) +
+        backup.channels.filter(record => parseTicketChannelName(record.name)).length;
+    if (excludedTicketCount) {
+        warnings.push(`${excludedTicketCount} ticket channel(s) are not restored from server configuration backups.`);
+    }
     if (backup.excludedThreadCount) {
         warnings.push(`${backup.excludedThreadCount} thread(s) are not included in server configuration backups.`);
     }
@@ -879,6 +899,7 @@ module.exports = {
     createServerBackup,
     deleteStoredServerBackup,
     downloadServerBackup,
+    getRestorableChannelRecords,
     isStoredServerBackupMessage,
     listStoredServerBackups,
     loadStoredServerBackup,
