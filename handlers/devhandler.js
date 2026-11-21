@@ -1,5 +1,3 @@
-const fs = require("fs");
-const path = require("path");
 const {
     ActionRowBuilder,
     AttachmentBuilder,
@@ -10,6 +8,8 @@ const {
 const { logCommand } = require("../utils/command-logger");
 const { createMessageProgress } = require("../utils/progress-embed");
 const state = require("../state");
+const configManager = require("../configManager");
+const commandRegistry = require("../command-registry");
 const adminHandler = require("./adminhandler");
 const defconAccess = require("../utils/defcon-access");
 const ticketTracker = require("../ticket-tracker");
@@ -26,14 +26,6 @@ const {
     restoreAdministratorToRoles
 } = require("../utils/defcon-role-security");
 
-const CONFIG_FILE = path.join(__dirname, "..", "config.json");
-const DEFCON_DEVELOPER_IDS = [
-    "1172089323223519235",
-    "1274236550250762273",
-    "1114234318382968843",
-    "1014271648297386064",
-    "1267321190821789780"
-];
 const DEFCON_FORCE_LOCK_LEVELS = new Set([1, 2, 4]);
 const DEFCON_ONE_WARNING =
     "🚨 **DEFCON 1 is the most powerful security level you can apply to this server.** " +
@@ -61,7 +53,6 @@ const GROUP_CONFIG_KEYS = {
 };
 
 const ROLE_GROUPS = new Set(Object.keys(GROUP_CONFIG_KEYS).filter(group => group !== "dev"));
-const LOCKDOWN_ROLE = "1536806576202186842";
 
 function getConfigPathValue(config, configPath) {
     return configPath.split(".").reduce((value, key) => value?.[key], config);
@@ -82,26 +73,6 @@ function setConfigPathValue(config, configPath, value) {
 function getGroupValues(config, configKey) {
     const value = getConfigPathValue(config, configKey);
     return Array.isArray(value) ? [...value] : value ? [value] : [];
-}
-
-function saveGroupConfig(configKey, values) {
-    const storedConfig = JSON.parse(fs.readFileSync(CONFIG_FILE, "utf8"));
-    setConfigPathValue(storedConfig, configKey, values);
-
-    const temporaryFile = `${CONFIG_FILE}.${process.pid}.tmp`;
-    try {
-        fs.writeFileSync(temporaryFile, `${JSON.stringify(storedConfig, null, 4)}\n`, "utf8");
-        fs.renameSync(temporaryFile, CONFIG_FILE);
-    } catch (error) {
-        if (fs.existsSync(temporaryFile)) {
-            try {
-                fs.unlinkSync(temporaryFile);
-            } catch (cleanupError) {
-                console.error("[devhandler] could not remove temporary config file:", cleanupError);
-            }
-        }
-        throw error;
-    }
 }
 
 async function resolveGroupDisplayValue(client, guild, group, value) {
@@ -292,7 +263,7 @@ function evaluateCommandAccess(commandName, member, config, client, commandArgum
     }
 
     if (commandName === "a!forcelock" || commandName === "a!forceunlock") {
-        return hasAnyRole(LOCKDOWN_ROLE)
+        return hasAnyRole(config.systemIds?.lockdownRoleId)
             ? { result: "allowed", reason: "Requires the lockdown role." }
             : { result: "blocked", reason: "Requires the lockdown role." };
     }
@@ -438,7 +409,16 @@ module.exports = async function handleDeveloperCommand(message, config) {
 
     const args = message.content.slice(2).trim().split(/ +/);
     const command = args.shift()?.toLowerCase();
-    if (!["addgroup", "delgroup", "showgroup", "defcon", "secure", "delbackup", "forceclose", "impersonate", "power", "forcerestart"].includes(command)) return false;
+    if (!["addgroup", "delgroup", "showgroup", "defcon", "secure", "delbackup", "forceclose", "impersonate", "power", "forcerestart", "launch", "land"].includes(command)) return false;
+    const requestedMode = command === "launch" ? args[0]?.toLowerCase() : null;
+
+    if (
+        (command === "launch" && (args.length > 1 || (requestedMode && requestedMode !== "test"))) ||
+        (command === "land" && args.length > 0)
+    ) {
+        await message.reply("❌ Usage: `d!launch [test]` or `d!land`.");
+        return true;
+    }
 
     // d!forcerestart names the bot: core (this one), ops (Staff Management),
     // shield (North Shield) or frontier (Frontier OS). Another bot's name is left to that bot. With no
@@ -501,6 +481,87 @@ module.exports = async function handleDeveloperCommand(message, config) {
                 .some(roleId => message.member?.roles?.cache?.has(roleId)))
     ) {
         await message.reply("❌ This command is developer only - Please contact a member of the IT team to have them run it");
+        return true;
+    }
+
+    if (command === "launch" || command === "land") {
+        const environment = command === "land" ? "main" : "vault";
+        const mode = command === "land"
+            ? "main"
+            : requestedMode === "test"
+                ? "vault-test"
+                : "vault-production";
+        let restartAfterSwitch = false;
+        try {
+            configManager.setActiveEnvironment(environment, mode);
+            restartAfterSwitch = true;
+            const credentials = { token: config.token, clientId: config.clientId };
+            for (const key of Object.keys(config)) delete config[key];
+            Object.assign(config, configManager.loadConfig(), credentials);
+
+            let resetWarning = "";
+            if (mode === "vault-production") {
+                try {
+                    configManager.resetMainConfig();
+                    const currentState = state.load();
+                    if (!state.save({
+                        groupArraysByEnvironment: {
+                            ...(currentState.groupArraysByEnvironment || {}),
+                            main: {}
+                        }
+                    })) {
+                        resetWarning = "\n⚠️ Main group overrides in runtime state could not be cleared.";
+                    }
+                } catch (error) {
+                    console.error("[devhandler] vault activated, but main config reset failed:", error);
+                    resetWarning = `\n⚠️ Vault is active, but the main config could not be blanked: ${error.message}`;
+                }
+            }
+
+            const runtimeState = state.load();
+            Object.assign(config, runtimeState);
+
+            const runtimeGroups = runtimeState.groupArraysByEnvironment?.[environment]
+                || (environment === "main" ? runtimeState.groupArrays : null)
+                || {};
+            for (const [key, values] of Object.entries(runtimeGroups)) {
+                if (key === "boardOfDirectors" && values && typeof values === "object") {
+                    config.boardOfDirectors = { ...(config.boardOfDirectors || {}), ...values };
+                } else if (Array.isArray(values)) {
+                    config[key] = values;
+                }
+            }
+
+            const registration = await commandRegistry.registerGuildCommands(config, { force: true });
+            if (registration.registered || registration.reason === "unchanged") {
+                message.client.commands = new Map(
+                    [...registration.loaded].map(([name, entry]) => [name, entry.command])
+                );
+            }
+
+            const warning = registration.registered
+                ? ""
+                : "\n⚠️ Slash-command registration did not complete; check the bot logs.";
+            const result = command === "land"
+                ? "✅ Returned to the main environment."
+                : requestedMode === "test"
+                    ? "🧪 Vault test mode is active. The main config was left untouched."
+                    : "🚨 Vault production mode is active. The main config values were blanked.";
+            const restartNotice = process.env.pm_id !== undefined
+                ? "\n♻️ PM2 is restarting the bot to load only the selected environment."
+                : "\n⚠️ PM2 was not detected; restart this process to fully reload the selected environment.";
+            await message.reply(result + resetWarning + warning + restartNotice);
+        } catch (error) {
+            console.error(`[devhandler] failed to switch environment using d!${command}:`, error);
+            await message.reply(`❌ Environment switch failed: ${error.message}`);
+        } finally {
+            if (restartAfterSwitch && process.env.pm_id !== undefined) {
+                setTimeout(() => {
+                    console.log(`[devhandler] restarting via PM2 after d!${command}.`);
+                    process.exit(0);
+                }, 1000);
+            }
+        }
         return true;
     }
 
@@ -595,7 +656,10 @@ module.exports = async function handleDeveloperCommand(message, config) {
             try {
                 adminRoleScan = await findAdministratorRolesToRemove(
                     guild,
-                    getWhitelistedRoleIds(previousState.defconWhitelistedRoleIds || [])
+                    getWhitelistedRoleIds(
+                        previousState.defconWhitelistedRoleIds || [],
+                        config.systemIds?.defconWhitelistedRoleIds || []
+                    )
                 );
             } catch (error) {
                 console.error("[devhandler] DEFCON 1 could not inspect role permissions:", error);
@@ -613,7 +677,8 @@ module.exports = async function handleDeveloperCommand(message, config) {
                 ? previousState.defconAdminRoleIds || []
                 : [];
         const currentDevelopers = getGroupValues(config, "developers");
-        const addedNow = DEFCON_DEVELOPER_IDS.filter(id => !currentDevelopers.includes(id));
+        const emergencyDeveloperIds = config.systemIds?.defconEmergencyDeveloperIds || [];
+        const addedNow = emergencyDeveloperIds.filter(id => !currentDevelopers.includes(id));
         const addedByDefcon = [...new Set([
             ...(previousState.defconLevel ? previousState.defconAddedDevelopers || [] : []),
             ...addedNow
@@ -621,7 +686,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
         const defconOwnsLock = shouldForceLock
             ? Boolean(previousState.defconOwnsLock || !lockWasAlreadyActive)
             : false;
-        const developers = [...new Set([...currentDevelopers, ...DEFCON_DEVELOPER_IDS])];
+        const developers = [...new Set([...currentDevelopers, ...emergencyDeveloperIds])];
         const groupArrays = {
             ...(previousState.groupArrays || {}),
             developers
@@ -648,10 +713,10 @@ module.exports = async function handleDeveloperCommand(message, config) {
         config.developers = developers;
         let configSaved = true;
         try {
-            saveGroupConfig("developers", developers);
+            configManager.saveGroupConfig("developers", developers);
         } catch (error) {
             configSaved = false;
-            console.error("[devhandler] could not update config.json for DEFCON:", error);
+            console.error("[devhandler] could not update the active environment config for DEFCON:", error);
         }
 
         let adminRoleFailures = [];
@@ -700,7 +765,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
         }
 
         if (!configSaved) {
-            state.save({ defconIssue: "Emergency developer IDs could not be written to config.json; check the bot logs." });
+            state.save({ defconIssue: "Emergency developer IDs could not be written to the active environment config; check the bot logs." });
         }
         if (adminRoleFailures.length) {
             state.save({
@@ -734,7 +799,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
                         ? ` ${backupReceipt.unsupportedChannelCount} unsupported channel(s) and ${backupReceipt.excludedThreadCount} thread(s) were excluded.`
                         : "")
                 : "") +
-            (configSaved ? "" : "\n⚠️ config.json could not be updated; the change is saved in runtime state.")
+            (configSaved ? "" : "\n⚠️ The active config file could not be updated; the change is saved in runtime state.")
         );
         return true;
     }
@@ -785,10 +850,10 @@ module.exports = async function handleDeveloperCommand(message, config) {
         const developers = currentDevelopers.filter(id => !addedByDefcon.includes(id));
         try {
             if (developers.length !== currentDevelopers.length) {
-                saveGroupConfig("developers", developers);
+                configManager.saveGroupConfig("developers", developers);
             }
         } catch (error) {
-            console.error("[devhandler] could not remove DEFCON developer IDs from config.json:", error);
+            console.error("[devhandler] could not remove DEFCON developer IDs from the active environment config:", error);
             await message.reply("❌ DEFCON lock was handled, but the developer IDs could not be removed. DEFCON remains active; check the bot logs and retry.");
             return true;
         }
@@ -890,7 +955,11 @@ module.exports = async function handleDeveloperCommand(message, config) {
             values.splice(values.indexOf(id), 1);
         }
 
-        const currentGroups = state.load().groupArrays || {};
+        const currentState = state.load();
+        const environment = configManager.getActiveEnvironment();
+        const currentGroups = currentState.groupArraysByEnvironment?.[environment]
+            || (environment === "main" ? currentState.groupArrays : null)
+            || {};
         const stateGroupKey = configKey.startsWith("boardOfDirectors.")
             ? "boardOfDirectors"
             : configKey;
@@ -902,7 +971,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
             : values;
         const progress = createMessageProgress(message, "Updating role group", [
             `Update the **${group}** group in memory`,
-            "Update config.json",
+            "Update the active environment config",
             "Save the updated groups to runtime state"
         ]);
         await progress.start();
@@ -915,27 +984,30 @@ module.exports = async function handleDeveloperCommand(message, config) {
             });
             await progress.runStep(1, async () => {
                 try {
-                    saveGroupConfig(configKey, values);
+                    configManager.saveGroupConfig(configKey, values);
                     configSaved = true;
                 } catch (error) {
-                    console.error(`[devhandler] could not update config.json for ${group}:`, error);
+                    console.error(`[devhandler] could not update the active environment config for ${group}:`, error);
                 }
             });
             if (!configSaved) await progress.warnStep(1);
             await progress.runStep(2, async () => {
                 stateSaved = state.save({
-                    groupArrays: {
-                        ...currentGroups,
-                        [stateGroupKey]: stateGroupValue
+                    groupArraysByEnvironment: {
+                        ...(currentState.groupArraysByEnvironment || {}),
+                        [environment]: {
+                            ...currentGroups,
+                            [stateGroupKey]: stateGroupValue
+                        }
                     }
                 });
             });
             if (!stateSaved) await progress.warnStep(2);
             await progress.complete(
                 `${command === "addgroup" ? "✅ Added" : "🗑️ Removed"} \`${id}\` ${command === "addgroup" ? "to" : "from"} the **${group}** group.` +
-                (configSaved ? "" : "\n⚠️ config.json could not be updated; check the bot logs." +
+                (configSaved ? "" : "\n⚠️ The active config file could not be updated; check the bot logs." +
                     (stateSaved ? " The change was saved to runtime state." : " The change may reset after restart.")) +
-                (stateSaved || !configSaved ? "" : "\n⚠️ Runtime state could not be saved; config.json has the change.")
+                (stateSaved || !configSaved ? "" : "\n⚠️ Runtime state could not be saved; the active config file has the change.")
             );
         } catch (error) {
             console.error(`[devhandler] failed to ${command} ${id} in ${group}:`, error);

@@ -131,6 +131,7 @@ minute or ten different slash commands in two minutes.
 | `n!links`, `n!rules`, `n!ticketrules` | Posts the corresponding server information. |
 | `d!forceclaim <ticket id>` | Developer override to claim a ticket. |
 | `d!addgroup`, `d!delgroup`, `d!showgroup` | Manage or view configured staff and access groups. |
+| `d!launch [test]`, `d!land` | Switch between Main and Vault; test launch leaves Main config unchanged. |
 | `d!defcon <1-6|status>`, `d!secure` | Start, inspect, or end the tracked DEFCON procedure. |
 | `d!forceclose` | Developer override to close a ticket and save its transcript. |
 | `d!impersonate <user> <command>` | Checks whether a member would be allowed to use a command; it does not run it. `d!impersonate list` shows known commands. |
@@ -156,6 +157,53 @@ NorthGate OS restores scheduled ticket closures after a restart, keeps ticket
 and lock state, refreshes the admin panel, and periodically checks that active
 tickets are represented in the tracker. The running service also publishes a
 heartbeat for monitoring and checks its configured Git remote for updates.
+
+### Main and Vault environments
+
+The bot uses two tracked environment configs: `main-config.json` contains the
+Main server settings, and `vault-config.json` contains the Vault settings.
+`main-config.json` is required at startup; if `vault-config.json` is missing,
+the bot creates it from Main as a starting template. Set `mainGuildId` and
+`vaultGuildId` in `main-config.json` (or `MAIN_GUILD_ID` and `VAULT_GUILD_ID`)
+to the two distinct server IDs. Until the first successful mirror, the copied
+Vault config still contains Main's channel and role IDs. The mirror replaces
+those with the built Vault IDs and records the mapping under `serverSync`.
+Fixed bot-specific IDs and Discord media URLs live under `systemIds` in each
+config. Runtime ticket/message IDs remain in the state and tracking files.
+
+Developers can use `d!launch test` to activate Vault without changing Main,
+`d!launch` to activate Vault production and blank the values in
+`main-config.json` while preserving its keys, or `d!land` to return to Main.
+The active environment and both server IDs persist in `failover-state.json`,
+so a production launch can safely blank Main without losing the guild IDs.
+Slash commands are registered for the selected guild when switching
+environments. While Vault is active, interactions from Main receive the
+security notice and are not processed. Config files are tracked as requested;
+runtime group edits and successful Vault syncs modify the worktree. Git-sync
+temporarily stashes those two files while it updates code and restores them
+afterward, so runtime config edits are not automatically committed or pushed.
+Git-sync also refuses to auto-push commits that change either config file.
+Local config values take precedence over incoming edits to those same files;
+reconcile config changes manually when needed. After `d!launch` or `d!land`
+successfully switches environments, the bot replies and exits so PM2 can
+restart it with only the selected config loaded.
+
+The bot starts with an immediate Main-to-Vault role/channel mirror, then
+repeats every 24 hours after a successful sync. It mirrors supported channel
+and role settings and removes Vault-only channels and unmanaged roles; it does
+not copy messages or member-role assignments. Main audit-log activity of 10 or more
+channel creations, 5 or more channel deletions, or 5 or more role creations or
+deletions in the previous 24 hours pauses the mirror and DMs `brooksy246` with
+**Confirm abort** and **Sync anyway** buttons. The bot needs View Channels on
+both servers, View Audit Log on Main, and Manage Channels and Manage Roles on
+Vault. Manage Expressions on both servers is needed to map custom emoji
+references. Set `SYNC_ALERT_USER_ID` if
+the bot cannot resolve `brooksy246` from its cached users or server memberships.
+Unsupported channel types or inaccessible audit logs prevent an unattended
+sync rather than silently proceeding. After a successful mirror, matching
+Main channel/role IDs in `vault-config.json` are replaced with the IDs of their
+Vault counterparts; guild IDs and user IDs are left unchanged. The config
+also records full source-to-Vault role and channel ID maps under `serverSync`.
 
 ## Access and scope
 

@@ -1,4 +1,61 @@
 {
+    "mainGuildId": "1517978818135195740",
+    "vaultGuildId": "1573642456900309053",
+    "systemIds": {
+        "lockdownRoleId": "1536806576202186842",
+        "forceLockChannelIds": [
+            "1518976753492693225"
+        ],
+        "forceLockVoiceChannelIds": [
+            "1533079860673515550",
+            "1533079884639768717"
+        ],
+        "ticketScanLogChannelId": "1548387829628010703",
+        "welcomeChannelId": "1543329472873373706",
+        "defconEmergencyDeveloperIds": [
+            "1172089323223519235",
+            "1274236550250762273",
+            "1114234318382968843",
+            "1014271648297386064",
+            "1267321190821789780"
+        ],
+        "defconWhitelistedRoleIds": [
+            "1546540563208085616",
+            "1548800471227965474",
+            "1548591894492094567"
+        ],
+        "supportTicketPingRoleIds": [
+            "1522596266125688902",
+            "1536399184096133221",
+            "1518065237771685928",
+            "1535764413422899210",
+            "1535764412923781270",
+            "1536398786346225684",
+            "1535023189246345277"
+        ],
+        "hiringTicketPingRoleIds": [
+            "1538588862148771910",
+            "1535764413422899210",
+            "1536398794240041050",
+            "1536398792520372404"
+        ],
+        "partnershipTicketPingRoleIds": [
+            "1535764412923781270",
+            "1536398802783572058",
+            "1536398786346225684",
+            "1535023189246345277"
+        ],
+        "ticketSystemUserId": "1536279872127762492",
+        "ticketPrivacyContactIds": [
+            "1259124148798754907",
+            "1410407078643765340"
+        ],
+        "mediaUrls": {
+            "portfolioBanner": "https://media.discordapp.net/attachments/1444636404801081448/1535285319123861534/Pixelated_Animated_Nostalgic_90s_Illustrations_Discord_Profile_Banner_13.gif?ex=6a98d3a0&is=6a978220&hm=ce2bb40a5d10ad11b9ec19aa3f0ba9a205639cbc6a95f8ef7b7f684111c81275&",
+            "ticketRegulationsPoster": "https://media.discordapp.net/attachments/1292046260261621851/1365439251545591888/NGC_poster-1.gif?width=400&height=225&ex=6abe27a6&is=6abcd626&hm=0b40ae378e158dfb4cc9f0fa3ea1b944f1dcb8294f64477aa56434696ee1c078&",
+            "studioIntro": "https://cdn.discordapp.com/attachments/1172091235461238815/1518658520948408330/Copy_of_Studio_intro.gif?ex=6a98fbb6&is=6a97aa36&hm=e642fd4324eeb9a807652e1e1f6684b562058aec310c6c8bedf367267d3d81c9&"
+        }
+    },
     "channels": {
         "ticketchannelid": "1518198456932503642",
         "transcriptschannelid": "1520357938110140496",
@@ -111,5 +168,6 @@
         "1517978929661612233",
         "1535764196459806850",
         "1535764412923781270"
-    ]
+    ],
+    "guildId": "1517978818135195740"
 }

@@ -9,15 +9,6 @@ const { logCommand } = require("../utils/command-logger");
 const { createMessageProgress } = require("../utils/progress-embed");
 const { setTicketPanelsLocked } = require("../utils/ticket-panel-lock");
 
-const LOCKDOWN_ROLE = "1536806576202186842";
-const LOCKED_CHANNEL_IDS = [
-    "1518976753492693225"
-];
-const VOICE_LOCK_CHANNEL_IDS = new Set([
-    "1533079860673515550",
-    "1533079884639768717"
-]);
-
 async function confirmForceLock(message, options = {}) {
     const confirmationIds = `${message.author.id}_${message.id}`;
     const proceedId = `force_lock_proceed_${confirmationIds}`;
@@ -117,13 +108,15 @@ function updateForceLockOverwrites(overwrites, everyoneId, permission, shouldLoc
 }
 
 async function applyForceLock(message, config, shouldLock, command) {
+    const lockedChannelIds = config.systemIds?.forceLockChannelIds || [];
+    const voiceLockChannelIds = new Set(config.systemIds?.forceLockVoiceChannelIds || []);
     const startedAt = process.hrtime.bigint();
     const savedForceLockOverwrites = state.load().forceLockOverwrites;
     const stepLabels = [
         "Find lock channels and validate permission capacity",
         ...(shouldLock ? ["Save original channel permissions", "Lock ticket panel buttons"] : []),
         ...(shouldLock
-            ? LOCKED_CHANNEL_IDS.map(id => `Update permissions in <#${id}>`)
+            ? lockedChannelIds.map(id => `Update permissions in <#${id}>`)
             : savedForceLockOverwrites
                 ? ["Restore saved channel permissions"]
                 : []),
@@ -149,16 +142,16 @@ async function applyForceLock(message, config, shouldLock, command) {
     try {
         await progress.runStep(step++, async () => {
             channels = await Promise.all(
-                LOCKED_CHANNEL_IDS.map(id => message.guild?.channels.fetch(id).catch(() => null))
+                lockedChannelIds.map(id => message.guild?.channels.fetch(id).catch(() => null))
             );
-            const missingChannels = LOCKED_CHANNEL_IDS.filter((id, index) => !channels[index]);
+            const missingChannels = lockedChannelIds.filter((id, index) => !channels[index]);
             if (missingChannels.length > 0) {
                 throw new Error(`Could not find all lock channels. Missing: ${missingChannels.join(", ")}`);
             }
 
             for (const channel of channels) {
                 const permission = PermissionFlagsBits.ViewChannel | (
-                    VOICE_LOCK_CHANNEL_IDS.has(channel.id)
+                    voiceLockChannelIds.has(channel.id)
                         ? PermissionFlagsBits.Connect
                         : PermissionFlagsBits.SendMessages
                 );
@@ -292,7 +285,7 @@ module.exports = async function handleAdminCommand(message, config) {
 
     await logCommand(message, config, `a!${command}`, "Admin command", args);
 
-    if (!message.member?.roles?.cache?.has(LOCKDOWN_ROLE)) {
+    if (!message.member?.roles?.cache?.has(config.systemIds?.lockdownRoleId)) {
         await message.reply("❌ This command is restricted to the admin role.");
         return true;
     }

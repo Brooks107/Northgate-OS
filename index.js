@@ -1,8 +1,8 @@
 process.loadEnvFile(require("path").join(__dirname, ".env"));
-const config = require("./config.json");
+const configManager = require("./configManager");
+const config = configManager.loadConfig();
 config.token = process.env.DISCORD_TOKEN;
 config.clientId = process.env.CLIENT_ID;
-config.guildId = process.env.GUILD_ID;
 
 const { Client, GatewayIntentBits, Partials, Events, MessageFlags } = require("discord.js");
 
@@ -28,6 +28,7 @@ const autocloseScheduler = require("./autoclose-scheduler");
 const { startHeartbeat } = require("./heartbeat");
 const { logCommand } = require("./utils/command-logger");
 const { isStoredServerBackupMessage } = require("./utils/server-backup");
+const serverSync = require("./utils/server-sync");
 const featureRequestHandler = require("./handlers/feature-request-handler");
 const {
     ProgressFailure,
@@ -68,7 +69,10 @@ function trackDistinctCommand(commandName) {
 
 const runtimeState = state.load();
 Object.assign(config, runtimeState);
-const runtimeGroups = runtimeState.groupArrays || {};
+const activeEnvironment = configManager.getActiveEnvironment();
+const runtimeGroups = runtimeState.groupArraysByEnvironment?.[activeEnvironment]
+    || (activeEnvironment === "main" ? runtimeState.groupArrays : null)
+    || {};
 const boardOfDirectors = { ...(config.boardOfDirectors || {}) };
 for (const [legacyKey, boardKey] of [
     ["hrdirectorrole", "hrdir"],
@@ -107,6 +111,7 @@ const client = new Client({
 });
 
 client.commands = new Map();
+client.config = config;
 
 client.on(Events.MessageReactionAdd, async (reaction, user) => {
     try {
@@ -172,6 +177,7 @@ client.once(Events.ClientReady, async () => {
         activities: []
     });
     console.log(`[presence] bot is ${config.maintenanceMode ? "invisible" : "online"}.`);
+    await serverSync.start(client);
 
     // Fetch and aggregate active ticket IDs across all guilds
     await client.refreshActiveTicketIds();
@@ -258,6 +264,18 @@ async function reportInteractionFailure(interaction, err) {
 
 client.on("interactionCreate", async interaction => {
     try {
+        if (
+            configManager.isVaultMode() &&
+            interaction.guildId === configManager.getMainGuildId()
+        ) {
+            return interaction.reply({
+                content: "🔒 NorthGate Studios security protocol is active. This bot has been detached from this server and is currently operating in secure vault mode.",
+                flags: MessageFlags.Ephemeral
+            });
+        }
+
+        if (await serverSync.handleInteraction(interaction)) return;
+
         if (interaction.isButton() && interaction.customId.startsWith("backupload_")) {
             const match = interaction.customId.match(
                 /^backupload_(confirm|override|cancel)_(\d{17,20})_(\d{17,20})$/

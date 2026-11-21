@@ -18,6 +18,7 @@ const { createInteractionProgress } = require("../utils/progress-embed");
 
 module.exports = {
     async execute(interaction, client, config) {
+        const ticketPingRoleIds = config.systemIds?.hiringTicketPingRoleIds || [];
 
         // -------------------------------------------------
         // HIRING BUTTON → OPEN MODAL
@@ -241,8 +242,8 @@ module.exports = {
             );
 
             await progress.runStep(3, () => ticketChannel.send({
-                content: "<@&1538588862148771910> <@&1535764413422899210> <@&1536398794240041050> <@&1536398792520372404>",
-                allowedMentions: { roles: ["1538588862148771910", "1535764413422899210", "1536398794240041050", "1536398792520372404"] },
+                content: ticketPingRoleIds.map(roleId => `<@&${roleId}>`).join(" "),
+                allowedMentions: { roles: ticketPingRoleIds },
                 embeds: [
                     {
                         title: `🧑‍💼 Hiring Ticket #${ticketId}`,

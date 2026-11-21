@@ -1,13 +1,7 @@
 const { PermissionFlagsBits } = require("discord.js");
 
-const DEFAULT_WHITELISTED_ROLE_IDS = Object.freeze([
-    "1546540563208085616",
-    "1548800471227965474",
-    "1548591894492094567"
-]);
-
-function getWhitelistedRoleIds(savedIds = []) {
-    return new Set([...DEFAULT_WHITELISTED_ROLE_IDS, ...savedIds]);
+function getWhitelistedRoleIds(savedIds = [], configuredIds = []) {
+    return new Set([...configuredIds, ...savedIds]);
 }
 
 async function findAdministratorRolesToRemove(guild, whitelistedRoleIds) {
@@ -92,7 +86,6 @@ async function restoreAdministratorToRoles(guild, roleIds, reason) {
 }
 
 module.exports = {
-    DEFAULT_WHITELISTED_ROLE_IDS,
     findAdministratorRolesToRemove,
     getWhitelistedRoleIds,
     removeAdministratorFromRoles,

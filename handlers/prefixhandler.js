@@ -28,6 +28,7 @@ async function sendPrivateHelp(message) {
 
 module.exports = async function handlePrefixCommand(message, config) {
     if (message.author.bot) return;
+    const systemIds = config.systemIds || {};
 
     if (message.content.trim().toLowerCase() === "!help") {
         await logCommand(message, config, "!help", "Prefix command", []);
@@ -384,7 +385,7 @@ module.exports = async function handlePrefixCommand(message, config) {
             description: "Below you can find our official links to our projects, website, social media platforms and more.",
             color: 0x00ff00,
             image: {
-                url: "https://media.discordapp.net/attachments/1444636404801081448/1535285319123861534/Pixelated_Animated_Nostalgic_90s_Illustrations_Discord_Profile_Banner_13.gif?ex=6a98d3a0&is=6a978220&hm=ce2bb40a5d10ad11b9ec19aa3f0ba9a205639cbc6a95f8ef7b7f684111c81275&"
+                url: systemIds.mediaUrls?.portfolioBanner
             },
             footer: {
                 text: "Created by Brooks | Powered By Vortigern Industries"
@@ -440,13 +441,15 @@ module.exports = async function handlePrefixCommand(message, config) {
             description: [
                 "**NOTICE**",
                 "",
-                "By opening a NGC ticket using the <@1536279872127762492> ticket system, you consent to the storage of your data in our tracking channels and the retention of that data in our ticket archive stored in our systems - This information stored will only be accessible to all staff throughout the time your ticket is open. After closure only <@1259124148798754907> and <@1410407078643765340> may go back and look at the full archive. Please DM them to request any erasures.",
+                `By opening a NGC ticket using the <@${systemIds.ticketSystemUserId}> ticket system, you consent to the storage of your data in our tracking channels and the retention of that data in our ticket archive stored in our systems - This information stored will only be accessible to all staff throughout the time your ticket is open. After closure only ${(
+                    systemIds.ticketPrivacyContactIds || []
+                ).map(userId => `<@${userId}>`).join(" and ")} may go back and look at the full archive. Please DM them to request any erasures.`,
                 "",
                 `Northgate Studios reserves the right to close, deny or otherwise turn down service towards any ticket opener at NGC with, or without notice. Including but not limited to: "Partnerships", "Hiring" and "Appeals"`,
                 "",
             ].join("\n"),
             image: {
-                url: "https://media.discordapp.net/attachments/1292046260261621851/1365439251545591888/NGC_poster-1.gif?width=400&height=225&ex=6abe27a6&is=6abcd626&hm=0b40ae378e158dfb4cc9f0fa3ea1b944f1dcb8294f64477aa56434696ee1c078&",
+                url: systemIds.mediaUrls?.ticketRegulationsPoster,
             },
             footer: {
                 text: "Official ticket regulations | Created by Brooks | Powered by Vortigern Industries"
@@ -539,7 +542,7 @@ module.exports = async function handlePrefixCommand(message, config) {
                 "---------------------------------------------------"
             ].join("\n"),
             image: {
-                url: "https://cdn.discordapp.com/attachments/1172091235461238815/1518658520948408330/Copy_of_Studio_intro.gif?ex=6a98fbb6&is=6a97aa36&hm=e642fd4324eeb9a807652e1e1f6684b562058aec310c6c8bedf367267d3d81c9&"
+                url: systemIds.mediaUrls?.studioIntro
             },
             footer: {
                 text: "Created by Casper | Powered By Vortigern Industries"

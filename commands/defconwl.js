@@ -1,9 +1,6 @@
 const { MessageFlags, SlashCommandBuilder } = require("discord.js");
 const state = require("../state");
-const {
-    DEFAULT_WHITELISTED_ROLE_IDS,
-    getWhitelistedRoleIds
-} = require("../utils/defcon-role-security");
+const { getWhitelistedRoleIds } = require("../utils/defcon-role-security");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -28,7 +25,11 @@ module.exports = {
 
         const role = interaction.options.getRole("role", true);
         const currentState = state.load();
-        const whitelistedIds = getWhitelistedRoleIds(currentState.defconWhitelistedRoleIds || []);
+        const builtInRoleIds = config.systemIds?.defconWhitelistedRoleIds || [];
+        const whitelistedIds = getWhitelistedRoleIds(
+            currentState.defconWhitelistedRoleIds || [],
+            builtInRoleIds
+        );
         if (whitelistedIds.has(role.id)) {
             return interaction.reply({
                 content: `ℹ️ ${role} is already on the DEFCON 1 whitelist.`,
@@ -47,7 +48,7 @@ module.exports = {
             });
         }
 
-        const builtInCount = DEFAULT_WHITELISTED_ROLE_IDS.length;
+        const builtInCount = builtInRoleIds.length;
         return interaction.reply({
             content: `✅ ${role} was added to the persistent DEFCON 1 whitelist. ${builtInCount} built-in role(s) are also protected.`,
             flags: MessageFlags.Ephemeral

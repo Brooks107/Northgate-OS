@@ -28,7 +28,7 @@ module.exports = {
                 const channelId = config.managementVoiceChannelId;
                 channel = channelId ? await client.channels.fetch(channelId).catch(() => null) : null;
                 if (!channel || !channel.isVoiceBased?.() || !channel.guild) {
-                    throw new ProgressFailure("Set a valid `managementVoiceChannelId` in `config.json` first.");
+                    throw new ProgressFailure("Set a valid `managementVoiceChannelId` in the active config first.");
                 }
             });
         } catch (error) {

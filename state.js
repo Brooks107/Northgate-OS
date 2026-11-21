@@ -3,10 +3,7 @@ const path = require("path");
 
 // Runtime state that staff toggle with commands (the lock flags).
 //
-// This deliberately lives OUTSIDE config.json. config.json is tracked by git
-// and auto-synced every 15s; writing to it at runtime dirties the working tree,
-// which makes git-sync's `merge --ff-only` abort as soon as any pushed commit
-// touches config.json -- silently freezing auto-deploy until someone notices.
+// Keep runtime lock toggles separate from the environment-specific configs.
 const STATE_FILE = path.join(__dirname, "state.json");
 
 const KEYS = ["locked", "managementVoiceChannelLocked", "forceLocked", "maintenanceMode"];
@@ -61,10 +58,13 @@ function load() {
         if (raw.groupArrays && typeof raw.groupArrays === "object") {
             state.groupArrays = raw.groupArrays;
         }
+        if (raw.groupArraysByEnvironment && typeof raw.groupArraysByEnvironment === "object") {
+            state.groupArraysByEnvironment = raw.groupArraysByEnvironment;
+        }
         return state;
     } catch {
         // No state file yet (or it is unreadable): callers fall back to
-        // whatever defaults config.json ships with.
+        // the defaults in the active environment config.
         return {};
     }
 }

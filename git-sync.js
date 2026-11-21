@@ -1,7 +1,9 @@
 const { execFile } = require("child_process");
+const fs = require("fs");
 const path = require("path");
 
 const repoPath = path.resolve(__dirname);
+const PROTECTED_CONFIG_FILES = ["main-config.json", "vault-config.json"];
 
 const DEFAULTS = {
     enabled: true,
@@ -123,6 +125,55 @@ async function commitLocalChanges(message) {
     return git("rev-parse", "HEAD");
 }
 
+async function stashRuntimeConfigChanges() {
+    const changedFiles = lines(await git(
+        "status",
+        "--porcelain",
+        "--untracked-files=all",
+        "--",
+        ...PROTECTED_CONFIG_FILES
+    ));
+    if (!changedFiles.length) return null;
+
+    const previousStash = await gitQuiet("rev-parse", "--verify", "refs/stash");
+    await git(
+        "stash",
+        "push",
+        "--include-untracked",
+        "--quiet",
+        "--message",
+        "git-sync: preserve runtime environment configs",
+        "--",
+        ...PROTECTED_CONFIG_FILES
+    );
+    const stashSha = await gitQuiet("rev-parse", "--verify", "refs/stash");
+    if (!stashSha || stashSha === previousStash) {
+        throw new Error("could not safely preserve changed environment config files");
+    }
+    return stashSha;
+}
+
+async function restoreRuntimeConfigChanges(stashSha) {
+    for (const file of PROTECTED_CONFIG_FILES) {
+        const filePath = path.join(repoPath, file);
+        const hasSavedFile = await gitQuiet("cat-file", "-e", `${stashSha}:${file}`);
+        if (hasSavedFile === null) {
+            if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        } else {
+            const content = await git("show", `${stashSha}:${file}`);
+            fs.writeFileSync(filePath, `${content}\n`, "utf8");
+        }
+    }
+
+    const stashEntries = lines(await git("stash", "list", "--format=%gd %H"));
+    const stashEntry = stashEntries.find(entry => entry.endsWith(` ${stashSha}`));
+    if (!stashEntry) {
+        warn(`runtime config stash ${stashSha.slice(0, 7)} was restored but could not be located for cleanup.`);
+        return;
+    }
+    await git("stash", "drop", stashEntry.split(" ")[0]);
+}
+
 async function rebaseOnto(remote, branch, localTip, dataFiles) {
     const continueEnv = { env: { ...process.env, GIT_EDITOR: "true" } };
 
@@ -189,11 +240,14 @@ async function installDependencies() {
 function createSyncer(settings, hooks) {
     let inFlight = false;
     let restarting = false;
+    let warnedAboutConfigCommit = false;
     let lastPushAt = Date.now();
+    const dataFiles = [...new Set([...settings.dataFiles, ...PROTECTED_CONFIG_FILES])];
 
     return async function attemptSync() {
         if (inFlight || restarting) return;
         inFlight = true;
+        let runtimeConfigStash = null;
 
         try {
             const branch = await resolveBranch(settings.branch);
@@ -204,8 +258,15 @@ function createSyncer(settings, hooks) {
             const dirty = await isDirty();
             const pushDue = Date.now() - lastPushAt >= settings.pushIntervalSeconds * 1000;
             const remoteMoved = remoteSha !== startSha && !(await hasCommit(remoteSha).then(has => has && isAncestor(remoteSha, startSha)));
+            if (dirty && (remoteMoved || (settings.push && pushDue))) {
+                runtimeConfigStash = await stashRuntimeConfigChanges();
+            }
+            const dirtyForCommit = await isDirty();
+            if (settings.push && pushDue && !dirtyForCommit) {
+                lastPushAt = Date.now();
+            }
 
-            if (settings.push && dirty && (pushDue || remoteMoved)) {
+            if (settings.push && dirtyForCommit && (pushDue || remoteMoved)) {
                 const committed = await commitLocalChanges(settings.commitMessage);
                 if (committed) log(`committed local changes as ${committed.slice(0, 7)}.`);
             }
@@ -223,7 +284,7 @@ function createSyncer(settings, hooks) {
                     log(`pulling ${upstream}: ${localTip.slice(0, 7)} <- ${remoteSha.slice(0, 7)}`);
 
                     try {
-                        await rebaseOnto(settings.remote, branch, localTip, settings.dataFiles);
+                        await rebaseOnto(settings.remote, branch, localTip, dataFiles);
                     } catch (err) {
                         warn("rebase failed, working tree left untouched:", describeError(err));
                         return;
@@ -236,17 +297,34 @@ function createSyncer(settings, hooks) {
             if (settings.push) {
                 const ahead = lines(await git("rev-list", `${upstream}..HEAD`)).length;
                 if (ahead) {
-                    try {
-                        await git("push", settings.remote, `HEAD:${branch}`);
-                        lastPushAt = Date.now();
-                        log(`pushed ${ahead} commit(s) to ${upstream}.`);
-                    } catch (err) {
-                        warn("push failed, will retry next tick:", describeError(err));
+                    const committedFiles = lines(await git(
+                        "log",
+                        "--format=",
+                        "--name-only",
+                        `${upstream}..HEAD`
+                    ));
+                    const containsConfigChanges = committedFiles.some(
+                        file => PROTECTED_CONFIG_FILES.includes(file)
+                    );
+                    if (containsConfigChanges) {
+                        if (!warnedAboutConfigCommit) {
+                            warn("not auto-pushing commits that modify environment config files.");
+                            warnedAboutConfigCommit = true;
+                        }
+                    } else {
+                        warnedAboutConfigCommit = false;
+                        try {
+                            await git("push", settings.remote, `HEAD:${branch}`);
+                            lastPushAt = Date.now();
+                            log(`pushed ${ahead} commit(s) to ${upstream}.`);
+                        } catch (err) {
+                            warn("push failed, will retry next tick:", describeError(err));
+                        }
                     }
                 }
             }
 
-            const codeChanged = incomingFiles.filter(file => !settings.dataFiles.includes(file));
+            const codeChanged = incomingFiles.filter(file => !dataFiles.includes(file));
             if (!codeChanged.length) return;
 
             log(`working tree now at ${headSha.slice(0, 7)}; ${codeChanged.length} code file(s) changed upstream.`);
@@ -274,10 +352,24 @@ function createSyncer(settings, hooks) {
                 }
             }
 
+            if (runtimeConfigStash) {
+                await restoreRuntimeConfigChanges(runtimeConfigStash);
+                runtimeConfigStash = null;
+            }
             process.exit(0);
         } catch (err) {
             warn("sync failed:", describeError(err));
         } finally {
+            if (runtimeConfigStash) {
+                try {
+                    await restoreRuntimeConfigChanges(runtimeConfigStash);
+                } catch (err) {
+                    warn(
+                        "could not restore runtime config edits; the recovery copy remains in git stash:",
+                        describeError(err)
+                    );
+                }
+            }
             inFlight = false;
         }
     };

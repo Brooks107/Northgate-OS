@@ -131,7 +131,7 @@ async function notifyRequester(client, request, content) {
 async function submit(interaction, client, config) {
     const reviewerId = String(config.featureRequests?.initialReviewerId || "");
     if (!/^\d{17,20}$/.test(reviewerId)) {
-        throw new Error("featureRequests.initialReviewerId is missing or invalid in config.json");
+        throw new Error("featureRequests.initialReviewerId is missing or invalid in the active config.");
     }
 
     const requests = loadRequests();
@@ -224,7 +224,7 @@ async function handleButton(interaction, client, config, action, reference) {
             action === "forward_coolbeanz" ? "coolbeanzId" : "westcliffId"
         ] || "");
         if (!/^\d{17,20}$/.test(recipientId)) {
-            throw new Error(`featureRequests recipient for ${action} is missing or invalid in config.json`);
+            throw new Error(`featureRequests recipient for ${action} is missing or invalid in the active config.`);
         }
 
         request.status = "Forwarded";

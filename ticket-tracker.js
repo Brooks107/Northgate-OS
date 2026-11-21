@@ -9,7 +9,6 @@ const path = require("path");
 
 const TRACKING_FILE = path.join(__dirname, "ticket-tracking.json");
 const TICKET_CHANNEL_PATTERN = /^(support|appeal|hiring|partnership|interrogation)-(\d+)(?:-|$)/i;
-const SCAN_LOG_CHANNEL_ID = "1548387829628010703";
 
 // In-memory map: ticketChannelId -> { messageId, embeds: [] }
 let trackedTickets = {};
@@ -129,9 +128,14 @@ async function fetchAllMessages(channel) {
     return messages;
 }
 
-async function sendScanDiagnostics(client, diagnostics) {
+async function sendScanDiagnostics(client, config, diagnostics) {
     try {
-        const loggingChannel = await client.channels.fetch(SCAN_LOG_CHANNEL_ID);
+        const loggingChannelId = config?.systemIds?.ticketScanLogChannelId;
+        if (!loggingChannelId) {
+            console.error("[ticket-tracker] systemIds.ticketScanLogChannelId is not configured.");
+            return;
+        }
+        const loggingChannel = await client.channels.fetch(loggingChannelId);
         if (!loggingChannel || typeof loggingChannel.send !== "function") return;
 
         const skippedExamples = diagnostics.skippedExamples
@@ -216,7 +220,7 @@ async function runReconciliation(client, config) {
         diagnostics.status = status;
         diagnostics.completedAt = new Date().toISOString();
         saveTracking();
-        await sendScanDiagnostics(client, diagnostics);
+        await sendScanDiagnostics(client, config, diagnostics);
     };
 
     if (!config?.trackerChannelId) {

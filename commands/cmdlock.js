@@ -1,5 +1,4 @@
 const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
-const config = require('../config.json');
 const state = require('../state');
 const { createInteractionProgress } = require('../utils/progress-embed');
 
@@ -9,6 +8,7 @@ module.exports = {
         .setDescription('Locks ALL commands globally'),
 
     async execute(interaction) {
+        const config = interaction.client.config;
         if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
             return interaction.reply({
                 content: '❌ Only server administrators can use `/cmdlock`.',

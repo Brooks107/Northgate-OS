@@ -17,6 +17,7 @@ const { createInteractionProgress } = require("../utils/progress-embed");
 
 module.exports = {
     async execute(interaction, client, config) {
+        const ticketPingRoleIds = config.systemIds?.partnershipTicketPingRoleIds || [];
 
         // -------------------------------------------------
         // PARTNERSHIP BUTTON → OPEN MODAL
@@ -203,8 +204,8 @@ module.exports = {
             );
 
             await progress.runStep(2, () => ticketChannel.send({
-                content: "<@&1535764412923781270> <@&1536398802783572058> <@&1536398786346225684> <@&1535023189246345277>",
-                allowedMentions: { roles: ["1535764412923781270", "1536398802783572058", "1536398786346225684", "1535023189246345277"] },
+                content: ticketPingRoleIds.map(roleId => `<@&${roleId}>`).join(" "),
+                allowedMentions: { roles: ticketPingRoleIds },
                 embeds: [
                     {
                         title: `🤝 Partnership Ticket #${ticketId}`,

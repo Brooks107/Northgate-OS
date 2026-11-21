@@ -99,7 +99,7 @@ function buildAdminPanelEmbed(client, config, guild) {
         ...roleMemberCount(guild, appealsTicketAccessRoleIds, "Appeal Ticket Access"),
         ...roleMemberCount(guild, partnershipTicketAccessRoleIds, "Partnership Ticket Access"),
         ...roleMemberCount(guild, hiringTicketAccessRoleIds, "Hiring Ticket Access"),
-        ...roleMemberCount(guild, ["1536806576202186842"], "Lockdown Authorisation")
+        ...roleMemberCount(guild, [config.systemIds?.lockdownRoleId], "Lockdown Authorisation")
     ];
 
     const issues = [];

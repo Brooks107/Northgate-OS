@@ -17,6 +17,7 @@ const {
 
   module.exports = {
       async execute(interaction, client, config) {
+          const ticketPingRoleIds = config.systemIds?.supportTicketPingRoleIds || [];
 
           // -------------------------------------------------
           // SUPPORT BUTTONS → OPEN MODAL
@@ -172,8 +173,8 @@ const {
               });
 
               await progress.runStep(3, () => ticketChannel.send({
-                  content: "<@&1522596266125688902> <@&1536399184096133221> <@&1518065237771685928> <@&1535764413422899210> <@&1535764412923781270> <@&1536398786346225684> <@&1535023189246345277>",
-                  allowedMentions: { roles: ["1522596266125688902", "1536399184096133221", "1518065237771685928", "1535764413422899210", "1535764412923781270", "1536398786346225684", "1535023189246345277"] },
+                  content: ticketPingRoleIds.map(roleId => `<@&${roleId}>`).join(" "),
+                  allowedMentions: { roles: ticketPingRoleIds },
                   embeds: [
                       {
                           title: `📩 ${isSupport ? "Support" : "Appeal"} Ticket #${ticketId}`,
