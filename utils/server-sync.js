@@ -581,7 +581,9 @@ function channelOptions(sourceChannel, sourceGuild, targetGuild, roleMap, parent
         options.bitrate = Math.min(sourceChannel.bitrate, getMaxVoiceBitrate(targetGuild));
         options.userLimit = sourceChannel.userLimit;
         options.rtcRegion = sourceChannel.rtcRegion;
-        options.videoQualityMode = sourceChannel.videoQualityMode;
+        if (sourceChannel.type === ChannelType.GuildVoice) {
+            options.videoQualityMode = sourceChannel.videoQualityMode;
+        }
     }
 
     if (sourceChannel.type === ChannelType.GuildForum || sourceChannel.type === ChannelType.GuildMedia) {
@@ -863,6 +865,7 @@ module.exports = {
     getUnsupportedChannels,
     isGuildFeatureRequirementError,
     getMaxVoiceBitrate,
+    channelOptions,
     buildRolePositionUpdates,
     applyRolePositions,
     roleOptionsWithoutBoostFeatures,

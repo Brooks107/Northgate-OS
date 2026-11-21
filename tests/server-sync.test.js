@@ -6,6 +6,7 @@ const {
     applyRolePositions,
     applyRoleOptions,
     buildRolePositionUpdates,
+    channelOptions,
     channelOptionsWithoutBoostFeatures,
     getMaxVoiceBitrate,
     getUnsupportedChannels,
@@ -55,6 +56,31 @@ test("voice settings respect Vault boost tier and drop boost-restricted video qu
     assert.equal(getMaxVoiceBitrate({ premiumTier: 3 }), 384_000);
     assert.equal(fallback.bitrate, 64_000);
     assert.equal(Object.hasOwn(fallback, "videoQualityMode"), false);
+});
+
+test("stage channel options omit voice-only video quality mode", () => {
+    const options = channelOptions({
+        name: "Stage",
+        type: ChannelType.GuildStageVoice,
+        position: 1,
+        parentId: null,
+        permissionOverwrites: { cache: new Map() },
+        bitrate: 128_000,
+        userLimit: 0,
+        rtcRegion: null,
+        videoQualityMode: 2
+    }, {
+        id: "main-guild",
+        channels: { cache: new Map() }
+    }, {
+        id: "vault-guild",
+        premiumTier: 0,
+        channels: { cache: new Map() }
+    }, new Map(), undefined, true);
+
+    assert.equal(options.type, ChannelType.GuildStageVoice);
+    assert.equal(options.bitrate, 64_000);
+    assert.equal(Object.hasOwn(options, "videoQualityMode"), false);
 });
 
 test("boost and guild-feature errors are recognized without swallowing unrelated errors", () => {
