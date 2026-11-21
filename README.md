@@ -201,10 +201,13 @@ Vault. Manage Expressions on both servers is needed to map custom emoji
 references. Set `SYNC_ALERT_USER_ID` if
 the bot cannot resolve `brooksy246` from its cached users or server memberships.
 Unsupported channel types or inaccessible audit logs prevent an unattended
-sync rather than silently proceeding. After a successful mirror, matching
-Main channel/role IDs in `vault-config.json` are replaced with the IDs of their
-Vault counterparts; guild IDs and user IDs are left unchanged. The config
-also records full source-to-Vault role and channel ID maps under `serverSync`.
+sync rather than silently proceeding. If Vault has a lower boost tier, voice
+bitrates are capped to its tier, and boost-restricted role styling or video
+quality settings fall back to basic settings. After a successful mirror,
+matching Main channel/role IDs in `vault-config.json` are replaced with the IDs
+of their Vault counterparts; guild IDs and user IDs are left unchanged. The
+config also records full source-to-Vault role and channel ID maps under
+`serverSync`.
 
 ## Access and scope
 

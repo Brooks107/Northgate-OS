@@ -34,9 +34,39 @@ const THREAD_CHANNEL_TYPES = new Set([
     ChannelType.PublicThread,
     ChannelType.PrivateThread
 ]);
+const MAX_VOICE_BITRATE_BY_PREMIUM_TIER = [64_000, 128_000, 256_000, 384_000];
 const pendingApprovals = new Map();
 let activeSync = false;
 let scheduleTimer = null;
+
+function isBoostRequirementError(error) {
+    return Number(error?.code) === 50101 || /needs more boosts/i.test(error?.message || "");
+}
+
+function getMaxVoiceBitrate(guild) {
+    const tier = Number.isInteger(guild.premiumTier)
+        ? Math.min(Math.max(guild.premiumTier, 0), MAX_VOICE_BITRATE_BY_PREMIUM_TIER.length - 1)
+        : 0;
+    return MAX_VOICE_BITRATE_BY_PREMIUM_TIER[tier];
+}
+
+function roleOptionsWithoutBoostFeatures(options) {
+    return {
+        ...options,
+        colors: { primaryColor: options.colors.primaryColor },
+        icon: null,
+        unicodeEmoji: null
+    };
+}
+
+function channelOptionsWithoutBoostFeatures(options, targetGuild) {
+    const fallback = { ...options };
+    if (typeof fallback.bitrate === "number") {
+        fallback.bitrate = Math.min(fallback.bitrate, getMaxVoiceBitrate(targetGuild));
+    }
+    delete fallback.videoQualityMode;
+    return fallback;
+}
 
 function readState() {
     try {
@@ -311,16 +341,10 @@ async function syncRoles(source, target) {
             };
         }
         if (!targetRole) {
-            targetRole = await target.roles.create({
-                ...options,
-                reason: "Automated 24-hour main-to-vault server sync"
-            });
+            targetRole = await applyRoleOptions(target, null, options);
             created++;
         } else {
-            await targetRole.edit({
-                ...options,
-                reason: "Automated 24-hour main-to-vault server sync"
-            });
+            await applyRoleOptions(target, targetRole, options);
             updated++;
         }
         roleMap.set(sourceRole.id, targetRole.id);
@@ -343,6 +367,44 @@ async function syncRoles(source, target) {
     );
 
     return { roleMap, created, updated, deleted: extraRoles.length };
+}
+
+async function applyRoleOptions(targetGuild, targetRole, options) {
+    const applyOptions = roleOptions => ({
+        ...roleOptions,
+        reason: "Automated 24-hour main-to-vault server sync"
+    });
+    const apply = roleOptions => targetRole
+        ? targetRole.edit(applyOptions(roleOptions))
+        : targetGuild.roles.create(applyOptions(roleOptions));
+
+    try {
+        return await apply(options);
+    } catch (error) {
+        if (!isBoostRequirementError(error)) {
+            throw new Error(`Could not sync role "${options.name}": ${error.message}`);
+        }
+
+        const fallback = roleOptionsWithoutBoostFeatures(options);
+        const hasBoostFeatures = Buffer.isBuffer(options.icon) ||
+            Boolean(options.unicodeEmoji) ||
+            options.colors.secondaryColor != null ||
+            options.colors.tertiaryColor != null;
+        if (!hasBoostFeatures) {
+            throw new Error(`Could not sync role "${options.name}": ${error.message}`);
+        }
+
+        console.warn(
+            `[server-sync] Vault lacks boosts for role "${options.name}" styling; retrying with basic color.`
+        );
+        try {
+            return await apply(fallback);
+        } catch (fallbackError) {
+            throw new Error(
+                `Could not sync role "${options.name}" even without boost-only styling: ${fallbackError.message}`
+            );
+        }
+    }
 }
 
 function mapOverwrites(sourceChannel, sourceGuild, targetGuild, roleMap) {
@@ -400,7 +462,7 @@ function channelOptions(sourceChannel, sourceGuild, targetGuild, roleMap, parent
     }
 
     if (sourceChannel.type === ChannelType.GuildVoice || sourceChannel.type === ChannelType.GuildStageVoice) {
-        options.bitrate = sourceChannel.bitrate;
+        options.bitrate = Math.min(sourceChannel.bitrate, getMaxVoiceBitrate(targetGuild));
         options.userLimit = sourceChannel.userLimit;
         options.rtcRegion = sourceChannel.rtcRegion;
         options.videoQualityMode = sourceChannel.videoQualityMode;
@@ -435,6 +497,35 @@ function channelOptions(sourceChannel, sourceGuild, targetGuild, roleMap, parent
                 : null;
     }
     return options;
+}
+
+async function applyChannelOptions(targetGuild, targetChannel, sourceChannel, options) {
+    const apply = channelOptions => targetChannel
+        ? targetChannel.edit(channelOptions)
+        : targetGuild.channels.create({
+            ...channelOptions,
+            reason: "Automated 24-hour main-to-vault server sync"
+        });
+
+    try {
+        return await apply(options);
+    } catch (error) {
+        if (!isBoostRequirementError(error) || options.videoQualityMode === undefined) {
+            throw new Error(`Could not sync channel "${sourceChannel.name}": ${error.message}`);
+        }
+
+        const fallback = channelOptionsWithoutBoostFeatures(options, targetGuild);
+        console.warn(
+            `[server-sync] Vault lacks boosts for channel "${sourceChannel.name}" settings; retrying with compatible voice quality.`
+        );
+        try {
+            return await apply(fallback);
+        } catch (fallbackError) {
+            throw new Error(
+                `Could not sync channel "${sourceChannel.name}" after removing boost-restricted settings: ${fallbackError.message}`
+            );
+        }
+    }
 }
 
 function sortedChannels(guild) {
@@ -497,15 +588,12 @@ async function syncChannels(source, target, roleMap) {
             !targetChannel
         );
 
-        if (targetChannel) {
-            await targetChannel.edit(options);
-            updated++;
-        } else {
-            targetChannel = await target.channels.create({
-                ...options,
-                reason: "Automated 24-hour main-to-vault server sync"
-            });
+        const isNewChannel = !targetChannel;
+        targetChannel = await applyChannelOptions(target, targetChannel, sourceChannel, options);
+        if (isNewChannel) {
             created++;
+        } else {
+            updated++;
         }
         channelMap.set(sourceChannel.id, targetChannel.id);
         retainedTargetIds.add(targetChannel.id);
@@ -649,5 +737,11 @@ module.exports = {
     getRecentChanges,
     getTriggeredThresholds,
     getUnsupportedChannels,
+    isBoostRequirementError,
+    getMaxVoiceBitrate,
+    roleOptionsWithoutBoostFeatures,
+    channelOptionsWithoutBoostFeatures,
+    applyRoleOptions,
+    applyChannelOptions,
     THRESHOLDS
 };
