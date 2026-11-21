@@ -28,6 +28,7 @@ const {
 } = require("../utils/defcon-role-security");
 
 const DEFCON_FORCE_LOCK_LEVELS = new Set([1, 2, 4]);
+const activeEnvironmentSwitchConfirmations = new Map();
 const DEFCON_ONE_WARNING =
     "🚨 **DEFCON 1 is the most powerful security level you can apply to this server.** " +
     "Use another level if possible. Proceeding will create a server-configuration backup, " +
@@ -99,6 +100,8 @@ async function confirmEnvironmentSwitch(message, command, requestedMode) {
         )]
     });
 
+    activeEnvironmentSwitchConfirmations.set(confirmId, message.author.id);
+    activeEnvironmentSwitchConfirmations.set(cancelId, message.author.id);
     try {
         const choice = await confirmation.awaitMessageComponent({
             filter: interaction =>
@@ -123,7 +126,14 @@ async function confirmEnvironmentSwitch(message, command, requestedMode) {
             components: []
         });
         return false;
+    } finally {
+        activeEnvironmentSwitchConfirmations.delete(confirmId);
+        activeEnvironmentSwitchConfirmations.delete(cancelId);
     }
+}
+
+function getEnvironmentSwitchConfirmationOwner(customId) {
+    return activeEnvironmentSwitchConfirmations.get(customId) || null;
 }
 
 const GROUP_CONFIG_KEYS = {
@@ -1367,3 +1377,4 @@ module.exports = async function handleDeveloperCommand(message, config) {
 
 module.exports.handleForceSyncCommand = handleForceSyncCommand;
 module.exports.confirmEnvironmentSwitch = confirmEnvironmentSwitch;
+module.exports.getEnvironmentSwitchConfirmationOwner = getEnvironmentSwitchConfirmationOwner;

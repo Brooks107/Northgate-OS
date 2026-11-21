@@ -2,6 +2,7 @@ const assert = require("node:assert/strict");
 const test = require("node:test");
 const {
     confirmEnvironmentSwitch,
+    getEnvironmentSwitchConfirmationOwner,
     handleForceSyncCommand
 } = require("../handlers/devhandler");
 
@@ -34,6 +35,7 @@ function createSwitchConfirmation(customId) {
             capture.prompt = payload;
             return {
                 awaitMessageComponent: async options => {
+                    capture.confirmationOwner = getEnvironmentSwitchConfirmationOwner(customId);
                     const interaction = {
                         customId,
                         user: { id: "developer-id" },
@@ -92,6 +94,8 @@ test("Vault test launch confirmation explains Main is preserved", async () => {
     );
 
     assert.equal(await confirmEnvironmentSwitch(message, "launch", "test"), true);
+    assert.equal(capture.confirmationOwner, "developer-id");
+    assert.equal(getEnvironmentSwitchConfirmationOwner("environment_switch_confirm_request-id"), null);
     assert.match(capture.prompt.embeds[0].toJSON().description, /Main config file will be left untouched/);
     assert.match(capture.updates[0].content, /Switching environments/);
 });
@@ -102,6 +106,7 @@ test("Vault production launch confirmation explains Main config blanking", async
     );
 
     assert.equal(await confirmEnvironmentSwitch(message, "launch"), false);
+    assert.equal(getEnvironmentSwitchConfirmationOwner("environment_switch_cancel_request-id"), null);
     assert.match(capture.prompt.embeds[0].toJSON().description, /blank the values in `main-config\.json`/);
     assert.match(capture.prompt.embeds[0].toJSON().description, /private remote/);
 });
@@ -112,6 +117,7 @@ test("return-to-Main confirmation warns that it does not restore blank settings"
     );
 
     assert.equal(await confirmEnvironmentSwitch(message, "land"), true);
+    assert.equal(getEnvironmentSwitchConfirmationOwner("environment_switch_confirm_request-id"), null);
     assert.match(capture.prompt.embeds[0].toJSON().description, /does not restore Main settings/);
     assert.match(capture.updates[0].content, /Switching environments/);
 });

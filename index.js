@@ -276,6 +276,25 @@ client.on("interactionCreate", async interaction => {
             });
         }
 
+        if (interaction.isButton() && interaction.customId.startsWith("environment_switch_")) {
+            const ownerId = developerHandler.getEnvironmentSwitchConfirmationOwner(
+                interaction.customId
+            );
+            if (!ownerId) {
+                return interaction.reply({
+                    content: "⌛ This environment confirmation is no longer active. Run the command again.",
+                    flags: MessageFlags.Ephemeral
+                });
+            }
+            if (interaction.user.id !== ownerId) {
+                return interaction.reply({
+                    content: "❌ Only the person who started this environment switch can respond.",
+                    flags: MessageFlags.Ephemeral
+                });
+            }
+            return;
+        }
+
         if (await serverSync.handleInteraction(interaction)) return;
 
         if (interaction.isButton() && interaction.customId.startsWith("backupload_")) {
