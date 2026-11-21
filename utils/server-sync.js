@@ -428,8 +428,14 @@ async function syncRoles(source, target, botMember) {
             botMember.roles.highest.position,
             botMember.permissions.has(PermissionFlagsBits.Administrator)
         );
+        const highestBotRole = botMember.roles.highest;
+        const requestedPositions = orderedUpdates.map(update => update.position);
         await withSyncContext(
-            "Could not set Vault role positions; check Manage Roles and ensure the bot's highest role is above the synced roles",
+            `Could not set Vault role positions (bot role "${highestBotRole.name}" at ` +
+                `position ${highestBotRole.position}; Manage Roles=` +
+                `${botMember.permissions.has(PermissionFlagsBits.ManageRoles)}; ` +
+                `requested positions ${Math.min(...requestedPositions)}-${Math.max(...requestedPositions)}). ` +
+                "Check the bot role hierarchy",
             () => target.roles.setPositions(orderedUpdates)
         );
     }
