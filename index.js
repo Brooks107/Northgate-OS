@@ -28,6 +28,7 @@ const autocloseScheduler = require("./autoclose-scheduler");
 const { startHeartbeat } = require("./heartbeat");
 const { logCommand } = require("./utils/command-logger");
 const { isStoredServerBackupMessage } = require("./utils/server-backup");
+const nightlyBackup = require("./utils/nightly-backup");
 const serverSync = require("./utils/server-sync");
 const featureRequestHandler = require("./handlers/feature-request-handler");
 const {
@@ -177,6 +178,7 @@ client.once(Events.ClientReady, async () => {
         activities: []
     });
     console.log(`[presence] bot is ${config.maintenanceMode ? "invisible" : "online"}.`);
+    nightlyBackup.start(client);
     await serverSync.start(client);
 
     // Fetch and aggregate active ticket IDs across all guilds

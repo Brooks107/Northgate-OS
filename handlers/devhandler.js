@@ -59,6 +59,73 @@ async function handleForceSyncCommand(message, vaultGuildId, runSync) {
         await statusMessage.edit(`❌ Manual sync could not complete: ${error.message}`);
     }
 }
+
+async function confirmEnvironmentSwitch(message, command, requestedMode) {
+    const isLand = command === "land";
+    const isTestLaunch = command === "launch" && requestedMode === "test";
+    const title = isLand
+        ? "Confirm return to Main"
+        : isTestLaunch
+            ? "Confirm Vault test launch"
+            : "Confirm Vault production launch";
+    const description = isLand
+        ? "This will select Main, register its slash commands, and restart the bot. " +
+            "It does not restore Main settings blanked by a previous production launch. " +
+            "If `main-config.json` is blank, restore its IDs and settings before continuing."
+        : isTestLaunch
+            ? "This will select Vault in test mode, register Vault slash commands, and restart the bot. " +
+                "The Main config file will be left untouched. Interactions from Main will be blocked while Vault is active."
+            : "This will select Vault production, register Vault slash commands, and restart the bot. " +
+                "It will blank the values in `main-config.json` on the host. Git-sync is configured to push that blank config " +
+                "to the private remote, so it will reach your computer when you pull. " +
+                "This command does not guarantee an immediate server mirror; use `d!forcesync` when one is needed.";
+    const confirmId = `environment_switch_confirm_${message.id}`;
+    const cancelId = `environment_switch_cancel_${message.id}`;
+    const confirmation = await message.reply({
+        embeds: [new EmbedBuilder()
+            .setTitle(title)
+            .setColor(isLand ? 0xf59e0b : isTestLaunch ? 0x3b82f6 : 0xdc2626)
+            .setDescription(description)
+            .setFooter({ text: "No environment change has been made yet." })],
+        components: [new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setCustomId(confirmId)
+                .setLabel(isLand ? "Confirm land" : "Confirm launch")
+                .setStyle(isLand ? ButtonStyle.Primary : ButtonStyle.Danger),
+            new ButtonBuilder()
+                .setCustomId(cancelId)
+                .setLabel("Cancel")
+                .setStyle(ButtonStyle.Secondary)
+        )]
+    });
+
+    try {
+        const choice = await confirmation.awaitMessageComponent({
+            filter: interaction =>
+                interaction.user.id === message.author.id &&
+                [confirmId, cancelId].includes(interaction.customId),
+            time: 60_000
+        });
+        const confirmed = choice.customId === confirmId;
+        await choice.update({
+            content: confirmed
+                ? "✅ Confirmed. Switching environments and restarting..."
+                : "🛑 Environment switch cancelled. No changes were made.",
+            embeds: [],
+            components: []
+        });
+        return confirmed;
+    } catch (error) {
+        console.warn("[devhandler] environment switch confirmation ended:", error.message);
+        await confirmation.edit({
+            content: "⌛ Confirmation expired or could not be completed. No environment changes were made.",
+            embeds: [],
+            components: []
+        });
+        return false;
+    }
+}
+
 const GROUP_CONFIG_KEYS = {
     operations: "operationsroles",
     support: "supportTeamRoles",
@@ -522,6 +589,10 @@ module.exports = async function handleDeveloperCommand(message, config) {
     }
 
     if (command === "launch" || command === "land") {
+        if (!await confirmEnvironmentSwitch(message, command, requestedMode)) {
+            return true;
+        }
+
         const environment = command === "land" ? "main" : "vault";
         const mode = command === "land"
             ? "main"
@@ -1295,3 +1366,4 @@ module.exports = async function handleDeveloperCommand(message, config) {
 };
 
 module.exports.handleForceSyncCommand = handleForceSyncCommand;
+module.exports.confirmEnvironmentSwitch = confirmEnvironmentSwitch;

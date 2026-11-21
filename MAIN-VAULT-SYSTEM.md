@@ -24,7 +24,7 @@ updates between the bot host and the private Git remote.
 | --- | --- |
 | `main-config.json` | Main server's operational settings and IDs. Production failover can blank its values. |
 | `vault-config.json` | Vault server's settings and IDs, plus the Main-to-Vault mapping in `serverSync`. |
-| `failover-state.json` | Active environment/mode and saved Main/Vault guild IDs. Kept local to the bot host. |
+| `failover-state.json` | Active environment/mode, saved Main/Vault guild IDs, and Main backup destination. Kept local to the bot host. |
 | `server-sync-state.json` | Scheduler state, including the last successful mirror time. |
 | `.env` / `.env.*` | Runtime credentials such as the Discord token. Kept out of Git. |
 
@@ -51,8 +51,10 @@ environment is active; they do not hardcode the Main file.
 ## Environment switching
 
 These are developer-only commands, using the active config's `developers`
-list. A successful switch updates the selected guild's slash commands and
-restarts the bot under PM2 when PM2 is detected.
+list. `d!launch` and `d!land` show a confirmation prompt with a description
+of the selected action; canceling or letting the prompt expire makes no
+environment changes. A successful switch updates the selected guild's slash
+commands and restarts the bot under PM2 when PM2 is detected.
 
 | Command | Behavior |
 | --- | --- |
@@ -102,6 +104,23 @@ ID maps are written only after both role and channel syncing finish. A failed
 run can therefore leave some resources created or updated on Vault without
 changing the saved maps or successful-sync timestamp. Retrying is intended to
 match existing resources and continue.
+
+## Nightly Main backup
+
+The bot creates a configuration backup of **Main** every night at 00:00 UTC,
+regardless of whether Main or Vault is the active environment. It uploads the
+backup to Main's `defconBackupChannelId`. That destination is saved in
+`failover-state.json` before production launch blanks `main-config.json`; the
+Vault sync mapping is also used to recover it if available. If Main's backup
+destination cannot be recovered, set `MAIN_BACKUP_CHANNEL_ID` in the bot
+host's environment.
+
+The bot must be online and able to access Main at the scheduled time. A failed
+backup is logged and sent by DM to the first reachable configured developer,
+preferring `SYNC_ALERT_USER_ID` when set. Backups contain server configuration such as roles,
+channels, and supported settings; they do not contain messages, members, or
+member-role assignments. They remain in the backup channel until manually
+deleted.
 
 ## Circuit breaker and approval
 

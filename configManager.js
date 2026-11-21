@@ -88,6 +88,40 @@ function getServerIds() {
     return { main: mainGuildId, vault: vaultGuildId };
 }
 
+function findMainBackupChannelId() {
+    const mainConfig = fs.existsSync(MAIN_CONFIG_PATH)
+        ? readJson(MAIN_CONFIG_PATH, "main config")
+        : {};
+    const vaultConfig = fs.existsSync(VAULT_CONFIG_PATH)
+        ? readJson(VAULT_CONFIG_PATH, "vault config")
+        : {};
+    const mode = fs.existsSync(MODE_PATH)
+        ? readJson(MODE_PATH, "failover state")
+        : {};
+    const vaultBackupChannelId = vaultConfig.defconBackupChannelId;
+    const mappedMainBackupChannelId = Object.entries(
+        vaultConfig.serverSync?.mainToVaultChannelIds || {}
+    ).find(([, vaultChannelId]) => String(vaultChannelId) === String(vaultBackupChannelId))?.[0];
+    const candidates = [
+        process.env.MAIN_BACKUP_CHANNEL_ID,
+        mainConfig.defconBackupChannelId,
+        mode.mainBackupChannelId,
+        mappedMainBackupChannelId
+    ];
+    const candidate = candidates.find(value => /^\d{17,20}$/.test(String(value || "")));
+    return candidate ? String(candidate) : null;
+}
+
+function getMainBackupChannelId() {
+    const channelId = findMainBackupChannelId();
+    if (!channelId) {
+        throw new Error(
+            "Set defconBackupChannelId in main-config.json or MAIN_BACKUP_CHANNEL_ID in the environment."
+        );
+    }
+    return channelId;
+}
+
 function readMode() {
     if (activeEnvironment) return;
     try {
@@ -208,11 +242,13 @@ function setActiveEnvironment(environment, mode = environment) {
         throw new Error(`Unknown operational mode: ${mode}`);
     }
 
+    const mainBackupChannelId = findMainBackupChannelId();
     writeJsonAtomically(MODE_PATH, {
         activeEnvironment: environment,
         operationalMode: mode,
         mainConfigReset,
         serverIds: getServerIds(),
+        ...(mainBackupChannelId ? { mainBackupChannelId } : {}),
         changedAt: new Date().toISOString()
     }, "failover state");
     activeEnvironment = environment;
@@ -232,12 +268,14 @@ function blankValue(value) {
 
 function resetMainConfig() {
     initialize();
+    const mainBackupChannelId = findMainBackupChannelId();
     mainConfigReset = true;
     writeJsonAtomically(MODE_PATH, {
         activeEnvironment,
         operationalMode,
         mainConfigReset,
         serverIds: getServerIds(),
+        ...(mainBackupChannelId ? { mainBackupChannelId } : {}),
         changedAt: new Date().toISOString()
     }, "failover state");
     const blankConfig = blankValue(readJson(MAIN_CONFIG_PATH, "main config"));
@@ -378,6 +416,7 @@ module.exports = {
     getActiveEnvironment,
     getOperationalMode,
     getMainGuildId,
+    getMainBackupChannelId,
     getVaultGuildId,
     getGuildId,
     isVaultMode,

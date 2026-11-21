@@ -131,7 +131,7 @@ minute or ten different slash commands in two minutes.
 | `n!links`, `n!rules`, `n!ticketrules` | Posts the corresponding server information. |
 | `d!forceclaim <ticket id>` | Developer override to claim a ticket. |
 | `d!addgroup`, `d!delgroup`, `d!showgroup` | Manage or view configured staff and access groups. |
-| `d!launch [test]`, `d!land` | Switch between Main and Vault; test launch leaves Main config unchanged. |
+| `d!launch [test]`, `d!land` | Confirmed switch between Main and Vault; test launch leaves Main config unchanged. |
 | `d!forcesync` | Developer-only manual Main-to-Vault sync; run it in the Vault server. The circuit breaker remains active. |
 | `d!defcon <1-6|status>`, `d!secure` | Start, inspect, or end the tracked DEFCON procedure. |
 | `d!forceclose` | Developer override to close a ticket and save its transcript. |

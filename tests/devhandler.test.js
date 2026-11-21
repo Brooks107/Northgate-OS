@@ -1,6 +1,9 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
-const { handleForceSyncCommand } = require("../handlers/devhandler");
+const {
+    confirmEnvironmentSwitch,
+    handleForceSyncCommand
+} = require("../handlers/devhandler");
 
 function createMessage(guildId) {
     const replies = [];
@@ -20,6 +23,30 @@ function createMessage(guildId) {
         replies,
         edits
     };
+}
+
+function createSwitchConfirmation(customId) {
+    const capture = { updates: [] };
+    const message = {
+        id: "request-id",
+        author: { id: "developer-id" },
+        reply: async payload => {
+            capture.prompt = payload;
+            return {
+                awaitMessageComponent: async options => {
+                    const interaction = {
+                        customId,
+                        user: { id: "developer-id" },
+                        update: async payload => capture.updates.push(payload)
+                    };
+                    assert.equal(options.filter(interaction), true);
+                    return interaction;
+                },
+                edit: async payload => capture.updates.push(payload)
+            };
+        }
+    };
+    return { message, capture };
 }
 
 test("manual sync is restricted to the Vault guild", async () => {
@@ -57,4 +84,34 @@ test("manual sync reports when safety approval is required", async () => {
     }));
 
     assert.match(edits[0], /paused for safety/);
+});
+
+test("Vault test launch confirmation explains Main is preserved", async () => {
+    const { message, capture } = createSwitchConfirmation(
+        "environment_switch_confirm_request-id"
+    );
+
+    assert.equal(await confirmEnvironmentSwitch(message, "launch", "test"), true);
+    assert.match(capture.prompt.embeds[0].toJSON().description, /Main config file will be left untouched/);
+    assert.match(capture.updates[0].content, /Switching environments/);
+});
+
+test("Vault production launch confirmation explains Main config blanking", async () => {
+    const { message, capture } = createSwitchConfirmation(
+        "environment_switch_cancel_request-id"
+    );
+
+    assert.equal(await confirmEnvironmentSwitch(message, "launch"), false);
+    assert.match(capture.prompt.embeds[0].toJSON().description, /blank the values in `main-config\.json`/);
+    assert.match(capture.prompt.embeds[0].toJSON().description, /private remote/);
+});
+
+test("return-to-Main confirmation warns that it does not restore blank settings", async () => {
+    const { message, capture } = createSwitchConfirmation(
+        "environment_switch_confirm_request-id"
+    );
+
+    assert.equal(await confirmEnvironmentSwitch(message, "land"), true);
+    assert.match(capture.prompt.embeds[0].toJSON().description, /does not restore Main settings/);
+    assert.match(capture.updates[0].content, /Switching environments/);
 });
