@@ -670,6 +670,19 @@ function getUnsupportedChannels(guild) {
     );
 }
 
+function ensureStageChannelSupport(source, target) {
+    const stageNames = [...source.channels.cache.values()]
+        .filter(channel => channel.guild && channel.type === ChannelType.GuildStageVoice)
+        .map(channel => channel.name);
+
+    if (stageNames.length && !target.features?.includes("COMMUNITY")) {
+        throw new Error(
+            `Vault must enable Community to mirror Stage channel(s): ${stageNames.join(", ")}. ` +
+            "Stage channels are only available in Community servers; enable Community in Vault Server Settings and retry."
+        );
+    }
+}
+
 async function syncChannels(source, target, roleMap) {
     const sourceChannels = sortedChannels(source);
     const targetChannels = sortedChannels(target);
@@ -759,6 +772,7 @@ async function performFullMirror(client) {
             `Unsupported channel types prevent an exact sync: ${unsupported.join(", ")}`
         );
     }
+    ensureStageChannelSupport(source, target);
     const roles = await syncRoles(source, target, botMember);
     const channels = await syncChannels(source, target, roles.roleMap);
     const syncedAt = new Date().toISOString();
@@ -863,6 +877,7 @@ module.exports = {
     getRecentChanges,
     getTriggeredThresholds,
     getUnsupportedChannels,
+    ensureStageChannelSupport,
     isGuildFeatureRequirementError,
     getMaxVoiceBitrate,
     channelOptions,

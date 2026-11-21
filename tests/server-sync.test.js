@@ -10,6 +10,7 @@ const {
     channelOptionsWithoutBoostFeatures,
     getMaxVoiceBitrate,
     getUnsupportedChannels,
+    ensureStageChannelSupport,
     isGuildFeatureRequirementError,
     roleOptionsWithoutBoostFeatures,
     ensureVaultManagementAccess
@@ -81,6 +82,25 @@ test("stage channel options omit voice-only video quality mode", () => {
     assert.equal(options.type, ChannelType.GuildStageVoice);
     assert.equal(options.bitrate, 64_000);
     assert.equal(Object.hasOwn(options, "videoQualityMode"), false);
+});
+
+test("stage channel sync requires the Vault to enable Community", () => {
+    const source = {
+        channels: {
+            cache: new Map([[
+                "stage",
+                { guild: {}, name: "Stage", type: ChannelType.GuildStageVoice }
+            ]])
+        }
+    };
+
+    assert.throws(
+        () => ensureStageChannelSupport(source, { features: [] }),
+        /Vault must enable Community to mirror Stage channel\(s\): Stage/
+    );
+    assert.doesNotThrow(
+        () => ensureStageChannelSupport(source, { features: ["COMMUNITY"] })
+    );
 });
 
 test("boost and guild-feature errors are recognized without swallowing unrelated errors", () => {
