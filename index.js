@@ -654,11 +654,25 @@ client.on("interactionCreate", async interaction => {
         }
 
         if (interaction.isButton() || interaction.isModalSubmit()) {
+            // Ignore buttons handled by local message collectors or specific components
+            if (
+                interaction.isButton() && (
+                    interaction.customId.startsWith("env_") ||
+                    interaction.customId.startsWith("backupload_") ||
+                    interaction.customId.startsWith("force_lock_") ||
+                    interaction.customId.startsWith("defcon_owner_") ||
+                    interaction.customId.startsWith("backup_delete_")
+                )
+            ) {
+                return;
+            }
+
             const channelName = interaction.channel?.name || "";
             const isSupportTicket = interaction.customId === "ticket_support" || interaction.customId === "ticket_appeal" || interaction.customId === "modal_ticket_support" || interaction.customId === "modal_ticket_appeal" || interaction.customId === "support_claim" || interaction.customId === "support_close" || (interaction.customId === "ticket_claim" && (channelName.startsWith("support-") || channelName.startsWith("appeal-"))) || (interaction.customId === "ticket_close" && (channelName.startsWith("support-") || channelName.startsWith("appeal-")));
             const isHiringTicket = interaction.customId === "ticket_hire" || interaction.customId === "modal_ticket_hire" || interaction.customId === "hiring_claim" || interaction.customId === "hiring_close" || (interaction.customId === "ticket_claim" && channelName.startsWith("hiring-")) || (interaction.customId === "ticket_close" && channelName.startsWith("hiring-"));
             const isPartnershipTicket = interaction.customId === "ticket_partnership" || interaction.customId === "modal_ticket_partnership" || interaction.customId === "partnership_claim" || interaction.customId === "partnership_close" || (interaction.customId === "ticket_claim" && channelName.startsWith("partnership-")) || (interaction.customId === "ticket_close" && channelName.startsWith("partnership-"));
             const isInterrogationTicket = interaction.customId === "intero_claim" || interaction.customId === "intero_close";
+            
             if (
                 config.forceLocked &&
                 TICKET_CREATION_INTERACTION_IDS.has(interaction.customId)
