@@ -180,14 +180,13 @@ so a production launch can safely blank Main without losing the guild IDs.
 Slash commands are registered for the selected guild when switching
 environments. While Vault is active, interactions from Main receive the
 security notice and are not processed. Config files are tracked as requested;
-runtime group edits and successful Vault syncs modify the worktree. Git-sync
-temporarily stashes those two files while it updates code and restores them
-afterward, so runtime config edits are not automatically committed or pushed.
-Git-sync also refuses to auto-push commits that change either config file.
-Local config values take precedence over incoming edits to those same files;
-reconcile config changes manually when needed. After `d!launch` or `d!land`
-successfully switches environments, the bot replies and exits so PM2 can
-restart it with only the selected config loaded.
+runtime group edits and successful Vault syncs are committed and pushed to the
+configured private Git remote, so the updated config files can be pulled to
+your computer. `.env` and `.env.*` files remain excluded from staging and
+pushes. If a config conflict occurs during a rebase, the bot host's local
+and remote changes are left untouched for manual resolution. After
+`d!launch` or `d!land` successfully switches environments, the bot replies and
+exits so PM2 can restart it with only the selected config loaded.
 
 The bot starts with an immediate Main-to-Vault role/channel mirror, then
 repeats every 24 hours after a successful sync. It mirrors supported channel
