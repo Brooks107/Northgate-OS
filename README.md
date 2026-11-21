@@ -132,6 +132,7 @@ minute or ten different slash commands in two minutes.
 | `d!forceclaim <ticket id>` | Developer override to claim a ticket. |
 | `d!addgroup`, `d!delgroup`, `d!showgroup` | Manage or view configured staff and access groups. |
 | `d!launch [test]`, `d!land` | Switch between Main and Vault; test launch leaves Main config unchanged. |
+| `d!forcesync` | Developer-only manual Main-to-Vault sync; run it in the Vault server. The circuit breaker remains active. |
 | `d!defcon <1-6|status>`, `d!secure` | Start, inspect, or end the tracked DEFCON procedure. |
 | `d!forceclose` | Developer override to close a ticket and save its transcript. |
 | `d!impersonate <user> <command>` | Checks whether a member would be allowed to use a command; it does not run it. `d!impersonate list` shows known commands. |

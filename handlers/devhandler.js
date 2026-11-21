@@ -19,6 +19,7 @@ const {
     deleteStoredServerBackup
 } = require("../utils/server-backup");
 const { confirmMessage: confirmOwnerDefconUse } = require("../utils/defcon-owner-confirmation");
+const serverSync = require("../utils/server-sync");
 const {
     findAdministratorRolesToRemove,
     getWhitelistedRoleIds,
@@ -31,6 +32,33 @@ const DEFCON_ONE_WARNING =
     "🚨 **DEFCON 1 is the most powerful security level you can apply to this server.** " +
     "Use another level if possible. Proceeding will create a server-configuration backup, " +
     "restrict commands, and apply the force lock. Accepting this warning also accepts the force-lock warning.";
+
+async function handleForceSyncCommand(message, vaultGuildId, runSync) {
+    if (message.guildId !== vaultGuildId) {
+        await message.reply("❌ Run `d!forcesync` in the Vault server.");
+        return;
+    }
+
+    const statusMessage = await message.reply(
+        "🔄 Starting a manual Main-to-Vault sync. The deletion circuit breaker remains active."
+    );
+    try {
+        const result = await runSync(message.client);
+        const response = result?.status === "completed"
+            ? "✅ Manual Main-to-Vault sync completed."
+            : result?.status === "approval-required"
+                ? "⚠️ Sync paused for safety. Check the developer DM for the circuit-breaker or audit-log approval request."
+                : result?.status === "already-running"
+                    ? "ℹ️ A server sync is already running."
+                    : result?.status === "failed"
+                        ? "❌ Manual sync failed. Check the developer DM for the error details."
+                        : "❌ The sync did not return a recognized status.";
+        await statusMessage.edit(response);
+    } catch (error) {
+        console.error("[devhandler] manual Vault sync failed:", error);
+        await statusMessage.edit(`❌ Manual sync could not complete: ${error.message}`);
+    }
+}
 const GROUP_CONFIG_KEYS = {
     operations: "operationsroles",
     support: "supportTeamRoles",
@@ -409,14 +437,14 @@ module.exports = async function handleDeveloperCommand(message, config) {
 
     const args = message.content.slice(2).trim().split(/ +/);
     const command = args.shift()?.toLowerCase();
-    if (!["addgroup", "delgroup", "showgroup", "defcon", "secure", "delbackup", "forceclose", "impersonate", "power", "forcerestart", "launch", "land"].includes(command)) return false;
+    if (!["addgroup", "delgroup", "showgroup", "defcon", "secure", "delbackup", "forceclose", "forcesync", "impersonate", "power", "forcerestart", "launch", "land"].includes(command)) return false;
     const requestedMode = command === "launch" ? args[0]?.toLowerCase() : null;
 
     if (
         (command === "launch" && (args.length > 1 || (requestedMode && requestedMode !== "test"))) ||
-        (command === "land" && args.length > 0)
+        ((command === "land" || command === "forcesync") && args.length > 0)
     ) {
-        await message.reply("❌ Usage: `d!launch [test]` or `d!land`.");
+        await message.reply("❌ Usage: `d!launch [test]`, `d!land`, or `d!forcesync` (Vault only).");
         return true;
     }
 
@@ -481,6 +509,15 @@ module.exports = async function handleDeveloperCommand(message, config) {
                 .some(roleId => message.member?.roles?.cache?.has(roleId)))
     ) {
         await message.reply("❌ This command is developer only - Please contact a member of the IT team to have them run it");
+        return true;
+    }
+
+    if (command === "forcesync") {
+        await handleForceSyncCommand(
+            message,
+            configManager.getVaultGuildId(),
+            serverSync.runSync
+        );
         return true;
     }
 
@@ -1086,6 +1123,7 @@ module.exports = async function handleDeveloperCommand(message, config) {
                     page += `${line}\n`;
                 }
             };
+
             appendSection("📋 **Registered slash commands:**", slashLines);
             appendSection("📋 **NorthGate prefix commands:**", prefixLines);
             if (page) pages.push(page);
@@ -1255,3 +1293,5 @@ module.exports = async function handleDeveloperCommand(message, config) {
 
     return true;
 };
+
+module.exports.handleForceSyncCommand = handleForceSyncCommand;

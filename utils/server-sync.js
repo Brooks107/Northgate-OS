@@ -794,7 +794,7 @@ async function performFullMirror(client) {
 async function runSync(client, options = {}) {
     if (activeSync) {
         console.warn("[server-sync] a sync is already running; skipping this request.");
-        return;
+        return { status: "already-running" };
     }
 
     activeSync = true;
@@ -809,7 +809,7 @@ async function runSync(client, options = {}) {
                     client,
                     `Could not verify the Main server's audit log for the last 24 hours: ${error.message}`
                 );
-                return;
+                return { status: "approval-required" };
             }
 
             if (getTriggeredThresholds(changes).length) {
@@ -818,13 +818,15 @@ async function runSync(client, options = {}) {
                     "The Main server crossed a deletion/creation circuit-breaker threshold. No changes were applied.",
                     changes
                 );
-                return;
+                return { status: "approval-required" };
             }
         }
         await performFullMirror(client);
+        return { status: "completed" };
     } catch (error) {
         console.error("[server-sync] full mirror failed:", error);
         await notifySyncFailure(client, error);
+        return { status: "failed" };
     } finally {
         activeSync = false;
     }
