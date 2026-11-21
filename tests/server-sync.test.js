@@ -7,7 +7,7 @@ const {
     channelOptionsWithoutBoostFeatures,
     getMaxVoiceBitrate,
     getUnsupportedChannels,
-    isBoostRequirementError,
+    isGuildFeatureRequirementError,
     roleOptionsWithoutBoostFeatures
 } = require("../utils/server-sync");
 
@@ -54,10 +54,11 @@ test("voice settings respect Vault boost tier and drop boost-restricted video qu
     assert.equal(Object.hasOwn(fallback, "videoQualityMode"), false);
 });
 
-test("boost requirement errors are recognized without swallowing unrelated errors", () => {
-    assert.equal(isBoostRequirementError({ code: 50101 }), true);
-    assert.equal(isBoostRequirementError({ message: "This server needs more boosts." }), true);
-    assert.equal(isBoostRequirementError({ code: 50013, message: "Missing permissions" }), false);
+test("boost and guild-feature errors are recognized without swallowing unrelated errors", () => {
+    assert.equal(isGuildFeatureRequirementError({ code: 50101 }), true);
+    assert.equal(isGuildFeatureRequirementError({ message: "This server needs more boosts." }), true);
+    assert.equal(isGuildFeatureRequirementError({ message: "Missing guild feature" }), true);
+    assert.equal(isGuildFeatureRequirementError({ code: 50013, message: "Missing permissions" }), false);
 });
 
 test("role sync retries without boost-restricted styling", async () => {
@@ -67,7 +68,7 @@ test("role sync retries without boost-restricted styling", async () => {
             create: async options => {
                 calls.push(options);
                 if (options.icon) {
-                    throw Object.assign(new Error("This server needs more boosts."), { code: 50101 });
+                    throw Object.assign(new Error("Missing guild feature"), { code: 50035 });
                 }
                 return { id: "vault-role" };
             }

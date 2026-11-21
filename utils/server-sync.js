@@ -39,8 +39,14 @@ const pendingApprovals = new Map();
 let activeSync = false;
 let scheduleTimer = null;
 
-function isBoostRequirementError(error) {
-    return Number(error?.code) === 50101 || /needs more boosts/i.test(error?.message || "");
+function isGuildFeatureRequirementError(error) {
+    return Number(error?.code) === 50101 ||
+        /needs more boosts|missing guild feature/i.test(error?.message || "");
+}
+
+function describeSyncError(error) {
+    const message = error?.message || String(error);
+    return error?.code ? `${message} (Discord code ${error.code})` : message;
 }
 
 function getMaxVoiceBitrate(guild) {
@@ -381,8 +387,8 @@ async function applyRoleOptions(targetGuild, targetRole, options) {
     try {
         return await apply(options);
     } catch (error) {
-        if (!isBoostRequirementError(error)) {
-            throw new Error(`Could not sync role "${options.name}": ${error.message}`);
+        if (!isGuildFeatureRequirementError(error)) {
+            throw new Error(`Could not sync role "${options.name}": ${describeSyncError(error)}`);
         }
 
         const fallback = roleOptionsWithoutBoostFeatures(options);
@@ -391,17 +397,17 @@ async function applyRoleOptions(targetGuild, targetRole, options) {
             options.colors.secondaryColor != null ||
             options.colors.tertiaryColor != null;
         if (!hasBoostFeatures) {
-            throw new Error(`Could not sync role "${options.name}": ${error.message}`);
+            throw new Error(`Could not sync role "${options.name}": ${describeSyncError(error)}`);
         }
 
         console.warn(
-            `[server-sync] Vault lacks boosts for role "${options.name}" styling; retrying with basic color.`
+            `[server-sync] Vault lacks role styling features for "${options.name}"; retrying with basic color.`
         );
         try {
             return await apply(fallback);
         } catch (fallbackError) {
             throw new Error(
-                `Could not sync role "${options.name}" even without boost-only styling: ${fallbackError.message}`
+                `Could not sync role "${options.name}" even without boost-only styling: ${describeSyncError(fallbackError)}`
             );
         }
     }
@@ -510,8 +516,13 @@ async function applyChannelOptions(targetGuild, targetChannel, sourceChannel, op
     try {
         return await apply(options);
     } catch (error) {
-        if (!isBoostRequirementError(error) || options.videoQualityMode === undefined) {
-            throw new Error(`Could not sync channel "${sourceChannel.name}": ${error.message}`);
+        if (
+            !isGuildFeatureRequirementError(error) ||
+            options.videoQualityMode === undefined
+        ) {
+            throw new Error(
+                `Could not sync channel "${sourceChannel.name}": ${describeSyncError(error)}`
+            );
         }
 
         const fallback = channelOptionsWithoutBoostFeatures(options, targetGuild);
@@ -522,7 +533,7 @@ async function applyChannelOptions(targetGuild, targetChannel, sourceChannel, op
             return await apply(fallback);
         } catch (fallbackError) {
             throw new Error(
-                `Could not sync channel "${sourceChannel.name}" after removing boost-restricted settings: ${fallbackError.message}`
+                `Could not sync channel "${sourceChannel.name}" after removing boost-restricted settings: ${describeSyncError(fallbackError)}`
             );
         }
     }
@@ -737,7 +748,7 @@ module.exports = {
     getRecentChanges,
     getTriggeredThresholds,
     getUnsupportedChannels,
-    isBoostRequirementError,
+    isGuildFeatureRequirementError,
     getMaxVoiceBitrate,
     roleOptionsWithoutBoostFeatures,
     channelOptionsWithoutBoostFeatures,
