@@ -335,9 +335,9 @@
   },
 
   "_scanDiagnostics": {
-    "lastRunAt": "2026-11-21T14:04:18.772Z",
+    "lastRunAt": "2026-11-21T14:12:50.610Z",
     "status": "completed",
-    "trackerChannelId": "1539010556701188206",
+    "trackerChannelId": "1573673017039523961",
     "activeTicketChannels": 0,
     "messagesScanned": 0,
     "messagesWithEmbeds": 0,
@@ -352,8 +352,8 @@
     "duplicateEmbedsForTicket": 0,
     "imported": 0,
     "skippedExamples": [],
-    "completedAt": "2026-11-21T14:04:20.733Z"
+    "completedAt": "2026-11-21T14:12:51.813Z"
   },
 
-  "_scanDiagnosticsMessageId": "1555627565710966795"
+  "_scanDiagnosticsMessageId": "1573702744202551508"
 }
