@@ -166,6 +166,25 @@ async function alertForApproval(client, details, changes = null) {
     console.warn(`[server-sync] sync paused and approval requested from ${ALERT_USERNAME}.`);
 }
 
+async function notifySyncFailure(client, error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    try {
+        const user = await resolveAlertUser(client);
+        await user.send({
+            content:
+                `⚠️ **NorthGate Main-to-Vault sync failed.**\n` +
+                `It may have made partial changes before failing.\n` +
+                `**Reason:** ${reason.slice(0, 1500)}`,
+            allowedMentions: { users: [user.id] }
+        });
+    } catch (notificationError) {
+        console.error(
+            `[server-sync] could not notify ${ALERT_USERNAME} about the sync failure:`,
+            notificationError
+        );
+    }
+}
+
 async function handleInteraction(interaction) {
     if (!interaction.isButton()) return false;
     const match = interaction.customId.match(/^server_sync_(abort|override)_([a-f0-9]{24})$/);
@@ -569,6 +588,7 @@ async function runSync(client, options = {}) {
         await performFullMirror(client);
     } catch (error) {
         console.error("[server-sync] full mirror failed:", error);
+        await notifySyncFailure(client, error);
     } finally {
         activeSync = false;
     }
@@ -583,6 +603,17 @@ function scheduleNext(client, delay = SYNC_INTERVAL_MS) {
     scheduleTimer.unref?.();
 }
 
+function hasVaultConfigBeenSynchronized() {
+    const vaultConfigPath = path.join(__dirname, "..", "vault-config.json");
+    try {
+        const vaultConfig = JSON.parse(fs.readFileSync(vaultConfigPath, "utf8"));
+        return typeof vaultConfig.serverSync?.lastSynchronizedAt === "string"
+            && Number.isFinite(Date.parse(vaultConfig.serverSync.lastSynchronizedAt));
+    } catch (error) {
+        throw new Error(`Could not check Vault config sync status: ${error.message}`);
+    }
+}
+
 async function start(client) {
     if (scheduleTimer) return;
     let syncState;
@@ -594,7 +625,7 @@ async function start(client) {
     }
 
     const lastSuccess = Date.parse(syncState.lastSuccessfulSyncAt || "");
-    if (!Number.isFinite(lastSuccess)) {
+    if (!Number.isFinite(lastSuccess) || !hasVaultConfigBeenSynchronized()) {
         await runSync(client);
         scheduleNext(client);
         return;
